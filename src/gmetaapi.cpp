@@ -93,8 +93,8 @@ protected: \
 	void * operator new(size_t /*size*/) { \
 		return GMemoryPool::getInstance()->allocate(sizeof(cls)); \
 	} \
-	void operator delete(void * p) { \
-		GMemoryPool::getInstance()->free(p); \
+	void operator delete(void * p, size_t size) { \
+		GMemoryPool::getInstance()->free(p, size); \
 	}
 
 
@@ -1183,7 +1183,7 @@ void G_API_CC ImplMetaMethod::invoke(GVariantData * outResult, void * instance, 
 void G_API_CC ImplMetaMethod::invokeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
 {
 	ENTER_META_API()
-
+/*
 	VariantParameterBuffer variantsBuffer(params, paramCount);
 
 	if(outResult == nullptr) {
@@ -1191,6 +1191,14 @@ void G_API_CC ImplMetaMethod::invokeIndirectly(GVariantData * outResult, void * 
 	}
 	else {
 		*outResult = this->getMethod()->execute(instance, variantsBuffer.variants, paramCount).takeData();
+	}
+return;
+*/
+	if(outResult == nullptr) {
+		this->getMethod()->executeByData(instance, (const GVariantData **)params, paramCount);
+	}
+	else {
+		*outResult = this->getMethod()->executeByData(instance, (const GVariantData **)params, paramCount).takeData();
 	}
 
 	LEAVE_META_API()

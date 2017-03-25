@@ -22,8 +22,17 @@ public:
 	const GVariant & getDefault(size_t index);
 	size_t getDefaultCount() const;
 
-	size_t loadDefaultParams(const GVariant ** paramBuffer, size_t passedParamCount,
-		size_t prototypeParamCount);
+	size_t loadDefaultParams(
+		const GVariant ** paramBuffer,
+		size_t passedParamCount,
+		size_t prototypeParamCount
+	);
+
+	size_t loadDefaultParamsByData(
+		const GVariantData ** paramDataBuffer,
+		size_t passedParamCount,
+		size_t prototypeParamCount
+	);
 
 private:
 	DefaultValueList defaultValueList;

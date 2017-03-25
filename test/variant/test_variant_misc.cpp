@@ -86,4 +86,18 @@ GTEST(TestVariant_Enum)
 	GEQUAL(fromVariant<int>(v), testEnumA);
 }
 
+enum class TestEnumClass
+{
+	testEnumClassA = 1,
+	testEnumClassB = 1,
+};
+
+GTEST(TestVariant_StrongTypedEnum)
+{
+	GVariant v(TestEnumClass::testEnumClassA);
+	GCHECK(canFromVariant<TestEnumClass>(v));
+	GEQUAL(fromVariant<TestEnumClass>(v), TestEnumClass::testEnumClassA);
+}
+
+
 } }

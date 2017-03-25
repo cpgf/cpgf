@@ -10,10 +10,33 @@
 #ifdef G_COMPILER_VC
 #pragma warning(push)
 #pragma warning(disable:4172) // warning C4172: returning address of local variable or temporar
+#pragma warning(disable:4244) // warning C4244: 'argument': conversion from 'U' to 'int', possible loss of data
+#pragma warning(disable:4800) // warning C4800: 'U': forcing value to bool 'true' or 'false' (performance warning)
 #endif
 
 
 namespace variant_internal {
+
+template <typename T, bool IsEnum>
+struct HelperValueTypeSelector;
+
+template <typename T>
+struct HelperValueTypeSelector <T, true>
+{
+	typedef typename std::underlying_type<T>::type type;
+};
+
+template <typename T>
+struct HelperValueTypeSelector <T, false>
+{
+	typedef T type;
+};
+
+template <typename T>
+struct HelperValueType
+{
+	typedef typename HelperValueTypeSelector<T, std::is_enum<typename std::remove_reference<T>::type>::value>::type type;
+};
 
 template <typename T>
 T helperReturnEmptyValue(typename std::enable_if<std::is_lvalue_reference<T>::value || std::is_rvalue_reference<T>::value>::type * = 0)
@@ -103,32 +126,6 @@ T helperFromNullPointer(typename std::enable_if<! std::is_pointer<T>::value>::ty
 }
 
 template <typename T, typename Policy>
-struct VariantCastResult
-{
-	typedef T Result;
-};
-
-template <typename T>
-struct VariantCastResult <const T &, VarantCastKeepConstRef>
-{
-	typedef typename std::conditional<
-		std::is_fundamental<T>::value,
-		T,
-		typename std::conditional<
-			std::is_pointer<T>::value,
-			const T,
-			const T &
-		>::type
-	>::type Result;
-};
-
-template <typename T>
-struct VariantCastResult <const T &, VarantCastCopyConstRef>
-{
-	typedef T Result;
-};
-
-template <typename T, typename Policy>
 struct CastVariant_Value
 {
 	typedef typename VariantCastResult<T, Policy>::Result ResultType;
@@ -138,10 +135,8 @@ struct CastVariant_Value
 	typedef cpgf::GTypeList<const wchar_t *, wchar_t *, const volatile wchar_t *, volatile wchar_t *> WideStringCharTypeList;
 	typedef cpgf::GTypeList<const std::wstring &, std::wstring, std::wstring &, const volatile std::wstring &, volatile std::wstring &> WideStringStringTypeList;
 
-	static ResultType cast(const GVariant & value)
+	static ResultType cast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
-
 		// 0 can always be converted to pointer, similar as we do in C++.
 		if(std::is_pointer<ResultType>::value) {
 			if(data.valueInt == 0 && vtIsFundamental(vtGetType(data.typeData))) {
@@ -151,22 +146,22 @@ struct CastVariant_Value
 
 		switch(vtGetBaseType(data.typeData)) {
 
-		case GVariantType::vtBool: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<bool> >(data.valueInt); 
-		case GVariantType::vtChar: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<char> >(data.valueInt); 
-		case GVariantType::vtWchar: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<wchar_t> >(data.valueInt); 
-		case GVariantType::vtSignedChar: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<signed char> >(data.valueInt); 
-		case GVariantType::vtUnsignedChar: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<unsigned char> >(data.valueInt); 
-		case GVariantType::vtSignedShort: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<signed short> >(data.valueInt); 
-		case GVariantType::vtUnsignedShort: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<unsigned short> >(data.valueInt); 
-		case GVariantType::vtSignedInt: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<signed int> >(data.valueInt); 
-		case GVariantType::vtUnsignedInt: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<unsigned int> >(data.valueInt); 
-		case GVariantType::vtSignedLong: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<signed long> >(data.valueInt); 
-		case GVariantType::vtUnsignedLong: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<unsigned long> >(data.valueInt); 
-		case GVariantType::vtSignedLongLong: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<signed long long> >(data.valueInt); 
-		case GVariantType::vtUnsignedLongLong: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<unsigned long long> >(data.valueInt); 
-		case GVariantType::vtFloat: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<float> >(data.valueFloat); 
-		case GVariantType::vtDouble: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<double> >(data.valueDouble); 
-		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<long double> >(data.valueLongDouble); 
+		case GVariantType::vtBool: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<bool> >(data.valueInt); 
+		case GVariantType::vtChar: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<char> >(data.valueInt); 
+		case GVariantType::vtWchar: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<wchar_t> >(data.valueInt); 
+		case GVariantType::vtSignedChar: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<signed char> >(data.valueInt); 
+		case GVariantType::vtUnsignedChar: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<unsigned char> >(data.valueInt); 
+		case GVariantType::vtSignedShort: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<signed short> >(data.valueInt); 
+		case GVariantType::vtUnsignedShort: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<unsigned short> >(data.valueInt); 
+		case GVariantType::vtSignedInt: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<signed int> >(data.valueInt); 
+		case GVariantType::vtUnsignedInt: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<unsigned int> >(data.valueInt); 
+		case GVariantType::vtSignedLong: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<signed long> >(data.valueInt); 
+		case GVariantType::vtUnsignedLong: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<unsigned long> >(data.valueInt); 
+		case GVariantType::vtSignedLongLong: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<signed long long> >(data.valueInt); 
+		case GVariantType::vtUnsignedLongLong: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<unsigned long long> >(data.valueInt); 
+		case GVariantType::vtFloat: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<float> >(data.valueFloat); 
+		case GVariantType::vtDouble: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<double> >(data.valueDouble); 
+		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<long double> >(data.valueLongDouble); 
 
 		case GVariantType::vtObject:
 			return helperFromObject<ResultType>(data.pointer);
@@ -207,6 +202,9 @@ struct CastVariant_Value
 					); 
 			}
 			break;
+			
+		case GVariantType::vtTypedVar:
+			return fromVariantData<T, Policy>(getVariantRealValue(GVariant(data)).refData());
 
 		default:
 			break;
@@ -216,10 +214,8 @@ struct CastVariant_Value
 		return helperReturnEmptyValue<T>();
 	}
 	
-	static bool canCast(const GVariant & value)
+	static bool canCast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
-
 		// 0 can always be converted to pointer, similar as we do in C++.
 		if(std::is_pointer<ResultType>::value) {
 			if(data.valueInt == 0 && vtIsFundamental(vtGetType(data.typeData))) {
@@ -229,22 +225,22 @@ struct CastVariant_Value
 
 		switch(vtGetBaseType(data.typeData)) {
 
-		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<bool>, ResultType>::convertible; 
-		case GVariantType::vtChar: return TypeListConvertible<cpgf::GTypeList<char>, ResultType>::convertible; 
-		case GVariantType::vtWchar: return TypeListConvertible<cpgf::GTypeList<wchar_t>, ResultType>::convertible; 
-		case GVariantType::vtSignedChar: return TypeListConvertible<cpgf::GTypeList<signed char>, ResultType>::convertible; 
-		case GVariantType::vtUnsignedChar: return TypeListConvertible<cpgf::GTypeList<unsigned char>, ResultType>::convertible; 
-		case GVariantType::vtSignedShort: return TypeListConvertible<cpgf::GTypeList<signed short>, ResultType>::convertible; 
-		case GVariantType::vtUnsignedShort: return TypeListConvertible<cpgf::GTypeList<unsigned short>, ResultType>::convertible; 
-		case GVariantType::vtSignedInt: return TypeListConvertible<cpgf::GTypeList<signed int>, ResultType>::convertible; 
-		case GVariantType::vtUnsignedInt: return TypeListConvertible<cpgf::GTypeList<unsigned int>, ResultType>::convertible; 
-		case GVariantType::vtSignedLong: return TypeListConvertible<cpgf::GTypeList<signed long>, ResultType>::convertible; 
-		case GVariantType::vtUnsignedLong: return TypeListConvertible<cpgf::GTypeList<unsigned long>, ResultType>::convertible; 
-		case GVariantType::vtSignedLongLong: return TypeListConvertible<cpgf::GTypeList<signed long long>, ResultType>::convertible; 
-		case GVariantType::vtUnsignedLongLong: return TypeListConvertible<cpgf::GTypeList<unsigned long long>, ResultType>::convertible; 
-		case GVariantType::vtFloat: return TypeListConvertible<cpgf::GTypeList<float>, ResultType>::convertible; 
-		case GVariantType::vtDouble: return TypeListConvertible<cpgf::GTypeList<double>, ResultType>::convertible; 
-		case GVariantType::vtLongDouble: return TypeListConvertible<cpgf::GTypeList<long double>, ResultType>::convertible; 
+		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<bool>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtChar: return TypeListConvertible<cpgf::GTypeList<char>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtWchar: return TypeListConvertible<cpgf::GTypeList<wchar_t>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtSignedChar: return TypeListConvertible<cpgf::GTypeList<signed char>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtUnsignedChar: return TypeListConvertible<cpgf::GTypeList<unsigned char>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtSignedShort: return TypeListConvertible<cpgf::GTypeList<signed short>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtUnsignedShort: return TypeListConvertible<cpgf::GTypeList<unsigned short>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtSignedInt: return TypeListConvertible<cpgf::GTypeList<signed int>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtUnsignedInt: return TypeListConvertible<cpgf::GTypeList<unsigned int>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtSignedLong: return TypeListConvertible<cpgf::GTypeList<signed long>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtUnsignedLong: return TypeListConvertible<cpgf::GTypeList<unsigned long>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtSignedLongLong: return TypeListConvertible<cpgf::GTypeList<signed long long>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtUnsignedLongLong: return TypeListConvertible<cpgf::GTypeList<unsigned long long>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtFloat: return TypeListConvertible<cpgf::GTypeList<float>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtDouble: return TypeListConvertible<cpgf::GTypeList<double>, typename HelperValueType<ResultType>::type>::convertible; 
+		case GVariantType::vtLongDouble: return TypeListConvertible<cpgf::GTypeList<long double>, typename HelperValueType<ResultType>::type>::convertible; 
 
 		case GVariantType::vtObject:
 			return true;
@@ -262,6 +258,9 @@ struct CastVariant_Value
 		case GVariantType::vtWideString:
 			return TypeListConvertible<cpgf::TypeList_Concat<WideStringCharTypeList, WideStringStringTypeList>::Result, ResultType>::convertible;
 
+		case GVariantType::vtTypedVar:
+			return canFromVariantData<T, Policy>(getVariantRealValue(GVariant(data)).refData());
+
 		default:
 			break;
 		}
@@ -276,9 +275,8 @@ struct CastVariant_Pointer
 {
 	typedef typename VariantCastResult<T, Policy>::Result ResultType;
 
-	static ResultType cast(const GVariant & value)
+	static ResultType cast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *> >(data.pointer); 
@@ -320,9 +318,8 @@ struct CastVariant_Pointer
 		return helperReturnEmptyValue<T>();
 	}
 	
-	static bool canCast(const GVariant & value)
+	static bool canCast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, ResultType>::convertible; 
@@ -366,9 +363,8 @@ struct CastVariant_LvalueReference
 {
 	typedef typename VariantCastResult<T, Policy>::Result ResultType;
 
-	static ResultType cast(const GVariant & value)
+	static ResultType cast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromPointerOrReference< ResultType, cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, cpgf::GTypeList<const bool &, bool &, const volatile bool &, volatile bool &> >((bool &) * (bool *)data.pointer); 
@@ -399,9 +395,8 @@ struct CastVariant_LvalueReference
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
-	static bool canCast(const GVariant & value)
+	static bool canCast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, ResultType>::convertible || TypeListConvertible<cpgf::GTypeList<const bool &, bool &, const volatile bool &, volatile bool &>, ResultType>::convertible ; 
@@ -438,9 +433,8 @@ struct CastVariant_Pointer_LvalueReference
 {
 	typedef typename VariantCastResult<T, Policy>::Result ResultType;
 
-	static ResultType cast(const GVariant & value)
+	static ResultType cast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const bool * &, bool * &, const volatile bool * &, volatile bool * &, const bool * const &, bool * const &, const volatile bool * const &, volatile bool * const &, const bool * volatile &, bool * volatile &, const volatile bool * volatile &, volatile bool * volatile &, const bool * const volatile &, bool * const volatile &, const volatile bool * const volatile &, volatile bool * const volatile & > >((bool * &) * (bool **)data.pointer); 
@@ -482,9 +476,8 @@ struct CastVariant_Pointer_LvalueReference
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
-	static bool canCast(const GVariant & value)
+	static bool canCast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible< cpgf::GTypeList< const bool * &, bool * &, const volatile bool * &, volatile bool * &, const bool * const &, bool * const &, const volatile bool * const &, volatile bool * const &, const bool * volatile &, bool * volatile &, const volatile bool * volatile &, volatile bool * volatile &, const bool * const volatile &, bool * const volatile &, const volatile bool * const volatile &, volatile bool * const volatile & > , ResultType>::convertible; 
@@ -528,9 +521,8 @@ struct CastVariant_RvalueReference
 {
 	typedef typename VariantCastResult<T, Policy>::Result ResultType;
 
-	static ResultType cast(const GVariant & value)
+	static ResultType cast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromPointerOrReference< ResultType, cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, cpgf::GTypeList<const bool &&, bool &&, const volatile bool &&, volatile bool &&> >((bool &&) * (bool *)data.pointer); 
@@ -561,9 +553,8 @@ struct CastVariant_RvalueReference
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
-	static bool canCast(const GVariant & value)
+	static bool canCast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, ResultType>::convertible || TypeListConvertible<cpgf::GTypeList<const bool &&, bool &&, const volatile bool &&, volatile bool &&>, ResultType>::convertible ; 
@@ -600,9 +591,8 @@ struct CastVariant_Pointer_RvalueReference
 {
 	typedef typename VariantCastResult<T, Policy>::Result ResultType;
 
-	static ResultType cast(const GVariant & value)
+	static ResultType cast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const bool * &&, bool * &&, const volatile bool * &&, volatile bool * &&, const bool * const &&, bool * const &&, const volatile bool * const &&, volatile bool * const &&, const bool * volatile &&, bool * volatile &&, const volatile bool * volatile &&, volatile bool * volatile &&, const bool * const volatile &&, bool * const volatile &&, const volatile bool * const volatile &&, volatile bool * const volatile && > >((bool * &&) * (bool **)data.pointer); 
@@ -644,9 +634,8 @@ struct CastVariant_Pointer_RvalueReference
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
-	static bool canCast(const GVariant & value)
+	static bool canCast(const GVariantData & data)
 	{
-		const GVariantData & data = value.refData();
 		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible< cpgf::GTypeList< const bool * &&, bool * &&, const volatile bool * &&, volatile bool * &&, const bool * const &&, bool * const &&, const volatile bool * const &&, volatile bool * const &&, const bool * volatile &&, bool * volatile &&, const volatile bool * volatile &&, volatile bool * volatile &&, const bool * const volatile &&, bool * const volatile &&, const volatile bool * const volatile &&, volatile bool * const volatile && > , ResultType>::convertible; 

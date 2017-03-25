@@ -5,87 +5,79 @@
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gclassutil.h"
 
+#include <limits>
 #include <memory>
+#include <vector>
 #include <map>
-#include <deque>
 
 namespace cpgf {
 
-enum class GMemoryPoolPurgeStrategy
+class GMemoryPoolChunk
 {
-	never,
-	onSceneFreed, // after previous scene is freed and next scene is not created yet
-	onSceneSwitched, // after previous scene is freed and next scene has been created
-	onFree
+public:
+	typedef unsigned char IndexType;
+	static constexpr size_t MaxBlockCount = std::numeric_limits<IndexType>::max();
+	
+public:
+	GMemoryPoolChunk(
+		const size_t blockSize, // must be >= sizeof(IndexType)
+		const size_t alignment,
+		const size_t blockCount // must be <= MaxBlockCount
+	);
+	~GMemoryPoolChunk();
+
+	GMemoryPoolChunk(const GMemoryPoolChunk & other) = delete;
+	GMemoryPoolChunk(GMemoryPoolChunk && other) = default;
+	GMemoryPoolChunk & operator = (const GMemoryPoolChunk & other) = delete;
+	GMemoryPoolChunk & operator = (GMemoryPoolChunk && other) = default;
+
+	void * allocate();
+	void free(void * p);
+	
+	bool isAvailable() const {
+		return this->availableCount > 0;
+	}
+	
+	bool isFree() const {
+		return this->availableCount == this->blockCount;
+	}
+	
+	bool belongsTo(const void * p) const {
+		return p >= this->buffer.get() && p < this->buffer.get() + this->chunkSize;
+	}
+
+private:
+	size_t alignment;
+	size_t blockCount;
+	size_t alignedBlockSize;
+	size_t chunkSize;
+	std::unique_ptr<unsigned char> buffer;
+	unsigned char * data;
+	IndexType availableIndex;
+	size_t availableCount;
 };
 
 class GMemorySizedPool
 {
-private:
-	struct IdleIndex {
-		int chunkIndex;
-		int blockIndex;
-	};
-	
-	struct Chunk {
-		std::unique_ptr<char> rawMemory;
-		void * start;
-	};
-
-	struct ChunkRange {
-		ChunkRange(void * start) : start(start), end(nullptr) {
-		}
-
-		ChunkRange(void * start, void * end) : start(start), end(end) {
-		}
-
-		bool operator < (const ChunkRange & other) const {
-			if(this->end == nullptr) {
-				return this->start < other.start;
-			}
-			else {
-				if(other.end == nullptr) {
-					return other.start >= this->end;
-				}
-				else {
-					return this->start < other.start;
-				}
-			}
-		}
-
-		void * start;
-		void * end;
-	};
-	
 public:
 	GMemorySizedPool(
-			const std::size_t blockSize,
-			const std::size_t alignment = 64,
-			const std::size_t blockCountPerChunk = 256,
-			const GMemoryPoolPurgeStrategy purgeStrategy = GMemoryPoolPurgeStrategy::onSceneSwitched
-		);
-	
+		const size_t blockSize,
+		const size_t alignment,
+		const size_t blockCount
+	);
+	~GMemorySizedPool();
+
 	void * allocate();
-	void * allocate(const std::size_t size);
 	void free(void * p);
 	
-	void purge();
-
 private:
-	void doPurgeChunk(const int index);
-
-private:
-	std::size_t blockSize;
-	std::size_t blockTotalSize;
-	std::size_t alignment;
-	std::size_t blockCountPerChunk;
-	std::size_t chunkSize;
-	GMemoryPoolPurgeStrategy purgeStrategy;
-	
-	std::deque<Chunk> chunkList;
-	std::deque<IdleIndex> idleList;
-	std::map<ChunkRange, int> chunkMap;
+	size_t blockSize;
+	size_t alignment;
+	size_t blockCount;
+	std::vector<GMemoryPoolChunk> chunkList;
+	GMemoryPoolChunk * availableChunk;
 };
+
 
 class GMemoryPool
 {
@@ -94,25 +86,20 @@ public:
 	
 public:
 	explicit GMemoryPool(
-			const std::size_t alignment = 64,
-			const std::size_t blockCountPerChunk = 256,
-			const GMemoryPoolPurgeStrategy purgeStrategy = GMemoryPoolPurgeStrategy::onSceneSwitched
+			const size_t alignment = 64,
+			const size_t blockCountPerChunk = 256
 		);
 	~GMemoryPool();
 	
-	void * allocate(const std::size_t size);
-	void free(void * p);
+	void * allocate(const size_t size);
+	void free(void * p, const size_t size);
 	
-	void purge();
-
-	GMemoryPoolPurgeStrategy getPurgeStrategy() const { return this->purgeStrategy; }
-
 private:
-	std::size_t alignment;
-	std::size_t blockCountPerChunk;
-	GMemoryPoolPurgeStrategy purgeStrategy;
-	std::map<std::size_t, std::unique_ptr<GMemorySizedPool> > poolMap;
+	size_t alignment;
+	size_t blockCountPerChunk;
+	std::map<size_t, std::unique_ptr<GMemorySizedPool> > poolMap;
 };
+
 
 template <typename T>
 class GObjectPool
@@ -128,7 +115,7 @@ public:
 
 	void free(T * p) {
 		p->~T();
-		GMemoryPool::getInstance()->free(p);
+		GMemoryPool::getInstance()->free(p, sizeof(T));
 	}
 };
 
@@ -144,7 +131,7 @@ template <typename T>
 void freeObjectOnMemoryPool(T * obj)
 {
 	obj->~T();
-	GMemoryPool::getInstance()->free(obj);
+	GMemoryPool::getInstance()->free(obj, sizeof(T));
 }
 
 template <class T>
@@ -168,9 +155,9 @@ struct GMemoryPoolAllocator
 		return (T *)(this->heapPool->allocate(n));
 	}
 	
-	void deallocate(T * p, std::size_t /*n*/)
+	void deallocate(T * p, std::size_t n)
 	{
-		this->heapPool->free(p);
+		this->heapPool->free(p, n);
 	}
 	
 	GMemoryPool * heapPool;

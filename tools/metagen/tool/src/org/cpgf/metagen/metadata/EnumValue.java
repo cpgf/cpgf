@@ -17,11 +17,17 @@ public class EnumValue {
 	
 	public String getQualifiedName() {
 		String n = this.owner.getFullNamespace();
+		String enumName = this.getName();
+		
+		if(! this.owner.getPrimaryName().equals("")) {
+			enumName = this.owner.getPrimaryName() + "::" + enumName;
+		}
+		
 		if(! n.equals("")) {
-			return n + "::" + this.getName();
+			return n + "::" + enumName;
 		}
 		else {
-			return this.getName();
+			return enumName;
 		}
 	}
 

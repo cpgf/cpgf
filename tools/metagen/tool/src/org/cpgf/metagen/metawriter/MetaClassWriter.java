@@ -259,7 +259,11 @@ public class MetaClassWriter {
 			this.codeWriter.writeLine(action + "<" + typeName + ">(" + Util.quoteText(name) + ")");
 			this.codeWriter.incIndent();
 				for(EnumValue value : item.getValueList()) {
-					this.codeWriter.writeLine("._element(" + Util.quoteText(value.getName()) + ", " + prefix + value.getQualifiedName() + ")");
+					this.codeWriter.writeLine("._element("
+							+ Util.quoteText(value.getName())
+							+ ", " + prefix + value.getQualifiedName()
+							+ ")"
+						);
 				}
 			this.codeWriter.decIndent();
 			this.codeWriter.writeLine(";");

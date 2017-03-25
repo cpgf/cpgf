@@ -46,6 +46,7 @@ void doBenchmarkLuaBind()
 	// After changed map to unordered_map in class GMetaMapClass, 3900 ms
 	// After changed compile options to  -O2 -Oy -GL, link options to -LTCG, in VC, 3200 ms
 	// 2850 ms
+	// 2650 ms
 	{
 		std::string code = R"(
 			a = TestObject()
@@ -74,6 +75,7 @@ void doBenchmarkLuaBind()
 		context.doString(code.c_str());
 	}
 
+	// 3650 ms
 	{
 		std::string code = R"(
 			a = TestObject()

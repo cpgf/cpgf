@@ -1,13 +1,13 @@
 cpgf library
 
-
 cpgf library is a cross platform C++ library for reflection, callback, script binding.
 It's written in standard C++ and doesn't require any preprocess or tools.
 
+Website:
+	http://www.cpgf.org/
 
 Version:
-	1.5.6
-
+	1.6.0
 		
 Libraries:
 	cpgf reflection -- a library to add reflection feature to C++.
@@ -16,7 +16,7 @@ Libraries:
 		and then load back.
 		It's based on the reflection library.
 
-	cpgf script binding -- a script binding engine to bind Lua (5.2 and 5.1),
+	cpgf script binding -- a script binding engine to bind Lua (5.3, 5.2 and 5.1),
 		Google V8 JavaScript, Python (2.7.3), and Mozilla SpiderMonkey JavaScript to C++.
 		It's based on the reflection library.
 	
@@ -37,15 +37,9 @@ License:
 	Apache License, Version 2.0
 	You may obtain a copy of the License at
 		http://www.apache.org/licenses/LICENSE-2.0
-		
 
 Author and owner:
 	Wang Qi, in Beijing, China
-
-	
-Website:
-	http://www.cpgf.org/
-
 
 Learning the library:
 	Though there are some documentations on the website, they are far from good.
@@ -60,18 +54,18 @@ Learning the library:
 	use a lot of macros.
 	However, they cover much more functions than the sample code.
 	
+	There is a 2D game engine from the cpgf author, extensively uses cpgf library,
+	https://github.com/wqking/gincu
 	
 Using the library:
 	1, In the project setting, add an include path pointing to "cpgf/include".
 	2, Link the source code or link the library in your project.	
 	3, All classes, functions and APIs are in the namespace "cpgf".
-	
 
 Link the source code:
 	To using the library, the easiest way is to just link all .cpp source code
 	under the src and sub folder.
 	However, a build script is also provide to build the code as static library.
-	
 
 Build the library:
 	The library uses CMake as the build system.
@@ -109,7 +103,7 @@ Build the library:
 	TheTarget can be,
 	TARGET=lib                   Build the library. This is the default if TARGET is omitted.
 	TARGET=tutorials             Build the tutorials.
-	TARGET=test                  Build the unit test.
+	TARGET=tests                 Build the unit test.
 	TARGET=samplereflection      Build the reflection sample application.
 	TARGET=sampleserialization   Build the serialization sample application.
 	TARGET=samplelua             Build the Lua binding sample application.
@@ -117,9 +111,9 @@ Build the library:
 	TARGET=samplebox2d           Build the Box2D binding sample application.
 	TARGET=samplesfml            Build the SFML binding sample application.
 	TARGET=sampleirrlicht        Build the Irrlicht binding sample application.
-	
 
 Compatibility -- Tested compilers and OSes:
+	The below cases were based on the old 1.5 version. Since version 1.6, C++11 compiler is required, and VC 2015 and GCC 4.9.1 were tested.
 	Windows XP, Microsoft Visual C++ 2008 Express and Microsoft Visual C++ 2010 Professional
 	Windows XP, MingW GCC 3.4.2, 4.4.0 and 4.5.2
 	Windows XP, Embarcadero C++ Builder 2010
@@ -127,16 +121,13 @@ Compatibility -- Tested compilers and OSes:
 	Linux (Ubuntu 11.04 in VirtualBox), Intel C++ Compiler Composer XE
 	Mac 10.6.8, GCC 4.4.0
 	
-	
 Required third party library -- None for the major libraries.
-	Doesn't require C++0X and TR1 features.
 	For Lua binding, Lua library is required.
 	For Google V8 binding, V8 library is required.
 	For Python binding, Python library is required.
 	For Mozilla SpiderMonkey, Mozilla SpiderMonkey is required.
 	If you want to run the unit test, UnitTest++ is required.
 		But usually you don't need to do that.
-	
 
 Contribute to the library:
 	If you like the library and want to contribute to it, here are some most
@@ -144,7 +135,6 @@ Contribute to the library:
 	1, Help with the documentation. I'm not a native English speaker, and
 		I also don't like to write documentation. 
 	2, Test the library on more compilers and platforms.
-
 
 What does cpgf mean?
 	The original cpgf means Cross Platform Game Framework.

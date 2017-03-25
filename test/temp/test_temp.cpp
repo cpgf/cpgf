@@ -63,6 +63,10 @@ public:
 		param = nullptr;
 	}
 
+	int testCallback(const GCallback<int (int a, int b)> & cb) {
+		return cb(3, 8);
+	}
+
 public:
 	int value;
 };
@@ -79,7 +83,8 @@ void TestScriptBindMetaData3()
 		
 		._method("getVar", &TestOperator::getVar)
 		._method("testParam", &TestOperator::testParam)
-		
+//		._method("testCallback", &TestOperator::testCallback)
+
 		._operator<TestOperator (const GMetaSelf)>(-mopHolder)
 		._operator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
 		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))
@@ -102,15 +107,17 @@ void TestScriptBindMetaData3()
 	;
 }
 
+typedef int (*&FuncPtr)();
+
+void doIt(const GVariant & b)
+{
+	cout << b.refData().typeData.vt << "  " << fromVariant<int>(b) << endl;
+}
 
 GTEST(TestTemp)
 {
-TestOperator obj;
-obj.value = 38;
-TestOperator * pobj = &obj;
-TestOperator * & robj = pobj;
-GVariant a = createVariant<TestOperator * &>(robj);
-cout << a.refData().typeData.vt << "  " << fromVariant<TestOperator *>(a)->value << "  " << fromVariant<TestOperator *>(a) << " " << pobj << "  " << &pobj << endl;
+	GVariant a = createTypedVariant(GVariant(38), createMetaType<int>());
+	doIt(fromVariantData<const GVariant &, VarantCastCopyConstRef>(a.refData()));
 return;
 
 	TestLuaContext context;

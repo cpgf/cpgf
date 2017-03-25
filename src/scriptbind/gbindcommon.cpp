@@ -414,11 +414,18 @@ void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & v
 	GASSERT(value.isScriptFunction());
 
 	this->requireDataMap();
+	
+	const GVariant variant = value.getValue();
 
-  // Insert and overwrite the previous function if it exists.
-  (*this->dataMap)[name] = value.getValue();
+	// Insert and overwrite the previous function if it exists.
+	(*this->dataMap)[name] = variant;
 
-	gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(value.getValue()))->weaken();
+	if(vtIsInteger(variant.getType())) {
+		IScriptFunction * func = dynamic_cast<IScriptFunction *>(fromVariant<IObject *>(variant));
+		if(func != nullptr) {
+			func->weaken();
+		}
+	}
 }
 
 IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
@@ -427,7 +434,7 @@ IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
 		MapType::iterator it = this->dataMap->find(name);
 		if(it != this->dataMap->end()) {
 			if(vtIsInterface(it->second.getType())) {
-				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+				IScriptFunction * func = dynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
 				if(func != nullptr) {
 					func->addReference();
 				}
@@ -1662,7 +1669,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 	for(;;) {
 		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
 		if(!metaClass) {
-			return false;
+			break;
 		}
 
 		GMetaMapClass * mapClass = context->getClassData(metaClass.get())->getClassMap();
@@ -1698,9 +1705,15 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 				return false;
 
 			default:
-				break;
+				return false;
 		}
 	}
+
+	// We always set the value to data holder even the meta data is not found.
+	// This is useful when a base class has non-public virtual method, and in the derived wrapper class
+	// we want to override the virtual method from script.
+	setValueToScriptDataHolder(instanceGlueData, name, value);
+	return true;
 }
 
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData)

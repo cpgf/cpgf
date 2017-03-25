@@ -38,17 +38,43 @@ size_t GMetaDefaultParamList::getDefaultCount() const
 }
 
 size_t GMetaDefaultParamList::loadDefaultParams(
-	const GVariant ** paramBuffer, size_t passedParamCount, size_t prototypeParamCount)
+		const GVariant ** paramBuffer,
+		size_t passedParamCount,
+		size_t prototypeParamCount
+	)
 {
 	if(passedParamCount < prototypeParamCount) {
-		int totalCount = static_cast<int>(this->getDefaultCount());
+		const int totalCount = static_cast<int>(this->getDefaultCount());
 		int startIndex = totalCount - 1;
-		int needCount = static_cast<int>(prototypeParamCount - passedParamCount);
+		const int needCount = static_cast<int>(prototypeParamCount - passedParamCount);
 		if(needCount <= totalCount) {
 			startIndex = needCount - 1;
 		}
 		while(startIndex >= 0) {
 			paramBuffer[passedParamCount] = &this->defaultValueList.at(startIndex);
+			++passedParamCount;
+			--startIndex;
+		}
+	}
+
+	return passedParamCount;
+}
+
+size_t GMetaDefaultParamList::loadDefaultParamsByData(
+		const GVariantData ** paramDataBuffer,
+		size_t passedParamCount,
+		size_t prototypeParamCount
+	)
+{
+	if(passedParamCount < prototypeParamCount) {
+		const int totalCount = static_cast<int>(this->getDefaultCount());
+		int startIndex = totalCount - 1;
+		const int needCount = static_cast<int>(prototypeParamCount - passedParamCount);
+		if(needCount <= totalCount) {
+			startIndex = needCount - 1;
+		}
+		while(startIndex >= 0) {
+			paramDataBuffer[passedParamCount] = &this->defaultValueList.at(startIndex).refData();
 			++passedParamCount;
 			--startIndex;
 		}

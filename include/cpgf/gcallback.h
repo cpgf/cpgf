@@ -2,6 +2,7 @@
 #define CPGF_GCALLBACK_H
 
 #include "cpgf/gfunctiontraits.h"
+#include "cpgf/gtypetraits.h"
 
 #include <type_traits>
 #include <functional>
@@ -340,7 +341,7 @@ public:
 	template <typename FT>
 	GCallback(
 		const FT & func,
-		typename std::enable_if<! GFunctionTraits<FT>::IsMember>::type * = 0
+		typename std::enable_if<! GFunctionTraits<FT>::IsMember && IsCallable<FT, Parameters...>::Result>::type * = 0
 	)
 		:
 			base(
@@ -492,13 +493,29 @@ private:
 	typedef GCallback <RT (*)(Parameters...)> super;
 
 public:
-	using super::super;
-
 	GCallback() : super() {}
 
 	template <typename FT>
-	GCallback(const FT & func)
+	GCallback(
+		const FT & func,
+		typename std::enable_if<! GFunctionTraits<FT>::IsMember && IsCallable<FT, Parameters...>::Result>::type * = 0
+	)
 		: super(func)
+	{
+	}
+
+	template <typename FT>
+	GCallback(
+		const FT & func,
+		typename std::enable_if<GFunctionTraits<FT>::IsMember>::type * = 0
+	)
+		: super(func)
+	{
+	}
+
+	template <typename Instance, typename FT>
+	GCallback(Instance instance, const FT & func)
+		: super(instance, func)
 	{
 	}
 };

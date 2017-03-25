@@ -12,7 +12,7 @@ PROJECT=cpgf
 
 PROJECT_PREFIX = project
 
-SUPPORT_MAKES = auto nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux xcode
+SUPPORT_MAKES = auto nmake mingw mingw_debug linux vc15 cb_mingw cb_mingw_debug cb_nmake cb_linux xcode
 
 none: needcmake
 	$(ECHO) "Usage:"

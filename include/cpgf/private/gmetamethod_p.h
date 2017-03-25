@@ -38,6 +38,7 @@ struct GMetaMethodDataVirtual
 	bool (*isVariadic)();
 	bool (*isExplicitThis)();
 	GVariant (*invoke)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
+	GVariant (*invokeByData)(const void * self, void * instance, GVariantData const * const * params, size_t paramCount);
 	bool (*checkParam)(const GVariant & param, size_t paramIndex);
 	bool (*isParamTransferOwnership)(size_t paramIndex);
 	bool (*isResultTransferOwnership)();
@@ -66,6 +67,7 @@ public:
 	bool isExplicitThis() const;
 
 	GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const;
+	GVariant invokeByData(void * instance, GVariantData const * const * params, size_t paramCount) const;
 
 	bool checkParam(const GVariant & param, size_t paramIndex) const;
 
@@ -185,6 +187,20 @@ private:
 		>::invoke(instance, static_cast<const GMetaMethodData *>(self)->callback, params, paramCount);
 	}
 
+	static GVariant virtualInvokeByData(const void * self, void * instance, GVariantData const * const * params, size_t paramCount) {
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
+
+		static_cast<const GMetaMethodData *>(self)->callback.setObject(instance);
+		return GMetaInvokeHelper<CallbackType,
+			TraitsType,
+			TraitsType::Arity,
+			typename TraitsType::ResultType,
+			Policy,
+			IsVariadicFunction<TraitsType>::Result,
+			PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
+		>::invokeByData(instance, static_cast<const GMetaMethodData *>(self)->callback, params, paramCount);
+	}
+
 	template <typename TypeList>
 	struct CheckParamSelectorParam
 	{
@@ -251,6 +267,7 @@ public:
 			&virtualIsVariadic,
 			&virtualIsExplicitThis,
 			&virtualInvoke,
+			&virtualInvokeByData,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,

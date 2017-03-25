@@ -41,7 +41,9 @@ public class WriterUtil {
 				if(value.equals("NULL") || value.equals("nullptr")) {
 					value = "(" + paramList.get(index).getType().getLiteralType() + ")" + value;
 				}
-				writer.writeLine("._default(copyVariantFromCopyable(" + value + "))");
+				writer.writeLine("._default(copyVariantFromCopyable<"
+						+ paramList.get(index).getType().getLiteralType()
+						+ ">(" + value + "))");
 				--index;
 			}
 

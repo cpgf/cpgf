@@ -29,7 +29,7 @@ public class CppField extends Item {
 	}
 
     @Override
-    public void getPolicyRules(List<String> rules) {
+    protected void doGetPolicyRules(List<String> rules) {
         CppType type = getType();
         ClassTraits traits = type.getClassTraits();
         if (traits.isCopyConstructorHidden()) {

@@ -16,8 +16,8 @@ public:
 class GVariantTypedVar : public IVariantTypedVar
 {
 public:
-	void * operator new (const std::size_t size);
-	void operator delete(void * p);
+	void * operator new (const size_t size);
+	void operator delete(void * p, size_t size);
 
 	GVariantTypedVar(const GVariant & value, const cpgf::GMetaType & type);
 	virtual ~GVariantTypedVar();
@@ -33,14 +33,14 @@ private:
 	cpgf::GMetaType type;
 };
 
-void * GVariantTypedVar::operator new (const std::size_t size)
+void * GVariantTypedVar::operator new (const size_t size)
 {
 	return cpgf::GMemoryPool::getInstance()->allocate(size);
 }
 
-void GVariantTypedVar::operator delete(void * p)
+void GVariantTypedVar::operator delete(void * p, size_t size)
 {
-	cpgf::GMemoryPool::getInstance()->free(p);
+	cpgf::GMemoryPool::getInstance()->free(p, size);
 }
 
 GVariantTypedVar::GVariantTypedVar(const GVariant & value, const cpgf::GMetaType & type)
@@ -84,8 +84,6 @@ void releaseVariantData(GVariantData & data)
 	}
 }
 
-} //namespace variant_internal
-
 VariantTypeInfo variantTypeInfo[] = {
 	{ sizeof(bool) }, // vtBool
 	{ sizeof(char) },
@@ -112,6 +110,9 @@ VariantTypeInfo variantTypeInfo[] = {
 	{ sizeof(void *) },
 	{ sizeof(void *) },
 };
+
+} //namespace variant_internal
+
 
 GVariant createStringVariant(const char * s)
 {

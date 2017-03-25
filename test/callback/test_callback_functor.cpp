@@ -45,6 +45,12 @@ GTEST(Callback_Functor_STL_Function)
 		GCHECK(cb() == "def");
 	}
 
+	{
+		GCallback<int (const GCallback<int ()> &)> cb = [](const GCallback<int ()> & cb) { return cb(); };
+		GCallback<int ()> p = []()->int { return 38; };
+		GCHECK(cb(p) == 38);
+	}
+
 };
 
 
