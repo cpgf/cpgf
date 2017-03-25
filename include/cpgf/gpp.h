@@ -4,6 +4,8 @@
 // preprocessor library
 
 #define GPP_EMPTY()
+#define GPP_EMPTY_N(...)
+
 #define GPP_COMMA() ,
 
 #define GPP_STRINGIZE(s) I_GPP_STRINGIZE(s)

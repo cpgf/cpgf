@@ -1,167 +1,111 @@
 #ifndef CPGF_GTYPELIST_H
 #define CPGF_GTYPELIST_H
 
-// code in this file is highly inspired from Loki library
-
-#include "cpgf/gcompiler.h"
-#include "cpgf/gpp.h"
-
-
-#define TL_MAX_PARAM GPP_MAX_LIMIT
-
-
 namespace cpgf {
 
-struct GNullType {
+struct GNullType {};
+
+template <typename... Types>
+struct GTypeList
+{
 };
 
+using GNullTypeList = GTypeList<>;
 
-template <typename H, typename T>
-struct GTypeList {
-	typedef H Head;
-	typedef T Tail;
+template <typename... Types>
+struct TypeList_Make
+{
+	typedef GTypeList<Types...> Result;
 };
 
-
-#define TL_TYPENAME_PARAM_NULL(N, T)			GPP_COMMA_IF(N) typename T ## N = GNullType
-#define TL_DO_TYPE(N) T ## N GPP_COMMA()
-#define TL_NOTDO_TYPE(N)
-#define TL_TAIL_TYPE(N, T)			GPP_IF(N, TL_DO_TYPE, TL_NOTDO_TYPE)(N)
-#define TL_LESS_PARAM GPP_DEC(TL_MAX_PARAM)
-
-template <GPP_REPEAT(TL_MAX_PARAM, TL_TYPENAME_PARAM_NULL, T) >
-struct TypeList_Make {
-private:
-	typedef typename TypeList_Make<GPP_REPEAT(TL_LESS_PARAM, TL_TAIL_TYPE, T) GPP_CONCAT(T, TL_LESS_PARAM) >::Result TailResult;
-
-public:
-	typedef GTypeList<T0, TailResult> Result;
+template <typename... Types>
+struct TypeList_Concat
+{
+	typedef GTypeList<Types...> Result;
 };
 
-template<>
-struct TypeList_Make < > {
-	typedef GNullType Result;
+template <typename... TypesA, typename... TypesB>
+struct TypeList_Concat <GTypeList<TypesA...>, GTypeList<TypesB...> >
+{
+	typedef GTypeList<TypesA..., TypesB...> Result;
 };
-
-#undef TL_TYPENAME_PARAM_NULL
-#undef TL_DO_TYPE
-#undef TL_NOTDO_TYPE
-#undef TL_TAIL_TYPE
-#undef TL_LESS_PARAM
-
-
-// get
 
 template <typename TypeList, unsigned int index>
 struct TypeList_Get;
 
-template <typename H, typename T>
-struct TypeList_Get <GTypeList<H, T>, 0 > {
-    typedef H Result;
+template <typename T, typename... Types, unsigned int index>
+struct TypeList_Get <GTypeList<T, Types...>, index>
+{
+	typedef typename TypeList_Get<GTypeList<Types...>, index - 1>::Result Result;
 };
 
-template <typename H, typename T, unsigned int index>
-struct TypeList_Get <GTypeList<H, T>, index> {
-    typedef typename TypeList_Get<T, index - 1>::Result Result;
+template <typename T, typename... Types>
+struct TypeList_Get <GTypeList<T, Types...>, 0>
+{
+	typedef T Result;
 };
 
+template <unsigned int index>
+struct TypeList_Get <GNullTypeList, index>
+{
+	typedef void Result;
+};
 
-// get with default
-
+// should be enhanced or removed
 template <typename TypeList, unsigned int index, typename Default = void>
-struct TypeList_GetWithDefault {
-    typedef Default Result;
-};
-
-template <typename H, typename T, typename Default>
-struct TypeList_GetWithDefault <GTypeList<H, T>, 0, Default> {
-    typedef H Result;
-};
-
-template <typename H, typename T, unsigned int i, typename Default>
-struct TypeList_GetWithDefault <GTypeList<H, T>, i, Default> {
-    typedef typename TypeList_GetWithDefault<T, i - 1, Default>::Result Result;
-};
-
-
-// length
+using TypeList_GetWithDefault = TypeList_Get <TypeList, index>;
 
 template <typename GTypeList>
 struct TypeList_Length;
 
-template <>
-struct TypeList_Length <GNullType> {
-	G_STATIC_CONSTANT(int, Result = 0);
+template <typename... Types>
+struct TypeList_Length <GTypeList<Types...> >
+{
+	static constexpr unsigned int Result = sizeof...(Types);
 };
-        
-template <typename H, typename T>
-struct TypeList_Length<GTypeList<H, T> > {
-	G_STATIC_CONSTANT(int, Result = 1 + TypeList_Length<T>::Result);
-};
-
-
-// index of
 
 template <typename TypeList, typename T>
 struct TypeList_IndexOf;
 
-template <typename T>
-struct TypeList_IndexOf<GNullType, T>
-{
-    G_STATIC_CONSTANT(int, Result = -1);
-};
-
-template <typename H, typename T>
-struct TypeList_IndexOf<GTypeList<H, T>, H>
-{
-    G_STATIC_CONSTANT(int, Result = 0);
-};
-
-template <typename Head, typename Tail, typename T>
-struct TypeList_IndexOf<GTypeList<Head, Tail>, T>
+template <typename... Types, typename H, typename T>
+struct TypeList_IndexOf <GTypeList<H, Types...>, T>
 {
 private:
-    G_STATIC_CONSTANT(int, temp = (TypeList_IndexOf<Tail, T>::Result));
+	static constexpr int PreviousIndex = TypeList_IndexOf<GTypeList<Types...>, T>::Result;
+	
 public:
-    G_STATIC_CONSTANT(int, Result = (temp == -1 ? -1 : 1 + temp));
+	static constexpr int Result = (PreviousIndex < 0 ? PreviousIndex : PreviousIndex + 1);
 };
 
+template <typename... Types, typename T>
+struct TypeList_IndexOf <GTypeList<T, Types...>, T>
+{
+	static constexpr int Result = 0;
+};
 
-// append
+template <typename T>
+struct TypeList_IndexOf <GNullTypeList, T>
+{
+	static constexpr int Result = -1;
+};
 
 template <typename TypeList, typename T>
 struct TypeList_Append;
 
-template <>
-struct TypeList_Append <GNullType, GNullType>
+template <typename... Types, typename T>
+struct TypeList_Append <GTypeList<Types...>, T>
 {
-    typedef GNullType Result;
+	typedef GTypeList<Types..., T> Result;
 };
 
-template <typename T>
-struct TypeList_Append<GNullType, T>
+template <typename... TypesA, typename... TypesB>
+struct TypeList_Append <GTypeList<TypesA...>, GTypeList<TypesB...> >
 {
-    typedef GTypeList<T, GNullType> Result;
-};
-
-template <typename Head, typename Tail>
-struct TypeList_Append <GNullType, GTypeList<Head, Tail> >
-{
-    typedef GTypeList<Head, Tail> Result;
-};
-
-template <typename Head, typename Tail, typename T>
-struct TypeList_Append <GTypeList<Head, Tail>, T>
-{
-    typedef GTypeList<Head, typename TypeList_Append<Tail, T>::Result> Result;
+	typedef GTypeList<TypesA..., TypesB...> Result;
 };
 
 
 } // namespace cpgf
-
-
-
-#undef TL_MAX_PARAM
 
 
 

@@ -30,7 +30,7 @@ public:
     }
 
     void * getPointer() const {
-    	return length > 0 ? const_cast<ByteType *>(&byteArray[0]) : NULL;
+    	return length > 0 ? const_cast<ByteType *>(&byteArray[0]) : nullptr;
     }
 
     void * getCurrentPointer() const {
@@ -64,7 +64,7 @@ public:
     template <typename T>
     void write(T value, const GMetaVariadicParam * moreValues) {
     	size_t valueCount = 1;
-    	if(moreValues != NULL) {
+    	if(moreValues != nullptr) {
     		valueCount += moreValues->paramCount;
     	}
 
@@ -81,7 +81,7 @@ public:
 	        if(valueCount == 0) {
 	        	break;
 	        }
-	    	if(moreValues != NULL) {
+	    	if(moreValues != nullptr) {
     			value = fromVariant<T>(*(moreValues->params[i]));
     			++i;
     		}

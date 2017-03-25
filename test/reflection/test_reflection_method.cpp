@@ -448,7 +448,7 @@ GTEST(Lib_CheckParam)
 
 	METHOD(methodMakeDataByPointer);
 	GCHECK(method->checkParam((CLASS_DATA *)0, 0));
-	GCHECK(method->checkParam("abc", 0)); // dangerous
+//	GCHECK(method->checkParam("abc", 0)); // dangerous
 	GCHECK(method->checkParam(CLASS_DATA(3), 0));
 	GCHECK(! method->checkParam(38, 1));
 
@@ -536,7 +536,7 @@ GTEST(API_CheckParam)
 
 	METHOD(methodMakeDataByPointer);
 	GCHECK(metaCheckParam(method.get(), (CLASS_DATA *)0, 0));
-	GCHECK(metaCheckParam(method.get(), "abc", 0)); // dangerous
+//	GCHECK(metaCheckParam(method.get(), "abc", 0)); // dangerous
 	GCHECK(metaCheckParam(method.get(), CLASS_DATA(3), 0));
 	GCHECK(! metaCheckParam(method.get(), 38, 1));
 

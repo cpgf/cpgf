@@ -7,28 +7,6 @@
 namespace cpgf {
 
 
-GImplObject::GImplObject()
-	: referenceCount(1)
-{
-}
-
-GImplObject::~GImplObject()
-{
-}
-
-uint32_t GImplObject::queryInterface(void *, void *)
-{
-	return 0;
-}
-
-uint32_t GImplObject::addReference()
-{
-	++this->referenceCount;
-
-	return this->referenceCount;
-}
-
-
 GImplExtendObject::GImplExtendObject()
 	: errorInfo()
 {
@@ -67,7 +45,7 @@ const char * GImplExtendObject::getErrorMessage()
 		return this->errorInfo->message.c_str();
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 

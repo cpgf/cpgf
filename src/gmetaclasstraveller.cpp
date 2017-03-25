@@ -16,11 +16,16 @@ GMetaClassTraveller::Node::Node(const GMetaClassTraveller::Node & other)
 {
 }
 
-GMetaClassTraveller::Node & GMetaClassTraveller::Node::operator = (const GMetaClassTraveller::Node & other)
+GMetaClassTraveller::Node & GMetaClassTraveller::Node::operator = (GMetaClassTraveller::Node other)
 {
-	this->metaClass = other.metaClass;
-	this->instance = other.instance;
-	this->derived = other.derived;
+	this->swap(other);
+
+	return *this;
+}
+
+GMetaClassTraveller::Node & GMetaClassTraveller::Node::operator = (GMetaClassTraveller::Node && other)
+{
+	this->swap(other);
 
 	return *this;
 }
@@ -29,14 +34,23 @@ GMetaClassTraveller::Node::~Node()
 {
 }
 
+void GMetaClassTraveller::Node::swap(Node & other)
+{
+	using std::swap;
+
+	swap(this->metaClass, other.metaClass);
+	swap(this->instance, other.instance);
+	swap(this->derived, other.derived);
+}
+
 
 GMetaClassTraveller::GMetaClassTraveller(IMetaClass * metaClass, void * instance)
 {
-	GASSERT(metaClass != NULL);
+	GASSERT(metaClass != nullptr);
 
 	metaClass->addReference();
 
-	this->traversal.push_back(Node(metaClass, instance, NULL));
+	this->traversal.emplace_back(metaClass, instance, nullptr);
 }
 
 GMetaClassTraveller::~GMetaClassTraveller()
@@ -48,12 +62,12 @@ GMetaClassTraveller::~GMetaClassTraveller()
 	
 IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDerived)
 {
-	if(outDerived != NULL) {
-		*outDerived = NULL;
+	if(outDerived != nullptr) {
+		*outDerived = nullptr;
 	}
 	
 	if(this->traversal.empty()) {
-		return NULL;
+		return nullptr;
 	}
 	
 	Node node = this->traversal.front();
@@ -62,15 +76,15 @@ IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDer
 		GScopedInterface<IMetaClass> baseClass(node.metaClass->getBaseClass(i));
 		if(baseClass) {
 			baseClass->addReference();
-			this->traversal.push_back(Node(baseClass.get(), node.metaClass->castToBase(node.instance, i), node.metaClass.get()));
+			this->traversal.emplace_back(baseClass.get(), node.metaClass->castToBase(node.instance, i), node.metaClass.get());
 		}
 	}
 	
-	if(outInstance != NULL) {
+	if(outInstance != nullptr) {
 		*outInstance = node.instance;
 	}
 
-	if(outDerived != NULL) {
+	if(outDerived != nullptr) {
 		*outDerived = node.derived.get();
 		if(node.derived) {
 			node.derived->addReference();
@@ -82,7 +96,7 @@ IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDer
 
 IMetaClass * GMetaClassTraveller::next(void ** outInstance)
 {
-	return this->next(outInstance, NULL);
+	return this->next(outInstance, nullptr);
 }
 
 

@@ -3,15 +3,7 @@
 
 #include "cpgf/gsharedptr.h"
 
-#if ! defined(_MSC_VER)
-	#if defined(SUPPORT_CPP_11) && SUPPORT_CPP_11
-		#define TEST_CPP11_SHARED_PTR
-	#endif
-#endif
-
-#ifdef TEST_CPP11_SHARED_PTR
 #include "cpgf/metatraits/gmetasharedptrtraits_cpp11_shared_ptr.h"
-#endif
 
 #if ENABLE_BOOST
 #include "cpgf/metatraits/gmetasharedptrtraits_boost_shared_ptr.h"
@@ -68,13 +60,8 @@ bool metaClassIsSimpleObject(cpgf::IMetaClass * metaClass);
 cpgf::GSharedPointer<SimpleObject> createSharedSimpleObject();
 SimpleObject * getSharedSimpleObject(cpgf::GSharedPointer<SimpleObject> sp);
 
-#ifdef TEST_CPP11_SHARED_PTR
-typedef std::shared_ptr<SimpleObject> CPP11_SP;
-#else
-typedef cpgf::GSharedPointer<SimpleObject> CPP11_SP;
-#endif
-CPP11_SP createCpp11SharedSimpleObject();
-SimpleObject * getCpp11SharedSimpleObject(CPP11_SP sp);
+std::shared_ptr<SimpleObject> createCpp11SharedSimpleObject();
+SimpleObject * getCpp11SharedSimpleObject(std::shared_ptr<SimpleObject> sp);
 
 #if ENABLE_BOOST
 typedef boost::shared_ptr<SimpleObject> BOOST_SP;

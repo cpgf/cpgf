@@ -1,20 +1,14 @@
-set(BUILD_DEBUG	1) #release=false
-
 # set 1 to enable Lua binding, 0 to disable
 set(HAS_LUA	1) #release=false
 
 # set 1 to enable Google V8 binding, 0 to disable
-set(HAS_V8 1) #release=false
+set(HAS_V8 0) #release=false
 
 # set 1 to enable Python binding, 0 to disable
-set(HAS_PYTHON 1) #release=false
+set(HAS_PYTHON 0) #release=false
 
 # set 1 to enable Mozilla SpiderMonkey binding, 0 to disable
-set(HAS_SPIDERMONKEY 1) #release=false
-
-# set 1 to enable C++ 0X in GCC, then rvalue reference is enabled
-# 0 to disable rvalue reference
-set(SUPPORT_GCC_0X 1) #release=false
+set(HAS_SPIDERMONKEY 0) #release=false
 
 # set 1 to enable unit tests.
 # it requires UnitTest++ installed.
@@ -22,15 +16,6 @@ set(HAS_UNITTEST 1) #release=false
 
 # set 1 to enable Boost library, 0 to disable. This is only used in unit test.
 set(HAS_BOOST 0) #release=false
-
-set(LIB_SHARED 0)
-
-set(TEST_GCOV 0)
-if(UNIX)
-	# disable gcov on Linux, otherwise, valgrind will become super slow.
-	set(TEST_GCOV 0)
-endif(UNIX)
-
 
 # whether we have GLUT library
 set(HAS_GLUT 1) #release=false
@@ -49,12 +34,42 @@ set(HAS_SFML 1) #release=false
 # this value is not used in library, only used in samples
 set(HAS_IRRLICHT 1) #release=false
 
+set(LIB_SHARED 0)
+
+set(TEST_GCOV 0)
+if(UNIX)
+	# disable gcov on Linux, otherwise, valgrind will become super slow.
+	set(TEST_GCOV 0)
+endif(UNIX)
+
+# Enforce C++11
+set(CMAKE_CXX_STANDARD 11)
+
+set(MSVC_OPTIMIZED_COMPILE_FLAGS "-bigobj -W3 -O2 -Oy")
+set(MSVC_DEBUG_COMPILE_FLAGS "-bigobj -W3 -Od")
+set(MSVC_OPTIMIZED_LINK_FLAGS " ")
+set(MSVC_DEBUG_LINK_FLAGS " ")
+
+set(GCC_OPTIMIZED_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+set(GCC_DEBUG_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
+set(GCC_OPTIMIZED_LINK_FLAGS " ")
+set(GCC_DEBUG_LINK_FLAGS " ")
+
+set(GCC_LIKE 0)
+if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	set(GCC_LIKE 1)
+endif()
+
+# an empty CMAKE_BUILD_TYPE is confusing, so we always set a default one
+if("${CMAKE_BUILD_TYPE}" STREQUAL "")
+	set(CMAKE_BUILD_TYPE Release)
+endif()
 
 
 ### Unit test config
 
 set(UNIT_TEST_DIR
-	c:/source/UnitTest++
+	E:/source/unittest++
 )
 
 
@@ -67,11 +82,11 @@ if(${HAS_LUA})
 		message(STATUS "Found Lua")
 		set(LUA_INC ${LUA_INCLUDE_DIR})
 		set(LUA_LIB ${LUA_LIBRARIES})
-	else(LUA_INCLUDE_DIR)
+	else()
 
 		message(STATUS "Using configured Lua settings")
 		set(LUA_DIR
-			c:/source/lua
+			E:/source/lua-5.3.4
 		)
 
 		set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
@@ -79,14 +94,14 @@ if(${HAS_LUA})
 		set(LUA_LIB ${LUA_DIR}/src/liblua.a)
 
 		if(MSVC)
-			set(LUA_LIB ${LUA_DIR}/src/lua51.lib)
-		endif(MSVC)
+			set(LUA_LIB ${LUA_DIR}/src/lua.lib)
+		endif()
 
 		if(UNIX)
 			set(LUA_LIB ${LUA_LIB} "dl")
-		endif(UNIX)
-	endif(LUA_INCLUDE_DIR)
-endif(${HAS_LUA})
+		endif()
+	endif()
+endif()
 
 
 ### V8 config
@@ -100,11 +115,11 @@ if(${HAS_V8})
 
 	if(MSVC)
 		set(V8_LIB ${V8_DIR}/v8.lib)
-	else(MSVC)
+	else()
 		set(V8_LIB ${V8_DIR}/libv8.so)
-	endif(MSVC)
+	endif()
 
-endif(${HAS_V8})
+endif()
 
 
 
@@ -116,7 +131,7 @@ if(${HAS_PYTHON})
 	if(PYTHON_INCLUDE_DIR)
 		set(PYTHON_INC ${PYTHON_INCLUDE_DIR})
 		set(PYTHON_LIB ${PYTHON_LIBRARY})
-	else(PYTHON_INCLUDE_DIR)
+	else()
 		set(PYTHON_DIR
 			c:/source/Python
 		)
@@ -128,11 +143,11 @@ if(${HAS_PYTHON})
 				debug ${PYTHON_DIR}/libs/python27_d.lib
 				optimized ${PYTHON_DIR}/libs/python27.lib
 			)
-	    else(MSVC)
+	    else()
 			set(PYTHON_LIB ${PYTHON_DIR}/libs/libpython27.a)
-		endif(MSVC)
-	endif(PYTHON_INCLUDE_DIR)
-endif(${HAS_PYTHON})
+		endif()
+	endif()
+endif()
 
 
 
@@ -152,7 +167,7 @@ if(${HAS_SPIDERMONKEY})
 		set(SPIDERMONKEY_LIB ${SPIDERMONKEY_DIR}/lib/lib.a)
 		set(SPIDERMONKEY_DEFINE )
 	endif(MSVC)
-endif(${HAS_SPIDERMONKEY})
+endif()
 
 
 
@@ -160,15 +175,15 @@ endif(${HAS_SPIDERMONKEY})
 
 if(MSVC)
 	set(GLUT_DIR
-		c:/source/freeglut/vc
+		/source/freeglut/vc
 	)
 	set(GLUT_LIB ${GLUT_DIR}/lib/freeglut.lib)
-else(MSVC)
+else()
 	set(GLUT_DIR
-		c:/source/freeglut/mingw
+		/source/freeglut
 	)
 	set(GLUT_LIB ${GLUT_DIR}/lib/libfreeglut.a opengl32 glu32)
-endif(MSVC)
+endif()
 
 set(GLUT_INC ${GLUT_DIR}/include)
 

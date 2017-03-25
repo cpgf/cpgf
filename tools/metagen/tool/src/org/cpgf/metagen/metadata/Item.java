@@ -18,6 +18,7 @@ public class Item {
 	private boolean isStatic;
 	private boolean isConst;
 	private CppClass owner;
+	private List<String> presetPolicyRules;
 
 	protected Item(EnumCategory category, String name) {
 		if(name == null) {
@@ -29,6 +30,7 @@ public class Item {
 		this.primaryName = Util.getItemBaseName(name);
 		
 		this.namespaces = new ArrayList<String>();
+		this.presetPolicyRules = new ArrayList<String>();
 	}
 
 	public String getPrimaryName() {
@@ -79,7 +81,18 @@ public class Item {
 		return namespace;
 	}
 	
-	public void getPolicyRules(List<String> rules) {
+	final public void addPolicyRule(String rule) {
+		this.presetPolicyRules.add(rule);
+	}
+	
+	final public void getPolicyRules(List<String> rules) {
+		this.doGetPolicyRules(rules);
+		for(int i = 0; i < this.presetPolicyRules.size(); ++i) {
+			rules.add(this.presetPolicyRules.get(i));
+		}
+	}
+
+	protected void doGetPolicyRules(List<String> rules) {
 	}
 
 	public EnumCategory getCategory() {

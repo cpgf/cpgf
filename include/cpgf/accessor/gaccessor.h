@@ -5,20 +5,9 @@
 #include "cpgf/accessor/gsetter.h"
 #include "cpgf/gifelse.h"
 
-
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4127) // conditional expression is constant
-#endif
-
-#ifdef G_COMPILER_CPPBUILDER
-#pragma warn -8008 //Condition is always true
-#pragma warn -8066 //Unreachable code
-#endif
-
+#include <type_traits>
 
 namespace cpgf {
-
 
 template <typename RawGetter, typename RawSetter, typename Policy = GMetaPolicyDefault>
 class GInstanceAccessor
@@ -27,7 +16,11 @@ public:
 	typedef GInstanceGetter<RawGetter, Policy> GetterType;
 	typedef GInstanceSetter<RawSetter, Policy> SetterType;
 
-	typedef typename GIfElse<GetterType::HasGetter, typename GetterType::ValueType, typename SetterType::ValueType>::Result ValueType;
+	typedef typename std::conditional<
+		GetterType::HasGetter,
+		typename GetterType::ValueType,
+		typename SetterType::ValueType
+	>::type ValueType;
 	
 public:
 	GInstanceAccessor(RawGetter rawGetter, RawSetter rawSetter) : getter(GetterType(rawGetter)), setter(SetterType(rawSetter)) {
@@ -47,7 +40,7 @@ public:
 		return this->getter.get(instance);
 	}
 	
-	void set(void * instance, typename SetterType::PassType value) const {
+	void set(void * instance, const typename SetterType::PassType & value) const {
 		this->setter.set(instance, value);
 	}
 	
@@ -72,7 +65,11 @@ public:
 	typedef GInstanceGetter<RawGetter, Policy> GetterType;
 	typedef GInstanceSetter<RawSetter, Policy> SetterType;
 
-	typedef typename GIfElse<GetterType::HasGetter, typename GetterType::ValueType, typename SetterType::ValueType>::Result ValueType;
+	typedef typename std::conditional<
+		GetterType::HasGetter,
+		typename GetterType::ValueType,
+		typename SetterType::ValueType
+	>::type ValueType;
 	
 public:
 	GAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
@@ -173,20 +170,8 @@ GAccessor<RawGetter, RawSetter, GMetaPolicyDefault> createAccessor(const void * 
 }
 
 
-
-
 } // namespace cpgf
 
-
-#ifdef G_COMPILER_CPPBUILDER
-#pragma warn .8008 //Condition is always true
-#pragma warn .8066 //Unreachable code
-#endif
-
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 
 #endif

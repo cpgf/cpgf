@@ -1,170 +1,144 @@
 #ifndef CPGF_GFUNCTIONTRAITS_H
 #define CPGF_GFUNCTIONTRAITS_H
 
-
 #include "cpgf/gcompiler.h"
-#include "cpgf/gconfig.h"
 #include "cpgf/gpp.h"
 #include "cpgf/gtypelist.h"
+#include "cpgf/gassert.h"
 
-
-#ifndef FT_MAX_ARITY
-	#define FT_MAX_ARITY G_MAX_ARITY
-#endif
-
-#define FT_PARAM_TYPEVALUE(N, P)		GPP_COMMA_IF(N) P ## N  p ## N
-#define FT_ARG_TYPEDEF(N, P)			typedef P ## N Arg ## N;
-
-#define FT_DEF_PARAM_HELPER(N) \
-	template <GPP_REPEAT(N, GPP_COMMA_PARAM, typename P) > \
-	struct GFunctionArgs ## N { \
-		GPP_REPEAT(N, FT_ARG_TYPEDEF, P) \
-	};
-
-#define FT_DEF_PARAM_HELPER_EMPTY(N)
-
-#define FT_DEF_PARAM(N, CC) GPP_IF(N, FT_DEF_PARAM_HELPER, FT_DEF_PARAM_HELPER_EMPTY)(N)
-
-#define FT_DEF_ARGTYPE(N) typedef GFunctionArgs ## N<GPP_REPEAT_PARAMS(N, P) > ArgList;
-#define FT_DEF_ARGTYPE0(N) typedef GFunctionTraitNullType ArgList;
-
-#define FT_DEF_COMMON(N) \
-		typedef RT FunctionType(GPP_REPEAT(N, FT_PARAM_TYPEVALUE, P)); \
-		typedef FunctionType * FunctionPointer; \
-		G_STATIC_CONSTANT(int, Arity = N); \
-		G_STATIC_CONSTANT(bool, IsFunction = true); \
-		G_STATIC_CONSTANT(bool, HasResult = GFunctionHasResult<RT>::Result); \
-		typedef RT ResultType; \
-		GPP_IF(N, FT_DEF_ARGTYPE, FT_DEF_ARGTYPE0)(N) \
-		typedef typename TypeList_Make<GPP_REPEAT_PARAMS(N, P) >::Result ArgTypeList;
-
-#define FT_DEF_GLOBAL_HELPER(N, CC) \
-	template <typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename P) > \
-	struct GFunctionTraitsBase <RT (CC *) (GPP_REPEAT_PARAMS(N, P)) > { \
-		typedef RT (CC * FullType) (GPP_REPEAT_PARAMS(N, P)); \
-		typedef GFunctionTraitNullType ObjectType; \
-		G_STATIC_CONSTANT(bool, IsMember = false); \
-		G_STATIC_CONSTANT(bool, IsConst = false); \
-		G_STATIC_CONSTANT(bool, IsVolatile = false); \
-		G_STATIC_CONSTANT(bool, IsConstVolatile = false); \
-		FT_DEF_COMMON(N) \
-	}; \
-	template <typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename P) > \
-	struct GFunctionTraitsBase <RT CC (GPP_REPEAT_PARAMS(N, P)) > { \
-		typedef RT (CC * FullType) (GPP_REPEAT_PARAMS(N, P)); \
-		typedef GFunctionTraitNullType ObjectType; \
-		G_STATIC_CONSTANT(bool, IsMember = false); \
-		G_STATIC_CONSTANT(bool, IsConst = false); \
-		G_STATIC_CONSTANT(bool, IsVolatile = false); \
-		G_STATIC_CONSTANT(bool, IsConstVolatile = false); \
-		FT_DEF_COMMON(N) \
-	};
-
-#define FT_DEF_GLOBAL(N, CC) \
-	GPP_REPEAT_2(FT_MAX_ARITY, FT_DEF_GLOBAL_HELPER, CC)
-
-#define FT_DEF_MEMBER_HELPER_CV(N, CC, CV, isC, isV, isCV) \
-	template <typename OT, typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename P) > \
-	struct GFunctionTraitsBase <RT (CC OT::*) (GPP_REPEAT_PARAMS(N, P)) CV> { \
-		typedef RT (CC OT::*FullType) (GPP_REPEAT_PARAMS(N, P)) CV; \
-		typedef OT ObjectType; \
-		G_STATIC_CONSTANT(bool, IsMember = true); \
-		G_STATIC_CONSTANT(bool, IsConst = isC); \
-		G_STATIC_CONSTANT(bool, IsVolatile = isV); \
-		G_STATIC_CONSTANT(bool, IsConstVolatile = isCV); \
-		FT_DEF_COMMON(N) \
-	};
-
-#define FT_DEF_MEMBER_HELPER(N, CC) \
-	FT_DEF_MEMBER_HELPER_CV(N, CC, GPP_EMPTY(), false, false, false) \
-	FT_DEF_MEMBER_HELPER_CV(N, CC, const, true, false, false) \
-	FT_DEF_MEMBER_HELPER_CV(N, CC, volatile, false, true, false) \
-	FT_DEF_MEMBER_HELPER_CV(N, CC, const volatile, false, false, true) \
-
-#define FT_DEF_MEMBER(N, CC) \
-	GPP_REPEAT_2(FT_MAX_ARITY, FT_DEF_MEMBER_HELPER, CC)
-
+#include <type_traits>
 
 namespace cpgf {
 
 typedef void GFunctionTraitNullType;
 
-namespace _internal {
+namespace functiontraits_internal {
 
-template <typename T>
-struct GFunctionHasResult
+constexpr int ftfConst = (1 << 0);
+constexpr int ftfVolatile = (1 << 1);
+constexpr int ftfConstVolatile = (1 << 2);
+constexpr int ftfStdCall = (1 << 3);
+constexpr int ftfFastCall = (1 << 4);
+constexpr int ftfNoReturn = (1 << 5);
+
+// this struct is here to be compatible with the old function traits.
+// this will be removed after all other parts are refactored.
+template <typename... Parameters>
+struct GFunctionTraitsArgList
 {
-	G_STATIC_CONSTANT(bool, Result = true);
+	static constexpr unsigned int Arity = sizeof...(Parameters);
+	typedef typename cpgf::TypeList_Make<Parameters...>::Result ArgTypeList;
+
+#define FT(N, P) typedef typename std::conditional<(Arity > N), typename cpgf::TypeList_Get<ArgTypeList, N>::Result, GFunctionTraitNullType>::type Arg ## N;
+	
+	GPP_REPEAT(60, FT, GPP_EMPTY())
+
+#undef FT
 };
 
-template <>
-struct GFunctionHasResult <void>
-{
-	G_STATIC_CONSTANT(bool, Result = false);
-};
 
-GPP_REPEAT_2(FT_MAX_ARITY, FT_DEF_PARAM, GPP_EMPTY)
-
-template <typename FT>
+template <int flags, typename AT, typename OT, typename RT, typename... Parameters>
 struct GFunctionTraitsBase
 {
-	G_STATIC_CONSTANT(int, Arity = -1);
-	G_STATIC_CONSTANT(bool, IsFunction = false);
-	G_STATIC_CONSTANT(bool, IsMember = false);
-	G_STATIC_CONSTANT(bool, IsConst = false);
-	G_STATIC_CONSTANT(bool, IsVolatile = false);
-	G_STATIC_CONSTANT(bool, IsConstVolatile = false);
+	typedef AT FullType;
+	typedef RT FunctionType (Parameters...);
+	typedef typename std::conditional<std::is_pointer<FullType>::value, FullType, FullType *>:: type FunctionPointer;
+	typedef typename cpgf::TypeList_Make<Parameters...>::Result ArgTypeList;
+	typedef GFunctionTraitsArgList<Parameters...> ArgList;
+
+	typedef OT ObjectType;
+	typedef RT ResultType;
+
+	static constexpr bool IsFunction = true;
+
+	static constexpr int Arity = sizeof...(Parameters);
+	static constexpr bool HasResult = ! std::is_void<RT>::value;
+
+	static constexpr bool IsGlobal = std::is_same<OT, GFunctionTraitNullType>::value;
+	static constexpr bool IsMember = ! IsGlobal;
+
+	static constexpr bool IsConst = ((flags & ftfConst) != 0);
+	static constexpr bool IsVolatile = ((flags & ftfVolatile) != 0);
+	static constexpr bool IsConstVolatile = ((flags & ftfConstVolatile) != 0);
 };
 
-FT_DEF_GLOBAL(FT_MAX_ARITY, GPP_EMPTY())
 
-#ifdef G_SUPPORT_STDCALL
-	FT_DEF_GLOBAL(FT_MAX_ARITY, __stdcall)
-#endif
-#ifdef G_SUPPORT_FASTCALL	
-	FT_DEF_GLOBAL(FT_MAX_ARITY, __fastcall)
-#endif
-#ifdef G_SUPPORT_NORETURN_ATTRIBUTE
-    FT_DEF_GLOBAL(FT_MAX_ARITY, __attribute__((noreturn)))
-#endif
-
-FT_DEF_MEMBER(FT_MAX_ARITY, GPP_EMPTY())
-
-#ifdef G_SUPPORT_STDCALL
-	FT_DEF_MEMBER(FT_MAX_ARITY, __stdcall)
-#endif
-#ifdef G_SUPPORT_FASTCALL	
-	FT_DEF_MEMBER(FT_MAX_ARITY, __fastcall)
-#endif
-#ifdef G_SUPPORT_NORETURN_ATTRIBUTE
-    FT_DEF_MEMBER(FT_MAX_ARITY, __attribute__((noreturn)))
-#endif
-
-} // namespace _internal
+} //namespace namespace functiontraits_internal
 
 template <typename Signature>
-struct GFunctionTraits : public _internal::GFunctionTraitsBase<Signature>
+struct GFunctionTraits
 {
+	typedef void FullType;
+	typedef void FunctionType;
+	typedef void FunctionPointer;
+	typedef void ArgTypeList;
+	typedef void ArgList;
+
+	typedef void ObjectType;
+	typedef void ResultType;
+
+	static constexpr bool IsFunction = false;
+
+	static constexpr int Arity = -1;
+	static constexpr bool HasResult = false;
+
+	static constexpr bool IsGlobal = false;
+	static constexpr bool IsMember = false;
+
+	static constexpr bool IsConst = false;
+	static constexpr bool IsVolatile = false;
+	static constexpr bool IsConstVolatile = false;
 };
 
-template <typename FuncTrait, unsigned int N>
-struct GArgumentType
-{
-	typedef typename TypeList_Get<typename FuncTrait::ArgTypeList, N>::Result Result;
-};
+#define G_FT_DEFINE_TRAITS(CC, CCFlag) \
+	template <typename RT, typename ...Parameters> \
+	class GFunctionTraits <RT CC (Parameters...)> : public functiontraits_internal::GFunctionTraitsBase< \
+			CCFlag, RT CC (Parameters...), GFunctionTraitNullType, RT, Parameters... \
+		> \
+	{}; \
+	template <typename RT, typename ...Parameters> \
+	class GFunctionTraits <RT (CC *) (Parameters...)> : public functiontraits_internal::GFunctionTraitsBase< \
+			CCFlag, RT (CC *) (Parameters...), GFunctionTraitNullType, RT, Parameters... \
+		> \
+	{}; \
+	template <typename OT, typename RT, typename ...Parameters> \
+	class GFunctionTraits <RT (CC OT::*)(Parameters...)> : public functiontraits_internal::GFunctionTraitsBase< \
+			CCFlag, RT (CC OT::*)(Parameters...), OT, RT, Parameters... \
+		> \
+	{}; \
+	template <typename OT, typename RT, typename ...Parameters> \
+	class GFunctionTraits <RT (CC OT::*)(Parameters...) const> : public functiontraits_internal::GFunctionTraitsBase< \
+			CCFlag | functiontraits_internal::ftfConst, RT (CC OT::*)(Parameters...) const, OT, RT, Parameters... \
+		> \
+	{}; \
+	template <typename OT, typename RT, typename ...Parameters> \
+	class GFunctionTraits <RT (CC OT::*)(Parameters...) volatile> : public functiontraits_internal::GFunctionTraitsBase< \
+			CCFlag | functiontraits_internal::ftfVolatile, RT (CC OT::*)(Parameters...) volatile, OT, RT, Parameters... \
+		> \
+	{}; \
+	template <typename OT, typename RT, typename ...Parameters> \
+	class GFunctionTraits <RT (CC OT::*)(Parameters...) const volatile> : public functiontraits_internal::GFunctionTraitsBase< \
+			CCFlag | functiontraits_internal::ftfConstVolatile, RT (CC OT::*)(Parameters...) const volatile, OT, RT, Parameters... \
+		> \
+	{};
 
 
-} // namespace cpgf
+G_FT_DEFINE_TRAITS(GPP_EMPTY(), 0)	
+#ifdef G_SUPPORT_STDCALL
+	G_FT_DEFINE_TRAITS(__stdcall, functiontraits_internal::ftfStdCall)
+#endif
+#ifdef G_SUPPORT_FASTCALL	
+	G_FT_DEFINE_TRAITS(__fastcall, functiontraits_internal::ftfFastCall)
+#endif
+#ifdef G_SUPPORT_NORETURN_ATTRIBUTE
+    G_FT_DEFINE_TRAITS(__attribute__((noreturn)), functiontraits_internal::ftfNoReturn)
+#endif
 
 
-#undef FT_MAX_ARITY
-#undef FT_ARG_TYPEDEF
-#undef FT_DEF_GLOBAL
-#undef FT_DEF_COMMON
-#undef FT_DEF_GLOBAL_HELPER
-#undef FT_DEF_MEMBER
-#undef FT_DEF_MEMBER_HELPER
-#undef FT_DEF_MEMBER_HELPER_CV
+#undef G_FT_DEFINE_TRAITS
+
+} //namespace cpgf
 
 
 #endif
+

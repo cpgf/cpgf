@@ -40,17 +40,17 @@ public:
 		}
 		else {
 			GScopedInterface<IMetaClass> metaClassHolder;
-			if(metaClass == NULL && this->metaType.getBaseName() != NULL) {
+			if(metaClass == nullptr && this->metaType.getBaseName() != nullptr) {
 				GScopedInterface<IMetaService> service(archiveReader->getMetaService());
 				metaClassHolder.reset(service->findClassByName(this->metaType.getBaseName()));
 				metaClass = metaClassHolder.get();
 			}
 
-			if(metaClass != NULL) {
+			if(metaClass != nullptr) {
 				return metaClass->createInstance();
 			}
 			else {
-				return NULL;
+				return nullptr;
 			}
 		}
 	}
@@ -61,13 +61,13 @@ public:
 		}
 		else {
 			GScopedInterface<IMetaClass> metaClassHolder;
-			if(metaClass == NULL && this->metaType.getBaseName() != NULL) {
+			if(metaClass == nullptr && this->metaType.getBaseName() != nullptr) {
 				GScopedInterface<IMetaService> service(archiveReader->getMetaService());
 				metaClassHolder.reset(service->findClassByName(this->metaType.getBaseName()));
 				metaClass = metaClassHolder.get();
 			}
 
-			if(metaClass != NULL) {
+			if(metaClass != nullptr) {
 				metaClass->destroyInstance(instance);
 			}
 		}
@@ -91,11 +91,11 @@ namespace metatraits_internal {
 
 IMetaSerializer * doCreateTrapAllSerializer(const GMetaType & metaType, IMetaSerializer * serializer)
 {
-	if(serializer != NULL || canSerializeMetaType(metaType)) {
+	if(serializer != nullptr || canSerializeMetaType(metaType)) {
 		return new GMetaSerializerTrapAll(metaType, serializer);
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 

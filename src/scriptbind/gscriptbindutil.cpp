@@ -1,62 +1,12 @@
 #include "cpgf/scriptbind/gscriptbindutil.h"
-
 #include "../pinclude/gscriptbindapiimpl.h"
 
 #include <string>
 
-
 using namespace std;
 using namespace cpgf::bind_internal;
 
-
 namespace cpgf {
-
-// This function is defined in gscriptvalue.cpp internally.
-GScriptValue createScriptValueFromData(const GScriptValueData & data);
-
-
-#define DEF_LOAD_PARAM_HELPER(N, unused) params[N] = &GPP_CONCAT(p, N);
-#define DEF_LOAD_PARAM(N) \
-	const GVariant * params[N == 0 ? 1 : N]; \
-	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER, GPP_EMPTY())
-
-#define DEF_LOAD_PARAM_HELPER_API(N, unused) params[N] = GPP_CONCAT(p, N).getValue().refData();
-#define DEF_LOAD_PARAM_API(N) \
-	GVariantData params[N == 0 ? 1 : N]; \
-	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER_API, GPP_EMPTY())
-
-#define DEF_CALL_HELPER(N, unused) \
-	GScriptValue invokeScriptFunction(GScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
-		DEF_LOAD_PARAM(N) \
-		return scriptObject->invokeIndirectly(functionName, params, N); \
-	} \
-	GScriptValue invokeScriptFunction(IScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
-		DEF_LOAD_PARAM_API(N) \
-		GScriptValueData data; \
-		GSharedInterface<IScriptObject> holder(scriptObject); /* Hold the object so metaCheckError won't crash if scriptObject is freed in invoke */ \
-		scriptObject->invoke(&data, functionName, params, N); \
-		metaCheckError(scriptObject); \
-		return createScriptValueFromData(data); \
-	} \
-	GScriptValue invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
-		DEF_LOAD_PARAM_API(N) \
-		GScriptValueData data; \
-		GSharedInterface<IScriptFunction> holder(scriptFunction); /* Hold the function so metaCheckError won't crash if scriptFunction is freed in invoke */ \
-		scriptFunction->invoke(&data, params, N); \
-		metaCheckError(scriptFunction); \
-		return createScriptValueFromData(data); \
-	} \
-	GScriptValue invokeScriptFunctionOnObject(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
-		DEF_LOAD_PARAM_API(N) \
-		GScriptValueData data; \
-		GSharedInterface<IScriptFunction> holder(scriptFunction); /* Hold the function so metaCheckError won't crash if scriptFunction is freed in invoke */ \
-		scriptFunction->invokeOnObject(&data, params, N); \
-		metaCheckError(scriptFunction); \
-		return createScriptValueFromData(data); \
-	}
-
-GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
-
 
 inline bool isCSymbol(unsigned char c) {
 	return isalpha(c) || c == '_' || isdigit(c);
@@ -205,7 +155,7 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 	GMetaMapClass mapClass(metaClass);
 
 	GScopedInterface<IScriptObject> namespaceHolder;
-	if(namespaceName != NULL && *namespaceName) {
+	if(namespaceName != nullptr && *namespaceName) {
 		namespaceHolder.reset(scriptCreateScriptObject(scriptObject, namespaceName).toScriptObject());
 		scriptObject = namespaceHolder.get();
 	}
@@ -280,7 +230,7 @@ void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, 
 
 IScriptObject * createScriptObject(IScriptObject * owner, const char * namespaces)
 {
-	if(namespaces == NULL || *namespaces == 0) {
+	if(namespaces == nullptr || *namespaces == 0) {
 		owner->addReference();
 		return owner;
 	}

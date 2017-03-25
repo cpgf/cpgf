@@ -6,7 +6,7 @@
 
 #define REF_CALL_METHOD(N, unused) \
 	GVariant GMetaMethod::invoke(void * instance GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const { \
-		if(this->isStatic() && ! this->baseData->isExplicitThis()) { instance = NULL; } \
+		if(this->isStatic() && ! this->baseData->isExplicitThis()) { instance = nullptr; } \
 		const GVariant * params[REF_MAX_ARITY]; \
 		GPP_REPEAT(N, REF_CALL_LOAD_PARAM, GPP_EMPTY); \
 		size_t passedParamCount = N; \
@@ -24,7 +24,7 @@
 		if(this->baseData->hasDefaultParam()) { \
 			passedParamCount = this->baseData->getDefaultParamList()->loadDefaultParams(params, N, this->baseData->getParamCount()); \
 		} \
-		return objectAddressFromVariant(this->baseData->invoke(NULL, params, passedParamCount)); \
+		return objectAddressFromVariant(this->baseData->invoke(nullptr, params, passedParamCount)); \
 	}
 
 namespace cpgf {
@@ -71,6 +71,11 @@ bool GMetaMethodDataBase::isExplicitThis() const
 GVariant GMetaMethodDataBase::invoke(void * instance, GVariant const * const * params, size_t paramCount) const
 {
 	return this->virtualFunctions->invoke(this, instance, params, paramCount);
+}
+
+GVariant GMetaMethodDataBase::invokeByData(void * instance, GVariantData const * const * params, size_t paramCount) const
+{
+	return this->virtualFunctions->invokeByData(this, instance, params, paramCount);
 }
 
 bool GMetaMethodDataBase::checkParam(const GVariant & param, size_t paramIndex) const
@@ -178,7 +183,7 @@ GVariant GMetaMethod::execute(void * instance, const GVariant * params, size_t p
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
 	if(this->isStatic()) {
-		instance = NULL;
+		instance = nullptr;
 	}
 
 	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
@@ -192,6 +197,21 @@ GVariant GMetaMethod::execute(void * instance, const GVariant * params, size_t p
 	}
 
 	return this->baseData->invoke(instance, variantPointers, paramCount);
+}
+
+GVariant GMetaMethod::executeByData(void * instance, const GVariantData * * params, size_t paramCount) const
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	if(this->isStatic()) {
+		instance = nullptr;
+	}
+
+	if(this->baseData->hasDefaultParam()) {
+		paramCount = this->baseData->getDefaultParamList()->loadDefaultParamsByData(params, paramCount, this->baseData->getParamCount());
+	}
+
+	return this->baseData->invokeByData(instance, params, paramCount);
 }
 
 bool GMetaMethod::checkParam(const GVariant & param, size_t paramIndex) const
@@ -290,7 +310,18 @@ GVariant GMetaConstructor::execute(void * /*instance*/, const GVariant * params,
 		paramCount = this->baseData->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, this->baseData->getParamCount());
 	}
 
-	return this->baseData->invoke(NULL, variantPointers, paramCount);
+	return this->baseData->invoke(nullptr, variantPointers, paramCount);
+}
+
+GVariant GMetaConstructor::executeByData(void * instance, const GVariantData * * params, size_t paramCount) const
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	if(this->baseData->hasDefaultParam()) {
+		paramCount = this->baseData->getDefaultParamList()->loadDefaultParamsByData(params, paramCount, this->baseData->getParamCount());
+	}
+
+	return this->baseData->invokeByData(nullptr, params, paramCount);
 }
 
 bool GMetaConstructor::checkParam(const GVariant & param, size_t paramIndex) const

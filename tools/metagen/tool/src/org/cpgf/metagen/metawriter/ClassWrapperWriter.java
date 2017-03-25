@@ -78,7 +78,7 @@ public class ClassWrapperWriter {
 		codeWriter.decIndent();
 	}
 
-	private void doWriteOverrideVirtualMethod(CppWriter codeWriter, CppMethod cppMethod) {
+	private void doWriteOverrideVirtualMethod(CppWriter codeWriter, CppMethod cppMethod, boolean isPrivate) {
 		String prototype = Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName());
 		if(cppMethod.isConst()) {
 			prototype = prototype + " const";
@@ -109,38 +109,42 @@ public class ClassWrapperWriter {
 			codeWriter.writeLine("return;");
 		}
 		codeWriter.endBlock();
-		if(cppMethod.isPureVirtual()) {
+		
+		if(! isPrivate) {
 			if(cppMethod.isPureVirtual()) {
-				codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
+				if(cppMethod.isPureVirtual()) {
+					codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
+				}
 			}
-		}
-		else {
-			invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
-			if(cppMethod.hasResult()) {
-				invoke = "return " + invoke;
+			else {
+				invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+				if(cppMethod.hasResult()) {
+					invoke = "return " + invoke;
+				}
+				codeWriter.writeLine(invoke);
 			}
-			codeWriter.writeLine(invoke);
-		}
-		codeWriter.endBlock("");
+			codeWriter.endBlock("");
 
-		prototype = Util.getInvokablePrototype(cppMethod, WriterUtil.getMethodSuperName(cppMethod));
-		if(cppMethod.isConst()) {
-			prototype = prototype + " const";
-		}
-		codeWriter.writeLine(prototype);
-		codeWriter.beginBlock();
-		if(cppMethod.isPureVirtual()) {
+			prototype = Util.getInvokablePrototype(cppMethod, WriterUtil.getMethodSuperName(cppMethod));
+			if(cppMethod.isConst()) {
+				prototype = prototype + " const";
+			}
+			codeWriter.writeLine(prototype);
+			codeWriter.beginBlock();
 			if(cppMethod.isPureVirtual()) {
-				codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
+				if(cppMethod.isPureVirtual()) {
+					codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
+				}
+			}
+			else {
+				invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+				if(cppMethod.hasResult()) {
+					invoke = "return " + invoke;
+				}
+				codeWriter.writeLine(invoke);
 			}
 		}
-		else {
-			invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
-			if(cppMethod.hasResult()) {
-				invoke = "return " + invoke;
-			}
-			codeWriter.writeLine(invoke);
-		}
+
 		codeWriter.endBlock("");
 	}
 
@@ -194,18 +198,18 @@ public class ClassWrapperWriter {
 		codeWriter.incIndent();
 
 		for(Constructor ctor : this.cppClass.getConstructorList()) {
-			if (ctor.isPublic()) {
+			if(ctor.isPublic() && ! ctor.isTemplate()) {
 				codeWriter.writeLine("");
 				this.doWriteConstructor(codeWriter, ctor);
 			}
 		}
 
 		for(CppMethod cppMethod : this.overrideMethods.values()) {
-			if (!cppMethod.isPrivate()) {
-				if (cppMethod.isVirtual()) {
-					codeWriter.writeLine("");
-					this.doWriteOverrideVirtualMethod(codeWriter, cppMethod);
-				} else {
+			if(cppMethod.isVirtual()) {
+				codeWriter.writeLine("");
+				this.doWriteOverrideVirtualMethod(codeWriter, cppMethod, cppMethod.isPrivate());
+			} else {
+				if(!cppMethod.isPrivate()) {
 					codeWriter.writeLine("");
 					this.doWriteOverrideMethod(codeWriter, cppMethod);
 				}

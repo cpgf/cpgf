@@ -13,13 +13,6 @@ void * newZeroBuffer(void * buffer, size_t size, void * copy);
 
 class GMetaItemImplement;
 
-struct CStringCompare
-{
-	bool operator () (const char * a, const char * b) const {
-		return strcmp(a, b) < 0;
-	}
-};
-
 
 template <typename T>
 struct GScopedPointerDeleter_BaseMeta

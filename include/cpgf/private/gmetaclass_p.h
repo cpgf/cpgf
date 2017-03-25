@@ -116,8 +116,8 @@ private:
 	G_STATIC_CONSTANT(bool, IsAbstract = (IsAbstractClass<OT>::Result));
 	G_STATIC_CONSTANT(bool, NoDefaultConstructor = (PolicyHasRule<Policy, GMetaRuleDefaultConstructorAbsent>::Result));
 	G_STATIC_CONSTANT(bool, NoCopyConstructor = (PolicyHasRule<Policy, GMetaRuleCopyConstructorAbsent>::Result));
-	G_STATIC_CONSTANT(bool, CanDefaultConstruct = (!IsGlobal && !IsAbstract && !NoDefaultConstructor));
-	G_STATIC_CONSTANT(bool, CanCopyConstruct = (!IsGlobal && !IsAbstract && !NoCopyConstructor));
+	G_STATIC_CONSTANT(bool, CanDefaultConstruct = (!IsGlobal && !IsAbstract && !NoDefaultConstructor && std::is_default_constructible<OT>::value));
+	G_STATIC_CONSTANT(bool, CanCopyConstruct = (!IsGlobal && !IsAbstract && !NoCopyConstructor && std::is_copy_constructible<OT>::value));
 
 	typedef ObjectDeleter<OT, !PolicyHasRule<Policy, GMetaRuleDestructorAbsent>::Result> Deleter;
 
@@ -221,7 +221,7 @@ private:
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	template <typename T>
@@ -240,7 +240,7 @@ private:
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	template <typename T>
@@ -259,7 +259,7 @@ private:
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	template <typename T>
@@ -278,7 +278,7 @@ private:
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	template <typename T>
@@ -330,7 +330,7 @@ struct GMetaClassCasterSelector
 {
 	template <typename D, typename B>
 	static void * downCast(void * /*base*/, typename GEnableIfResult<IsVirtualBase<D, B> >::Result * = 0) {
-		return NULL;
+		return nullptr;
 	}
 
 	template <typename D, typename B>
@@ -417,7 +417,7 @@ public:
 	}
 
 	const GMetaClass * getBaseClass() const {
-		if(this->superClass == NULL) {
+		if(this->superClass == nullptr) {
 			this->superClass = findMetaClass(this->type);
 		}
 
@@ -460,10 +460,10 @@ public:
 	template <typename ClassType, typename BaseType>
 	GMetaSuperListItem * add() {
 		if(this->isMetaRoot<BaseType>()) {
-			return NULL;
+			return nullptr;
 		}
 
-		return this->doAdd(GMetaSuperListItem(NULL, createMetaType<BaseType>(), new GMetaClassCaster<ClassType, BaseType>()));
+		return this->doAdd(GMetaSuperListItem(nullptr, createMetaType<BaseType>(), new GMetaClassCaster<ClassType, BaseType>()));
 	}
 
 private:

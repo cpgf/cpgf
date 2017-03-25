@@ -194,6 +194,16 @@ GTEST(InstanceGetter_Member_Function_getRefN)
 	GEQUAL(3, a.n);
 }
 
+GTEST(Getter_Callback)
+{
+	auto getter = createInstanceGetter(GCallback<int ()>(
+		[]() { return 38; }
+	));
+	GEQUAL(NULL, getter.getAddress(NULL));
+
+	GEQUAL(38, getter.get(NULL));
+}
+
 
 
 } // unnamed namespace

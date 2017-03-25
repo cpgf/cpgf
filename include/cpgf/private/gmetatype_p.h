@@ -115,7 +115,7 @@ public:
 template <typename T>
 void deduceMetaTypeData(GMetaTypeData * data)
 {
-	data->baseName = NULL;
+	data->baseName = nullptr;
 	data->flags = GMetaTypeDeduce<T>::Flags;
 	deduceVariantType<T>(data->typeData);
 	

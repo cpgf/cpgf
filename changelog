@@ -1,4 +1,8 @@
-TBD version 1.5.7
+2017-03-25 version 1.6.0
+	Now the library requires C++11.
+	Rewrote the callback system using C++ variadic template.
+	Rewrote GVariant using C++ variadic template.
+	Optimized script binding performance. Now the performance is a little more than doubled.
 	Added script array support in script binding engine. Now C++ code can access arrays defined in script.
 	Script binding, now script can inherit from C++ class. Available in Lua, V8, and SpiderMonkey.
 	Added script context in script binding.

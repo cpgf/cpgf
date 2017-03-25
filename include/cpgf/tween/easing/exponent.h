@@ -28,7 +28,7 @@ private:
 			return 0.0f;
 		}
 		else {
-			return pow(2, 10 * (param->current / param->total - 1))  - 0.001f;
+			return (GTweenNumber)(pow(2, 10 * (param->current / param->total - 1))  - 0.001f);
 		}
 	}
 	
@@ -37,7 +37,7 @@ private:
 			return 1.0f;
 		}
 		else {
-			return -pow(2, -10.0f * param->current / param->total) + 1.0f;
+			return (GTweenNumber)(-pow(2, -10.0f * param->current / param->total) + 1.0f);
 		}
 	}
 	
@@ -50,10 +50,10 @@ private:
 		}
 		GTweenNumber t = param->current / (param->total * 0.5f);
 		if(t < 1.0f) {
-			return 0.5f * pow(2, 10.0f * (t - 1.0f));
+			return (GTweenNumber)(0.5f * pow(2, 10.0f * (t - 1.0f)));
 		}
 		else {
-			return 0.5f * (-pow(2, -10.0f * (t - 1.0f)) + 2.0f);
+			return (GTweenNumber)(0.5f * (-pow(2, -10.0f * (t - 1.0f)) + 2.0f));
 		}
 	}
 	

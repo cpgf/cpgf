@@ -36,14 +36,14 @@ typedef xml_attribute<> XmlAttributeType;
 
 void checkNode(void * node, const char * /*nodeName*/)
 {
-	if(node == NULL) {
+	if(node == nullptr) {
 		serializeError(Error_Serialization_InvalidStorage);
 	}
 }
 
 XmlNodeType * getSiblingAt(XmlNodeType * node, const char * name, size_t index)
 {
-	while(index > 0 && node != NULL) {
+	while(index > 0 && node != nullptr) {
 		--index;
 		node = node->next_sibling(name);
 	}
@@ -81,7 +81,7 @@ private:
 };
 
 GMetaXmlStorageImplement::GMetaXmlStorageImplement()
-	: dataNode(NULL), classTypeNode(NULL)
+	: dataNode(nullptr), classTypeNode(nullptr)
 {
 }
 
@@ -89,7 +89,7 @@ void GMetaXmlStorageImplement::initializeXml()
 {
 	XmlNodeType * rootNode = this->xml.first_node(nameRootNode);
 	if(rootNode != 0) {
-		this->doLoad(NULL);
+		this->doLoad(nullptr);
 	}
 	else {
 		rootNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameRootNode));
@@ -122,14 +122,14 @@ void GMetaXmlStorageImplement::saveToStream(std::ostream & outputStream)
 
 XmlNodeType * GMetaXmlStorageImplement::getDataNode() const
 {
-	GASSERT(this->dataNode != NULL);
+	GASSERT(this->dataNode != nullptr);
 
 	return this->dataNode;
 }
 
 XmlNodeType * GMetaXmlStorageImplement::getClassTypeNode() const
 {
-	GASSERT(this->classTypeNode != NULL);
+	GASSERT(this->classTypeNode != nullptr);
 
 	return this->classTypeNode;
 }
@@ -141,7 +141,7 @@ xml_document<> * GMetaXmlStorageImplement::getXml() const
 
 void GMetaXmlStorageImplement::doLoad(char * xmlContent)
 {
-	if(xmlContent != NULL) {
+	if(xmlContent != nullptr) {
 		this->xml.parse<0>(xmlContent);
 	}
 
@@ -218,14 +218,14 @@ private:
 
 
 GXmlReaderNodeNameTracker::GXmlReaderNodeNameTracker(XmlNodeType * node)
-	: node(node), countMap(NULL)
+	: node(node), countMap(nullptr)
 {
 }
 
 void GXmlReaderNodeNameTracker::free()
 {
 	delete this->countMap;
-	this->countMap = NULL;
+	this->countMap = nullptr;
 }
 
 GXmlReaderNodeNameTracker::GXmlReaderNodeNameTracker(const GXmlReaderNodeNameTracker & other)
@@ -248,7 +248,7 @@ XmlNodeType * GXmlReaderNodeNameTracker::getNode() const
 
 size_t GXmlReaderNodeNameTracker::getIndex(const char * name) const
 {
-	if(this->countMap != NULL) {
+	if(this->countMap != nullptr) {
 		MapType::const_iterator it = this->countMap->find(name);
 		if(it != this->countMap->end()) {
 			return it->second;
@@ -260,7 +260,7 @@ size_t GXmlReaderNodeNameTracker::getIndex(const char * name) const
 
 void GXmlReaderNodeNameTracker::addIndex(const char * name)
 {
-	if(this->countMap == NULL) {
+	if(this->countMap == nullptr) {
 		this->countMap = new MapType;
 	}
 
@@ -483,7 +483,7 @@ void GXmlStorageWriter::clearTextStream()
 
 const char * GXmlStorageWriter::newString(const char * s)
 {
-	return s == NULL ? NULL : this->xml->allocate_string(s);
+	return s == nullptr ? nullptr : this->xml->allocate_string(s);
 }
 
 XmlNodeType * GXmlStorageWriter::getCurrentNode() const
@@ -508,7 +508,7 @@ void GXmlStorageWriter::popNode()
 
 XmlNodeType * GXmlStorageWriter::addNode(const char * name, const char * value)
 {
-	GASSERT(name != NULL);
+	GASSERT(name != nullptr);
 	GASSERT(strlen(name) > 0);
 
 	XmlNodeType * newNode = this->xml->allocate_node(node_element, this->newString(name), this->newString(value));
@@ -518,7 +518,7 @@ XmlNodeType * GXmlStorageWriter::addNode(const char * name, const char * value)
 
 XmlNodeType * GXmlStorageWriter::addNode(const char * name)
 {
-	return this->addNode(name, NULL);
+	return this->addNode(name, nullptr);
 }
 
 XmlAttributeType * GXmlStorageWriter::addAttribute(XmlNodeType * node, const char * name, const char * value)
@@ -530,7 +530,7 @@ XmlAttributeType * GXmlStorageWriter::addAttribute(XmlNodeType * node, const cha
 
 XmlAttributeType * GXmlStorageWriter::addAttribute(XmlNodeType * node, const char * name)
 {
-	return this->addAttribute(node, name, NULL);
+	return this->addAttribute(node, name, nullptr);
 }
 
 void GXmlStorageWriter::addIntAttribute(XmlNodeType * node, const char * name, long long value)
@@ -564,7 +564,7 @@ uint32_t G_API_CC GXmlStorageReader::getArchiveType(const char * name)
 {
 	XmlNodeType * node = this->getNode(name);
 	
-	if(node == NULL) {
+	if(node == nullptr) {
 		return matMissed;
 	}
 
@@ -611,7 +611,7 @@ void G_API_CC GXmlStorageReader::readFundamental(const char * name, GVariantData
 	PermanentType type = this->readType(node);
 	
 	GVariantType vt = getVariantTypeFromMap(this->variantTypeMap, type);
-	if(vt == vtEmpty) {
+	if(vt == GVariantType::vtEmpty) {
 		serializeError(Error_Serialization_TypeMismatch);
 	}
 
@@ -644,11 +644,11 @@ void * G_API_CC GXmlStorageReader::readNullPointer(const char * name)
 {
 	XmlNodeType * node = this->getNode(name);
 
-	if(node != NULL) {
+	if(node != nullptr) {
 		this->gotoNextNode(node, name);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 uint32_t G_API_CC GXmlStorageReader::beginReadObject(const char * name, uint32_t * outVersion)
@@ -692,7 +692,7 @@ uint32_t G_API_CC GXmlStorageReader::readReferenceID(const char * name)
 
 IMetaClass * G_API_CC GXmlStorageReader::readMetaClassAndTypeID(IMetaService * /*service*/, uint32_t * /*outClassTypeID*/)
 {
-	return NULL;
+	return nullptr;
 }
 
 IMetaClass * G_API_CC GXmlStorageReader::readMetaClass(IMetaService * service, uint32_t classTypeID)
@@ -700,11 +700,11 @@ IMetaClass * G_API_CC GXmlStorageReader::readMetaClass(IMetaService * service, u
 	this->setTextStream("");
 	this->textStream << prefixClassType << classTypeID;
 	XmlNodeType * node = this->classTypeNode->first_node(this->textStream.str().c_str());
-	if(node != NULL) {
+	if(node != nullptr) {
 		return service->findClassByName(node->value());
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -740,7 +740,7 @@ char * GXmlStorageReader::doReadString(XmlNodeType * node, IMemoryAllocator * al
 
 void GXmlStorageReader::setTextStream(const char * text)
 {
-	this->textStream.str(text == NULL ? "" : text);
+	this->textStream.str(text == nullptr ? "" : text);
 	this->textStream.clear();
 }
 

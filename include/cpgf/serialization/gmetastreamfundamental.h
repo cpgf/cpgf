@@ -22,67 +22,67 @@ template <template<typename> class TypeMap >
 void streamWriteFundamental(std::ostream & stream, const GVariant & value)
 {
 	switch(value.getType()) {
-		case vtBool:
+		case GVariantType::vtBool:
 			stream << fromVariant<typename TypeMap<bool>::Result>(value);
 			break;
 
-		case vtChar:
+		case GVariantType::vtChar:
 			stream << fromVariant<typename TypeMap<char>::Result>(value);
 			break;
 
-		case vtWchar:
+		case GVariantType::vtWchar:
 			stream << fromVariant<typename TypeMap<wchar_t>::Result>(value);
 			break;
 
-		case vtSignedChar:
+		case GVariantType::vtSignedChar:
 			stream << fromVariant<typename TypeMap<signed char>::Result>(value);
 			break;
 
-		case vtUnsignedChar:
+		case GVariantType::vtUnsignedChar:
 			stream << fromVariant<typename TypeMap<unsigned char>::Result>(value);
 			break;
 
-		case vtSignedShort:
+		case GVariantType::vtSignedShort:
 			stream << fromVariant<typename TypeMap<signed short>::Result>(value);
 			break;
 
-		case vtUnsignedShort:
+		case GVariantType::vtUnsignedShort:
 			stream << fromVariant<typename TypeMap<unsigned short>::Result>(value);
 			break;
 
-		case vtSignedInt:
+		case GVariantType::vtSignedInt:
 			stream << fromVariant<typename TypeMap<signed int>::Result>(value);
 			break;
 
-		case vtUnsignedInt:
+		case GVariantType::vtUnsignedInt:
 			stream << fromVariant<typename TypeMap<unsigned int>::Result>(value);
 			break;
 
-		case vtSignedLong:
+		case GVariantType::vtSignedLong:
 			stream << fromVariant<typename TypeMap<signed long>::Result>(value);
 			break;
 
-		case vtUnsignedLong:
+		case GVariantType::vtUnsignedLong:
 			stream << fromVariant<typename TypeMap<unsigned long>::Result>(value);
 			break;
 
-		case vtSignedLongLong:
+		case GVariantType::vtSignedLongLong:
 			stream << fromVariant<typename TypeMap<signed long long>::Result>(value);
 			break;
 
-		case vtUnsignedLongLong:
+		case GVariantType::vtUnsignedLongLong:
 			stream << fromVariant<typename TypeMap<unsigned long long>::Result>(value);
 			break;
 
-		case vtFloat:
+		case GVariantType::vtFloat:
 			stream << fromVariant<typename TypeMap<float>::Result>(value);
 			break;
 
-		case vtDouble:
+		case GVariantType::vtDouble:
 			stream << fromVariant<typename TypeMap<double>::Result>(value);
 			break;
 
-		case vtLongDouble:
+		case GVariantType::vtLongDouble:
 			stream << fromVariant<typename TypeMap<long double>::Result>(value);
 			break;
 
@@ -95,97 +95,97 @@ template <template<typename> class TypeMap >
 GVariant streamReadFundamental(std::istream & stream, GVariantType vt)
 {
 	switch(vt) {
-		case vtBool: {
+		case GVariantType::vtBool: {
 			typename TypeMap<bool>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtChar: {
+		case GVariantType::vtChar: {
 			typename TypeMap<char>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtWchar: {
+		case GVariantType::vtWchar: {
 			typename TypeMap<wchar_t>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtSignedChar: {
+		case GVariantType::vtSignedChar: {
 			typename TypeMap<signed char>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtUnsignedChar: {
+		case GVariantType::vtUnsignedChar: {
 			typename TypeMap<unsigned char>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtSignedShort: {
+		case GVariantType::vtSignedShort: {
 			typename TypeMap<signed short>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtUnsignedShort: {
+		case GVariantType::vtUnsignedShort: {
 			typename TypeMap<unsigned short>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtSignedInt: {
+		case GVariantType::vtSignedInt: {
 			typename TypeMap<signed int>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtUnsignedInt: {
+		case GVariantType::vtUnsignedInt: {
 			typename TypeMap<unsigned int>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtSignedLong: {
+		case GVariantType::vtSignedLong: {
 			typename TypeMap<signed long>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtUnsignedLong: {
+		case GVariantType::vtUnsignedLong: {
 			typename TypeMap<unsigned long>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtSignedLongLong: {
+		case GVariantType::vtSignedLongLong: {
 			typename TypeMap<signed long long>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtUnsignedLongLong: {
+		case GVariantType::vtUnsignedLongLong: {
 			typename TypeMap<unsigned long long>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtFloat: {
+		case GVariantType::vtFloat: {
 			typename TypeMap<float>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtDouble: {
+		case GVariantType::vtDouble: {
 			typename TypeMap<double>::Result value;
 			stream >> value;
 			return value;
 		}
 
-		case vtLongDouble: {
+		case GVariantType::vtLongDouble: {
 			typename TypeMap<long double>::Result value;
 			stream >> value;
 			return value;

@@ -79,7 +79,7 @@ private:
 	{
 	public:
 		GMetaArchiveWriterPointerTrackerItem()
-			: instance(NULL), typeName()
+			: instance(nullptr), typeName()
 		{
 		}
 
@@ -274,8 +274,8 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 
 void GMetaArchiveWriter::doWriteObjectHierarchy(GMetaArchiveWriterParam * param, GBaseClassMap * baseClassMap)
 {
-	// metaClass can be NULL if serializer is not NULL
-	if(param->metaClass != NULL) {
+	// metaClass can be nullptr if serializer is not nullptr
+	if(param->metaClass != nullptr) {
 		GScopedInterface<IMetaClass> baseClass;
 		uint32_t i;
 		uint32_t count;
@@ -318,12 +318,12 @@ void GMetaArchiveWriter::doWriteObjectHierarchy(GMetaArchiveWriterParam * param,
 
 void GMetaArchiveWriter::doWriteObjectWithoutBase(GMetaArchiveWriterParam * param)
 {
-	if(param->serializer != NULL) {
+	if(param->serializer != nullptr) {
 		GMetaArchiveWriterParam newParam(*param);
 		param->serializer->writeObject(this, this, &newParam);
 	}
 	else {
-		if(param->metaClass == NULL) {
+		if(param->metaClass == nullptr) {
 			serializeError(Error_Serialization_MissingMetaClass);
 		}
 
@@ -364,7 +364,7 @@ void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * 
 		else {
 			if(pointers == 0) {
 				ptr = accessible->getAddress(instance);
-				if(ptr == NULL) { // this happens when accessible is a property with both getter and setter.
+				if(ptr == nullptr) { // this happens when accessible is a property with both getter and setter.
 					valueHolder = GVariant(metaGetValue(accessible, instance));
 					if(canFromVariant<void *>(valueHolder)) {
 						ptr = objectAddressFromVariant(valueHolder);
@@ -376,7 +376,7 @@ void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * 
 			}
 		}
 
-		GASSERT(ptr != NULL || serializer);
+		GASSERT(ptr != nullptr || serializer);
 
 		this->doWriteValue(name, ptr, metaType, serializer.get(), pointers);
 	}
@@ -388,7 +388,7 @@ void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * 
 void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, const GMetaType & metaType, IMetaSerializer * serializer, uint32_t pointers)
 {
 	if(metaType.baseIsArray()) {
-		this->writeObjectHelper(name, address, metaType, NULL, serializer, 0);
+		this->writeObjectHelper(name, address, metaType, nullptr, serializer, 0);
 		return;
 	}
 
@@ -405,12 +405,12 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 	}
 
 	if(metaType.baseIsClass()) {
-		if(address == NULL && isPointer) {
+		if(address == nullptr && isPointer) {
 			this->writer->writeNullPointer(name);
 		}
 		else {
 			GScopedInterface<IMetaClass> metaClass;
-			if(metaType.getBaseName() != NULL) {
+			if(metaType.getBaseName() != nullptr) {
 				metaClass.reset(this->service->findClassByName(metaType.getBaseName()));
 			}
 			this->writeObjectHelper(name, address, metaType, metaClass.get(), serializer, pointers);
@@ -423,15 +423,15 @@ bool GMetaArchiveWriter::checkTrackedPointer(const char * name, uint32_t archive
 	GMetaArchiveConfig config = this->configMap.getConfig(metaClass);
 
 	if(config.allowTrackPointer()) {
-		const char * typeName = NULL;
-		if(serializer != NULL) {
+		const char * typeName = nullptr;
+		if(serializer != nullptr) {
 			typeName = serializer->getClassTypeName(this, instance, metaClass);
 		}
-		if(typeName == NULL && metaClass != NULL) {
+		if(typeName == nullptr && metaClass != nullptr) {
 			typeName = metaClass->getQualifiedName();
 		}
 
-		if(typeName == NULL) {
+		if(typeName == nullptr) {
 			return false;
 		}
 
@@ -464,15 +464,15 @@ void G_API_CC GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * 
 	GMetaArchiveConfig config = this->configMap.getConfig(metaClass);
 
 	if(config.allowTrackPointer()) {
-		const char * typeName = NULL;
-		if(serializer != NULL) {
+		const char * typeName = nullptr;
+		if(serializer != nullptr) {
 			typeName = serializer->getClassTypeName(this, instance, metaClass);
 		}
-		if(typeName == NULL && metaClass != NULL) {
+		if(typeName == nullptr && metaClass != nullptr) {
 			typeName = metaClass->getQualifiedName();
 		}
 
-		if(typeName != NULL) {
+		if(typeName != nullptr) {
 			if(! this->getPointerTracker()->hasPointer(instance, typeName)) {
 				this->getPointerTracker()->addPointer(instance, typeName, archiveID, pointers);
 			}
@@ -484,9 +484,9 @@ uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * 
 {
 	uint32_t classTypeID = classIDNone;
 
-	*outCastedMetaClass = NULL;
+	*outCastedMetaClass = nullptr;
 
-	if(metaClass != NULL) {
+	if(metaClass != nullptr) {
 		if(pointers > 0) {
 			void * castedPtr;
 			GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(instance, metaClass, &castedPtr));
@@ -504,7 +504,7 @@ uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * 
 			}
 		}
 		
-		if(*outCastedMetaClass == NULL) {
+		if(*outCastedMetaClass == nullptr) {
 			*outCastedMetaClass = metaClass;
 			metaClass->addReference();
 		}
@@ -567,7 +567,7 @@ void serializeWriteObject(IMetaArchiveWriter * archiveWriter, const char * name,
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).refData();
 	GScopedInterface<IMetaSerializer> serializer;
-	if(metaClass != NULL) {
+	if(metaClass != nullptr) {
 		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
 	}
 	archiveWriter->writeData(name, instance, &metaType, serializer.get());
@@ -575,7 +575,7 @@ void serializeWriteObject(IMetaArchiveWriter * archiveWriter, const char * name,
 
 void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param)
 {
-	if(param->instance == NULL) {
+	if(param->instance == nullptr) {
 		return;
 	}
 	

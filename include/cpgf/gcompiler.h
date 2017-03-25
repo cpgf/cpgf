@@ -12,10 +12,6 @@
 	#define G_DEBUG 0
 #endif
 
-#ifndef SUPPORT_CPP_11
-    #define SUPPORT_CPP_11 0
-#endif
-
 #if defined(_WIN64) || defined(WIN64) || defined(__WIN64_) || defined(_WIN64_WCE)
 	#define G_OS_WIN64
 #elif defined(_WIN32) || defined(WIN32) || defined(__WIN32__) || defined(_WIN32_WCE)
@@ -80,28 +76,9 @@
 
 #define G_STATIC_CONSTANT(type, assignment) static const type assignment
 
-// C++ 0x/11
-#ifndef G_SUPPORT_RVALUE_REFERENCE
-	#ifdef G_COMPILER_VC
-		#if _MSC_VER >= 1600
-			#define G_SUPPORT_RVALUE_REFERENCE 1
-		#endif
-	#endif
-	#ifdef G_COMPILER_GCC
-		#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)) && defined(__GXX_EXPERIMENTAL_CXX0X__)
-			#define G_SUPPORT_RVALUE_REFERENCE 1
-		#endif
-	#endif
-	#ifndef G_SUPPORT_RVALUE_REFERENCE
-		#define G_SUPPORT_RVALUE_REFERENCE 0
-	#endif
-#endif
-
 #ifdef __clang__
     #define G_SUPPORT_NORETURN_ATTRIBUTE
 #endif
-
-
 
 #ifndef __has_builtin
     #define __has_builtin(x) 0  // Compatibility with non-clang compilers.

@@ -289,6 +289,11 @@ public class DoxygenXmlParser {
 	}
 
 	private Item doParseMethod(Node node, String name) {
+		String argsString = Util.getNodeText(Util.getNode(node, "argsstring"));
+		if(argsString.endsWith("=delete")) { // deleted function
+			return null;
+		}
+		
 		if(! this.getCurrentClass().isGlobal()) {
 			if(name.indexOf('~') >= 0 && ! name.matches("operator\\s*~")) {
 				Destructor destructor = new Destructor();
@@ -313,6 +318,12 @@ public class DoxygenXmlParser {
 
 		if(matcher.matches()) { // operator
 			String op = matcher.group(1);
+			
+			// don't reflect new/delete
+			if(op.indexOf("new") >= 0 || op.indexOf("delete") >= 0) {
+				return null;
+			}
+
 			Operator operator = new Operator(
 					op, 
 					new CppType(this.metaInfo.getTypeSolver(), Util.getNodeText(Util.getNode(node, "type")))

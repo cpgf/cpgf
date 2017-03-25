@@ -1,25 +1,12 @@
-set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
-if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
+set(TARGET_UNITTEST tests)
+set(OUTNAME_UNITTEST test)
+
+if(GCC_LIKE)
 	if(TEST_GCOV)
-		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
 	endif(TEST_GCOV)
 
-	if(SUPPORT_GCC_0X)
-		if(MINGW)
-			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
-		else(MINGW)
-			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++11")
-		endif(MINGW)
-	endif(SUPPORT_GCC_0X)
-
-endif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-
-if(MSVC)
-	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64")
-endif(MSVC)
-
-
+endif()
 
 ### unit test
 
@@ -42,8 +29,8 @@ endif(${HAS_UNITTEST})
 
 macro(globAndAppendFiles fileList)
 	set(globAndAppendFiles_patterns ${ARGN})
-	file(GLOB temp ${globAndAppendFiles_patterns})
-	list(APPEND ${fileList} ${temp})
+	file(GLOB tempFileList ${globAndAppendFiles_patterns})
+	list(APPEND ${fileList} ${tempFileList})
 endmacro()
 
 macro(partUnitTest target)
@@ -73,8 +60,7 @@ macro(partUnitTest target)
 		${target}
 		PROPERTIES
 		OUTPUT_NAME ${target}
-		COMPILE_FLAGS ${UNITTEST_COMPILE_FLAGS}
-		COMPILE_DEFINITIONS "ENABLE_LUA=${HAS_LUA};ENABLE_V8=${HAS_V8};ENABLE_PYTHON=${HAS_PYTHON};ENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY};ENABLE_BOOST=${HAS_BOOST};SUPPORT_CPP_11=${SUPPORT_GCC_0X}"
+		COMPILE_DEFINITIONS "ENABLE_LUA=${HAS_LUA};ENABLE_V8=${HAS_V8};ENABLE_PYTHON=${HAS_PYTHON};ENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY};ENABLE_BOOST=${HAS_BOOST}"
 	)
 	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endmacro()
@@ -128,8 +114,16 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/misc/*.cpp
 	)
 
+	partUnitTest("test_callback"
+		${TEST_PATH}/callback/*.cpp
+	)
+
 	partUnitTest("test_variant"
 		${TEST_PATH}/variant/*.cpp
+	)
+
+	partUnitTest("test_temp"
+		${TEST_PATH}/temp/*.cpp
 	)
 
 	partUnitTest("test_accessor"
@@ -180,11 +174,6 @@ if(${HAS_UNITTEST})
 		message(WARNING "Can't find Lua for unit test. Unit test will not include Lua binding test.")
 	endif(HAS_LUA LESS 1)
 
-	if(HAS_V8 LESS 1)
-		message(WARNING "Can't find V8 for unit test. Unit test will not include V8 binding test.")
-	endif(HAS_V8 LESS 1)
-
-
 	set(UNITTEST_FRAMEWORK_SUBDIR Posix)
 
 	if(WIN32)
@@ -198,6 +187,7 @@ if(${HAS_UNITTEST})
 
 	globAndAppendFiles(GLOB_TEST_SRC
 		${TEST_PATH}/accessor/*.cpp
+		${TEST_PATH}/callback/*.cpp
 		${TEST_PATH}/misc/*.cpp
 		${TEST_PATH}/variant/*.cpp
 		${TEST_PATH}/reflection/*.cpp
@@ -246,7 +236,7 @@ if(${HAS_UNITTEST})
 	add_executable(
 		${TARGET_UNITTEST}
 		EXCLUDE_FROM_ALL
-			${SRC_TEST_SRC}
+		${SRC_TEST_SRC}
 	)
 
 	target_link_libraries(${TARGET_UNITTEST} ${TARGET_LIB})
@@ -274,8 +264,7 @@ if(${HAS_UNITTEST})
 		${TARGET_UNITTEST}
 		PROPERTIES
 		OUTPUT_NAME ${OUTNAME_UNITTEST}
-		COMPILE_FLAGS ${UNITTEST_COMPILE_FLAGS}
-		COMPILE_DEFINITIONS "ENABLE_LUA=${HAS_LUA};ENABLE_V8=${HAS_V8};ENABLE_PYTHON=${HAS_PYTHON};ENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY};ENABLE_BOOST=${HAS_BOOST};SUPPORT_CPP_11=${SUPPORT_GCC_0X}"
+		COMPILE_DEFINITIONS "ENABLE_LUA=${HAS_LUA};ENABLE_V8=${HAS_V8};ENABLE_PYTHON=${HAS_PYTHON};ENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY};ENABLE_BOOST=${HAS_BOOST}"
 	)
 
 endif(${HAS_UNITTEST})

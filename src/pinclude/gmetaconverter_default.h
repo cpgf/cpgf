@@ -20,7 +20,7 @@ public:
 	}
 	
 	virtual const char * G_API_CC readCString(const void * /*instance*/, gapi_bool * /*needFree*/, IMemoryAllocator * /*allocator*/) {
-		return NULL;
+		return nullptr;
 	}
 	
 	virtual void G_API_CC writeCString(void * /*instance*/, const char * /*str*/) {
@@ -31,7 +31,7 @@ public:
 	}
 	
 	virtual const wchar_t * G_API_CC readCWideString(const void * /*instance*/, gapi_bool * /*needFree*/, IMemoryAllocator * /*allocator*/) {
-		return NULL;
+		return nullptr;
 	}
 	
 	virtual void G_API_CC writeCWideString(void * /*instance*/, const wchar_t * /*str*/) {

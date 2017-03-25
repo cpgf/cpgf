@@ -1,7 +1,6 @@
 #ifndef CPGF_GMETAEXTENDTYPE_H
 #define CPGF_GMETAEXTENDTYPE_H
 
-#include "cpgf/gstdint.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gifelse.h"
 #include "cpgf/gtypetraits.h"
@@ -14,8 +13,8 @@
 #include "cpgf/metatraits/gmetasharedptrtraits.h"
 #include "cpgf/metatraits/gmetaobjectlifemanager.h"
 
+#include <cstdint>
 #include <string.h>
-
 
 namespace cpgf {
 
@@ -75,7 +74,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		data->converter = createConverterFromMetaTraits(param, p);
 	}
 	else {
-		data->converter = NULL;
+		data->converter = nullptr;
 	}
 
 	if((createFlags & GExtendTypeCreateFlag_Serializer) != 0) {
@@ -85,7 +84,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		data->serializer = createSerializerFromMetaTraits(param, p);
 	}
 	else {
-		data->serializer = NULL;
+		data->serializer = nullptr;
 	}
 
 	if((createFlags & GExtendTypeCreateFlag_ScriptWrapper) != 0) {
@@ -95,7 +94,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		data->scriptWrapper = metaTraitsCreateScriptWrapper<typename WrapExtendType<T>::Result>(param, p);
 	}
 	else {
-		data->scriptWrapper = NULL;
+		data->scriptWrapper = nullptr;
 	}
 
 	if((createFlags & GExtendTypeCreateFlag_SharedPointerTraits) != 0) {
@@ -105,7 +104,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		data->sharedPointerTraits = createSharedPointerTraitsFromMetaTraits(param, p);
 	}
 	else {
-		data->sharedPointerTraits = NULL;
+		data->sharedPointerTraits = nullptr;
 	}
 
 	if((createFlags & GExtendTypeCreateFlag_ObjectLifeManager) != 0) {
@@ -115,7 +114,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		data->objectLifeManager = createObjectLifeManagerFromMetaTraits(param, p);
 	}
 	else {
-		data->objectLifeManager = NULL;
+		data->objectLifeManager = nullptr;
 	}
 }
 
@@ -175,7 +174,7 @@ GMetaExtendType createMetaExtendType(uint32_t createFlags, const GMetaModule * m
 template <typename T>
 GMetaExtendType createMetaExtendType(uint32_t createFlags)
 {
-	return createMetaExtendType<T>(createFlags, (const GMetaItem *)NULL);
+	return createMetaExtendType<T>(createFlags, (const GMetaItem *)nullptr);
 }
 
 template <typename T>

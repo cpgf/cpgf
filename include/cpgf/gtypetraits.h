@@ -93,13 +93,11 @@ struct IsReference <T &>
 	G_STATIC_CONSTANT(bool, Result = true);
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct IsReference <T &&>
 {
 	G_STATIC_CONSTANT(bool, Result = true);
 };
-#endif
 
 
 template <typename T>
@@ -114,13 +112,11 @@ struct RemoveReference <T &>
 	typedef T Result;
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct RemoveReference <T &&>
 {
 	typedef T Result;
 };
-#endif
 
 
 template <typename T>
@@ -155,13 +151,11 @@ struct IsRValueReference
 	G_STATIC_CONSTANT(bool, Result = false);
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct IsRValueReference <T &&>
 {
 	G_STATIC_CONSTANT(bool, Result = true);
 };
-#endif
 
 
 template <typename T>
@@ -170,13 +164,11 @@ struct RemoveRValueReference
 	typedef T Result;
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct RemoveRValueReference <T &&>
 {
 	typedef T Result;
 };
-#endif
 
 
 template <typename T>
@@ -335,9 +327,7 @@ template <typename T> struct ExtractRawType <T volatile> { typedef typename Extr
 template <typename T> struct ExtractRawType <T const volatile> { typedef typename ExtractRawType<T>::Result Result; };
 template <typename T> struct ExtractRawType <T *> { typedef typename ExtractRawType<T>::Result Result; };
 template <typename T> struct ExtractRawType <T &> { typedef typename ExtractRawType<T>::Result Result; };
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T> struct ExtractRawType <T &&> { typedef typename ExtractRawType<T>::Result Result; };
-#endif
 
 
 
@@ -629,6 +619,9 @@ template <typename T>
 struct MemberDataTrait
 {
 	G_STATIC_CONSTANT(bool, Result = false);
+	typedef void ObjectType;
+	typedef void FieldType;
+	typedef void DataType;
 };
 
 template <typename OT, typename FT>
@@ -680,25 +673,17 @@ struct GArgumentTraits <T, typename GEnableIfResult<IsFundamental<T> >::Result>
 	typedef T Result;
 };
 
-//template <typename T>
-//struct GArgumentTraits <T *>
-//{
-//	typedef T * Result;
-//};
-
 template <typename T>
 struct GArgumentTraits <T &>
 {
 	typedef T & Result;
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct GArgumentTraits <T &&>
 {
 	typedef T && Result;
 };
-#endif
 
 #ifndef G_COMPILER_CPPBUILDER
 template <typename T, unsigned int N>
@@ -707,6 +692,17 @@ struct GArgumentTraits <T [N]>
 	typedef const T * & Result;
 };
 #endif
+
+
+// http://stackoverflow.com/questions/5100015/c-metafunction-to-determine-whether-a-type-is-callable
+template<typename F, typename...Args>
+struct IsCallable
+{
+	template<typename U> static auto test(U * p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
+	template<typename U> static auto test(...) -> decltype(std::false_type());
+
+	static constexpr bool Result = decltype(test<typename std::remove_reference<F>::type>(0))::value;
+};
 
 
 } // namespace cpgf

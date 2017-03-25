@@ -1,241 +1,550 @@
 #ifndef CPGF_GCALLBACK_H
 #define CPGF_GCALLBACK_H
 
-#include "cpgf/private/gcallback_p.h"
+#include "cpgf/gfunctiontraits.h"
+#include "cpgf/gtypetraits.h"
+
+#include <type_traits>
+#include <functional>
+#include <memory>
 
 namespace cpgf {
 
+template <typename T>
+T * callbackGetPointer(T * p)
+{
+	return p;
+}
 
-namespace callback_debug {
+template <typename T>
+T * callbackGetPointer(const std::shared_ptr<T> & p)
+{
+	return p.get();
+}
 
-/*	This function checks if a potential callback is completed.
-	It returns:
-		If func is a callback for member function, return true if the target object is not NULL, return false if it's NULL.
-		Otherwise, return true.
-	How can this function be useful?
-		It's useful to detect a very hard to track bug that passing a callback for member function with object as NULL to construct another callback,
-			under this circumstance, calling the new constructed callback will always cause memory access error if the destination function reference to "this".
-*/
-template <typename FT>
-bool isCompleteCallback(const FT & func);
-} // namespace callback_debug
+template <typename T>
+T * callbackGetPointer(const std::unique_ptr<T> & p)
+{
+	return p.get();
+}
+
+template <typename T>
+void callbackSetPointer(T * & instance, void * p)
+{
+	instance = static_cast<T *>(p);
+}
+
+template <typename T>
+void callbackSetPointer(std::shared_ptr<T> & instance, void * p)
+{
+	instance.reset(static_cast<T *>(p));
+}
+
+template <typename T>
+void callbackSetPointer(std::unique_ptr<T> & instance, void * p)
+{
+	instance.reset(static_cast<T *>(p));
+}
 
 
-template<typename Signature>
-class GCallback : public callback_internal::GCallbackFunctionTraits<GFunctionTraits<Signature>::Arity, Signature>::CallbackAgentType {
+namespace callback_internal {
+
+struct SizeOfCallbackBase {
+	void * p;
+};
+
+struct SizeOfCallbackSon : public SizeOfCallbackBase {
+	virtual void a(int) { (void)a(0); }
+};
+
+constexpr auto BufferSize = sizeof(&SizeOfCallbackSon::a) + sizeof(SizeOfCallbackBase);
+
+template <typename BaseType>
+typename std::enable_if<(sizeof(BaseType) <= BufferSize), BaseType *>::type
+ allocateMemory(void * buffer)
+{
+	return reinterpret_cast<BaseType *>(buffer);
+}
+
+template <typename BaseType>
+typename std::enable_if<(sizeof(BaseType) > BufferSize), BaseType *>::type
+ allocateMemory(void * /*buffer*/)
+{
+	return reinterpret_cast<BaseType *>(new char[sizeof(BaseType)]);
+}
+
+template <typename T, typename... Parameters>
+T * allocateBase(void * buffer, Parameters && ... parameters)
+{
+	T * base = allocateMemory<T>(buffer);
+	new(base) T(std::forward<Parameters>(parameters)...);
+	return base;
+}
+
+template <typename T, typename U>
+std::false_type operator == (const T &, const U &);
+
+template <typename T, typename U>
+struct EqualOperatorExists
+{
+	static constexpr bool value = ! std::is_same<decltype(*& *(T*)(0) == *& *(U*)(0)), std::false_type>::value;
+};
+
+template <typename T, typename U>
+bool doCheckEqual(const T & a, const U & b, typename std::enable_if<EqualOperatorExists<T, U>::value>::type * = 0)
+{
+	// Use * & to deal with makeReference in cpgf or reference_wrapper.
+	return *&a == *&b;
+}
+
+template <typename T, typename U>
+bool doCheckEqual(const T & a, const U & b, typename std::enable_if<! EqualOperatorExists<T, U>::value>::type * = 0)
+{
+	return (void *)&a == (void *)&b;
+}
+
+template <typename T, typename U>
+bool callbackCheckEqual(const T & a, const U & b)
+{
+	return doCheckEqual(a, b);
+}
+
+template <typename T, typename U>
+bool callbackCheckEqual(const std::reference_wrapper<T> & a, const std::reference_wrapper<U> & b)
+{
+	return doCheckEqual(a.get(), b.get());
+}
+
+
+template <typename Expect, typename Actural>
+struct GCheckReturnType
+{
+	static constexpr bool value = std::is_convertible<Actural, Expect>::value;
+};
+
+template <typename Actural>
+struct GCheckReturnType <void, Actural>
+{
+	static constexpr bool value = true;
+};
+
+template <typename T>
+struct GReturnEmptyValue
+{
+	static T invoke() {
+		return T();
+	}
+};
+
+template <typename T>
+struct GReturnEmptyValue <T &>
+{
+	static T & invoke() {
+		return *(T *)0;
+	}
+};
+
+template <typename RT, typename... Parameters>
+struct GCallbackBase
+{
 private:
-	typedef GCallback <Signature> ThisType;
-	typedef callback_internal::GCallbackFunctionTraits<GFunctionTraits<Signature>::Arity, Signature> CallbackTraitsType;
-	typedef typename CallbackTraitsType::CallbackAgentType super;
+	typedef GCallbackBase <RT, Parameters...> ThisType;
 
 public:
-	typedef typename super::FunctionType FunctionType;
+	typedef void (*Destroy)(ThisType * self);
+	typedef ThisType * (*Clone)(ThisType * self, void * buffer);
+	typedef RT (*Invoker)(ThisType * self, Parameters && ... parameters);
+	typedef void * (*GetObject)(ThisType * self);
+	typedef void (*SetObject)(ThisType * self, void * object);
+	typedef bool (*IsSame)(ThisType * self, void * other);
+	
+	struct CallbackVirtuals {
+		Destroy destroy;
+		Clone clone;
+		Invoker invoker;
+		GetObject getObject;
+		SetObject setObject;
+		// when isSame is called, "other" is guaranteed to be the same type of "self".
+		IsSame isSame;
+	};
+	
+	explicit GCallbackBase(const CallbackVirtuals * virtuals)
+		: virtuals(virtuals)
+	{
+	}
+	
+	const CallbackVirtuals * virtuals;
+};
+
+template <typename Func, typename RT, typename... Parameters>
+struct GCallbackBaseFunc : public GCallbackBase <RT, Parameters...>
+{
+private:
+	typedef GCallbackBase <RT, Parameters...> BaseType;
+	typedef BaseType super;
+	typedef GCallbackBaseFunc <Func, RT, Parameters...> ThisType;
+	
+	static void destroy(BaseType * self)
+	{
+		static_cast<ThisType *>(self)->~ThisType();
+	}
+	
+	static BaseType * clone(BaseType * self, void * buffer)
+	{
+		return allocateBase<ThisType>(buffer, *static_cast<ThisType *>(self));
+	}
+	
+	static RT invoker(BaseType * self, Parameters && ... parameters)
+	{
+		return (RT)((*&(static_cast<ThisType *>(self)->func))(std::forward<Parameters>(parameters)...));
+	}
+	
+	static void * getObject(BaseType * /*self*/)
+	{
+		return nullptr;
+	}
+	
+	static void setObject(BaseType * /*self*/, void * /*object*/)
+	{
+	}
+	
+	static bool isSame(BaseType * self, void * other)
+	{
+		using namespace callback_internal;
+
+		return callbackCheckEqual(static_cast<ThisType *>(self)->func, static_cast<ThisType *>(other)->func);
+	}
+	
+	static typename super::CallbackVirtuals * doGetVirtuals() {
+		static typename super::CallbackVirtuals callbackVirtuals = {
+			&destroy,
+			&clone,
+			&invoker,
+			&getObject,
+			&setObject,
+			&isSame
+		};
+		
+		return &callbackVirtuals;
+	}
+
+public:
+	GCallbackBaseFunc(const Func & func)
+		: super(doGetVirtuals()), func(func)
+	{
+	}
+
+private:
+	Func func;
+};
+
+template <typename Instance, typename OT, typename Func, typename RT, typename... Parameters>
+struct GCallbackBaseMember : public GCallbackBase <RT, Parameters...>
+{
+private:
+	typedef GCallbackBase <RT, Parameters...> BaseType;
+	typedef BaseType super;
+	typedef GCallbackBaseMember <Instance, OT, Func, RT, Parameters...> ThisType;
+	
+	static void destroy(BaseType * self)
+	{
+		static_cast<ThisType *>(self)->~ThisType();
+	}
+	
+	static BaseType * clone(BaseType * self, void * buffer)
+	{
+		return allocateBase<ThisType>(buffer, *static_cast<ThisType *>(self));
+	}
+	
+	static RT invoker(BaseType * self, Parameters && ... parameters)
+	{
+		return (RT)(
+			(callbackGetPointer(static_cast<ThisType *>(self)->instance)
+				->*(*&(static_cast<ThisType *>(self)->func))
+			)(std::forward<Parameters>(parameters)...)
+		);
+	}
+	
+	static void * getObject(BaseType * self)
+	{
+		return (void *)callbackGetPointer(static_cast<ThisType *>(self)->instance);
+	}
+	
+	static void setObject(BaseType * self, void * object)
+	{
+		callbackSetPointer(static_cast<ThisType *>(self)->instance, object);
+	}
+	
+	static bool isSame(BaseType * self, void * other)
+	{
+		using namespace callback_internal;
+
+		return callbackCheckEqual(static_cast<ThisType *>(self)->instance, static_cast<ThisType *>(other)->instance)
+			&& callbackCheckEqual(static_cast<ThisType *>(self)->func, static_cast<ThisType *>(other)->func);
+	}
+	
+	static typename super::CallbackVirtuals * doGetVirtuals() {
+		static typename super::CallbackVirtuals callbackVirtuals = {
+			&destroy,
+			&clone,
+			&invoker,
+			&getObject,
+			&setObject,
+			&isSame
+		};
+		
+		return &callbackVirtuals;
+	}
+
+public:
+	GCallbackBaseMember(const Instance & instance, const Func & func)
+		: super(doGetVirtuals()), instance(instance), func(func)
+	{
+	}
+
+private:
+	Instance instance;
+	Func func;
+};
+
+
+} //namespace callback_internal
+
+
+template <typename Signature>
+class GCallback
+{
+};
+
+template <typename RT, typename... Parameters>
+class GCallback <RT (*)(Parameters...)>
+{
+private:
+	typedef callback_internal::GCallbackBase <RT, Parameters...> BaseType;
+	typedef GCallback <RT (*)(Parameters...)> ThisType;
+
+public:
+	typedef RT FunctionType(Parameters...);
 	typedef FunctionType * FunctionPointer;
-	typedef typename CallbackTraitsType::FunctionTraits TraitsType;
+	typedef cpgf::GFunctionTraits<FunctionType> TraitsType;
 
 public:
-	GCallback() : super() {
+	GCallback() : base(nullptr)
+	{
+	}
+	
+	~GCallback()
+	{
+		this->doFreeBase();
 	}
 
-	template<typename OT, typename FT>
-	GCallback(OT * instance, const FT & func) {
-		this->template init<OT, FT>(instance, func);
+	template <typename FT>
+	GCallback(
+		const FT & func,
+		typename std::enable_if<! GFunctionTraits<FT>::IsMember && IsCallable<FT, Parameters...>::Result>::type * = 0
+	)
+		:
+			base(
+				callback_internal::allocateBase<
+					callback_internal::GCallbackBaseFunc<
+						typename std::conditional<GFunctionTraits<FT>::IsFunction, typename GFunctionTraits<FT>::FunctionPointer, FT>::type,
+						RT, Parameters...>
+				>((void *)this->buffer, func)
+			)
+	{
 	}
 
-	template<typename FT>
-	GCallback(const FT & func, typename GEnableIfResult<callback_internal::TypeMaybeFunctor<FT> >::Result * = 0) {
-		assert(callback_debug::isCompleteCallback(func));
-
-		this->template init<ThisType, FT>(func);
+	template <typename FT>
+	GCallback(
+		const FT & func,
+		typename std::enable_if<GFunctionTraits<FT>::IsMember>::type * = 0
+	)
+		:
+			base(
+				callback_internal::allocateBase<
+					callback_internal::GCallbackBaseMember<typename GFunctionTraits<FT>::ObjectType *, typename GFunctionTraits<FT>::ObjectType, FT, RT,Parameters...>
+				>((void *)this->buffer, (typename GFunctionTraits<FT>::ObjectType *)nullptr, func)
+			)
+	{
 	}
 
-    GCallback(const ThisType & other) : super(other) {
+	template <typename Instance, typename FT>
+	GCallback(Instance instance, const FT & func)
+		:
+			base(
+				callback_internal::allocateBase<
+					callback_internal::GCallbackBaseMember<Instance, typename cpgf::GFunctionTraits<FT>::ObjectType, FT, RT, Parameters...>
+				>((void *)this->buffer, instance, func)
+			)
+	{
 	}
 
-	GCallback & operator = (const ThisType & other) {
-		super::operator = (other);
+	GCallback(const ThisType & other)
+		: base(other.base != nullptr ? other.base->virtuals->clone(other.base, (void *)this->buffer) : nullptr)
+	{
+	}
+	
+	GCallback(ThisType && other)
+		: base(other.base != nullptr ? other.base->virtuals->clone(other.base, (void *)this->buffer) : nullptr)
+	{
+	}
+	
+	GCallback & operator = (const ThisType & other)
+	{
+		if(this != &other) {
+			this->doFreeBase();
+			this->base = (other.base != nullptr ? other.base->virtuals->clone(other.base, (void *)this->buffer) : nullptr);
+		}
+		
 		return *this;
 	}
 
-	bool operator == (const ThisType & other) const {
-		return super::operator == (other);
+	RT invoke(Parameters... args) const
+	{
+		if(this->base != nullptr) {
+			return this->base->virtuals->invoker(this->base, std::forward<Parameters>(args)...);
+		}
+		else {
+			return callback_internal::GReturnEmptyValue<RT>::invoke();
+		}
 	}
-
-	template <typename T>
-	bool operator == (const T & other) const {
-		return super::operator == (other);
+	
+	RT operator() (Parameters... args) const
+	{
+		if(this->base != nullptr) {
+			return this->base->virtuals->invoker(this->base, std::forward<Parameters>(args)...);
+		}
+		else {
+			return callback_internal::GReturnEmptyValue<RT>::invoke();
+		}
 	}
-
-	bool operator != (const ThisType & other) const {
-		return super::operator != (other);
-	}
-
-	template <typename T>
-	bool operator != (const T & other) const {
-		return super::operator != (other);
-	}
-
-	void * getObject() {
-		return this->getBase() ? this->getBase()->getObject() : NULL;
-	}
-
-	const void * getObject() const {
-		return this->getBase() ? this->getBase()->getObject() : NULL;
-	}
-
-	void setObject(void * instance) const {
-		if(this->getBase()) {
-			this->getBase()->setObject(instance);
+	
+	void * getObject() const
+	{
+		if(this->base != nullptr) {
+			return this->base->virtuals->getObject(this->base);
+		}
+		else {
+			return nullptr;
 		}
 	}
 
+	void setObject(void * object) const
+	{
+		if(this->base != nullptr) {
+			this->base->virtuals->setObject(this->base, object);
+		}
+	}
+	
+	void clear() {
+		this->doFreeBase();
+	}
+
 	bool empty() const {
-		return this->getBase() == NULL;
+		return this->base == nullptr;
 	}
 
 	operator bool() const {
 		return ! this->empty();
 	}
+	
+	bool operator == (const ThisType & other) const
+	{
+		if(this->base == other.base) {
+			return true;
+		}
+	
+		if(this->base != nullptr && other && other.base != nullptr) {
+			return this->base->virtuals->isSame(this->base, other.base);
+		}
+		else {
+			return false;
+		}
+	}
 
+	bool operator != (const ThisType & other) const
+	{
+		return ! this-> operator == (other);
+	}
+	
+private:
+	void doFreeBase()
+	{
+		if(this->base != nullptr) {
+			this->base->virtuals->destroy(this->base);
+
+			if(this->base != (void *)this->buffer) {
+				delete reinterpret_cast<char *>(this->base);
+			}
+
+			this->base = nullptr;
+		}
+	}
+
+private:
+	BaseType * base;
+	char buffer[callback_internal::BufferSize];
 };
 
+template <typename RT, typename ...Parameters>
+class GCallback <RT (Parameters...)> : public GCallback <RT (*)(Parameters...)>
+{
+private:
+	typedef GCallback <RT (*)(Parameters...)> super;
 
-// auxiliary global functions and templates
+public:
+	GCallback() : super() {}
 
-#define CB_DEF_CALLBACK_N(N, unused) \
-	template<typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename PT) > \
-	class GPP_CONCAT(GCallback, N) { \
-	public: \
-		typedef GCallback <RT (GPP_REPEAT_PARAMS(N, PT)) > type; \
-	};
-
-GPP_REPEAT_2(CB_MAX_ARITY, CB_DEF_CALLBACK_N, GPP_EMPTY)
-
-#undef CB_DEF_CALLBACK_N
-
-#define CB_OBJ_FUNC_HELPER(name, N, qualify) \
-	template <typename RT, typename OT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename PT) > \
-	inline GCallback <RT (GPP_REPEAT_PARAMS(N, PT)) > \
-	name(qualify OT * instance, RT (OT::*func)(GPP_REPEAT_PARAMS(N, PT)) qualify) \
-	{ \
-		return GCallback <RT (GPP_REPEAT_PARAMS(N, PT)) >(instance, func); \
+	template <typename FT>
+	GCallback(
+		const FT & func,
+		typename std::enable_if<! GFunctionTraits<FT>::IsMember && IsCallable<FT, Parameters...>::Result>::type * = 0
+	)
+		: super(func)
+	{
 	}
 
-#define CB_OBJ_FUNC(name, N) \
-	CB_OBJ_FUNC_HELPER(name, N, GPP_EMPTY()) \
-	CB_OBJ_FUNC_HELPER(name, N, const) \
-	CB_OBJ_FUNC_HELPER(name, N, volatile) \
-	CB_OBJ_FUNC_HELPER(name, N, const volatile)
-
-#define CB_GLOBAL_FUNC_HELPER(name, N, qualify) \
-	template <typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename PT) > \
-	inline GCallback <RT (GPP_REPEAT_PARAMS(N, PT)) > \
-	name(RT (* qualify func)(GPP_REPEAT_PARAMS(N, PT))) \
-	{ \
-		return GCallback <RT (GPP_REPEAT_PARAMS(N, PT)) >(func); \
+	template <typename FT>
+	GCallback(
+		const FT & func,
+		typename std::enable_if<GFunctionTraits<FT>::IsMember>::type * = 0
+	)
+		: super(func)
+	{
 	}
 
-#define CB_GLOBAL_FUNC(name, N) \
-	CB_GLOBAL_FUNC_HELPER(name, N, GPP_EMPTY())
-
-
-#define CB_ORD_OBJ_MAKE(N, P) CB_OBJ_FUNC(GPP_CONCAT(makeCallback, N), N)
-#define CB_ORD_GLOBAL_MAKE(N, P) CB_GLOBAL_FUNC(GPP_CONCAT(makeCallback, N), N)
-
-GPP_REPEAT_2(CB_MAX_ARITY, CB_ORD_OBJ_MAKE,		GPP_EMPTY)
-GPP_REPEAT_2(CB_MAX_ARITY, CB_ORD_GLOBAL_MAKE,	GPP_EMPTY)
-
-#undef CB_ORD_OBJ_MAKE
-#undef CB_GLOBAL_FUNC_HELPER
-#undef CB_OBJ_FUNC_HELPER
-
+	template <typename Instance, typename FT>
+	GCallback(Instance instance, const FT & func)
+		: super(instance, func)
+	{
+	}
+};
 
 template <typename FT>
 struct FunctionCallbackType
 {
-	typedef GCallback<typename GFunctionTraits<FT>::FunctionType> Result;
+	typedef GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType> Result;
+};
+
+template <typename Signature>
+struct FunctionCallbackType <GCallback<Signature> >
+{
+	typedef GCallback<Signature> Result;
 };
 
 template <typename OT, typename FT>
 typename FunctionCallbackType<FT>::Result
 makeCallback(OT * instance, const FT & func) {
-	return GCallback<typename GFunctionTraits<FT>::FunctionType>(instance, func);
+	return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>(instance, func);
 }
-
-namespace callback_internal {
-
-template <typename OT>
-struct GlobalCallbackSelector
-{
-	template <typename FT>
-	static typename FunctionCallbackType<FT>::Result
-	makeCallback(const FT & func) {
-		return GCallback<typename GFunctionTraits<FT>::FunctionType>((OT *)NULL, func);
-	}
-};
-
-template <>
-struct GlobalCallbackSelector <GFunctionTraitNullType>
-{
-	template <typename FT>
-	static typename FunctionCallbackType<FT>::Result
-	makeCallback(const FT & func) {
-		return GCallback<typename GFunctionTraits<FT>::FunctionType>(func);
-	}
-};
-
-} // namespace callback_internal
 
 template <typename FT>
 typename FunctionCallbackType<FT>::Result
 makeCallback(FT func) {
-	return callback_internal::GlobalCallbackSelector<typename GFunctionTraits<FT>::ObjectType>::makeCallback(func);
+	return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>(func);
 }
 
 
-template<typename Signature>
-bool isMemberCallback(const GCallback<Signature> & cb) {
-	const GCallback<Signature> * p = &cb;
-	void * instance = p->getObject();
-	p->setObject(p);
-	bool isMember = (p->getObject() == p);
-	p->setObject(instance);
-	return isMember;
-}
-
-
-namespace callback_debug {
-
-// for debug only
-
-template <typename FT>
-struct CompleteCallbackHelper {
-	static bool isCompleted(const FT & /*func*/) {
-		return true;
-	}
-};
-
-template <typename FT>
-struct CompleteCallbackHelper <GCallback<FT> > {
-	static bool isCompleted(const GCallback<FT> & func) {
-		return !isMemberCallback(func) || func.getObject() != NULL;
-	}
-};
-
-template <typename FT>
-bool isCompleteCallback(const FT & func) {
-	return CompleteCallbackHelper<FT>::isCompleted(func);
-}
-
-} // namespace callback_debug
-
-
-} // namespace cpgf
-
-
-#undef CB_GLOBAL_FUNC
-#undef CB_OBJ_FUNC
-#undef CB_ORD_GLOBAL_MAKE
-
+} //namespace cpgf
 
 #endif

@@ -12,7 +12,7 @@ PROJECT=cpgf
 
 PROJECT_PREFIX = project
 
-SUPPORT_MAKES = auto nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux xcode
+SUPPORT_MAKES = auto nmake mingw mingw_debug linux vc15 cb_mingw cb_mingw_debug cb_nmake cb_linux xcode
 
 none: needcmake
 	$(ECHO) "Usage:"
@@ -25,14 +25,12 @@ none: needcmake
 	$(ECHO) "  $(SUPPORT_MAKES)"
 	$(ECHO) 
 	$(ECHO) "  nmake        Generate Microsoft VC makefile and then use nmake to build."
-	$(ECHO) "  mingw        Generate MinGW makefile and then use mingw32-make to build."
+	$(ECHO) "  mingw        Generate MinGW makefile and then use mingw32-make to build (release version)."
+	$(ECHO) "  mingw_debug  Generate MinGW makefile and then use mingw32-make to build (debug version)."
 	$(ECHO) "  linux        Generate Linux/Unix makefile and then use GCC make to build."
-	$(ECHO) "  vc13         Generate project files for Microsoft VC 2013. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  vc12         Generate project files for Microsoft VC 2012. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  vc10         Generate project files for Microsoft VC 2010. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  vc08         Generate project files for Microsoft VC 2008. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  vc05         Generate project files for Microsoft VC 2005. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  cb_mingw     Generate project files for Code::Blocks using MinGW g++ compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  vc15         Generate project files for Microsoft VC 2015. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  cb_mingw     Generate project files for Code::Blocks using MinGW g++ compiler, release version. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  cb_mingw_debug     Generate project files for Code::Blocks using MinGW g++ compiler, debug version. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_nmake     Generate project files for Code::Blocks using VC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_linux     Generate project files for Code::Blocks using Linux/Unix GCC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  xcode        Generate project files for Apple Xcode. No auto build. You need to open the project in Xcode IDE then build."
@@ -45,7 +43,7 @@ none: needcmake
 	$(ECHO) 
 	$(ECHO) "  TARGET=lib                   Build the library. This is the default if TARGET is omitted."
 	$(ECHO) "  TARGET=tutorials             Build the tutorials."
-	$(ECHO) "  TARGET=test                  Build the unit test."
+	$(ECHO) "  TARGET=tests                 Build the unit tests."
 	$(ECHO) "  TARGET=samplereflection      Build the reflection sample application."
 	$(ECHO) "  TARGET=sampleserialization   Build the serialization sample application."
 	$(ECHO) "  TARGET=samplelua             Build the Lua binding sample application."
@@ -64,8 +62,13 @@ auto: needcmake
 
 mingw: needcmake
 	$(MK_CACHE)_mingw
-	$(CH_DIR) $(CACHE_DIR)_mingw $(CMAKE) -G"MinGW Makefiles"
+	$(CH_DIR) $(CACHE_DIR)_mingw $(CMAKE) -DCMAKE_BUILD_TYPE=Release -G"MinGW Makefiles"
 	$(EXEC_BUILD)_mingw mingw32-make $(TARGET)
+
+mingw_debug: needcmake
+	$(MK_CACHE)_mingw_debug
+	$(CH_DIR) $(CACHE_DIR)_mingw_debug $(CMAKE) -DCMAKE_BUILD_TYPE=Debug -G"MinGW Makefiles"
+	$(EXEC_BUILD)_mingw_debug mingw32-make $(TARGET)
 
 nmake: needcmake
 	$(ECHO) NOTE: *****************************
@@ -80,35 +83,20 @@ linux: needcmake
 	$(CH_DIR) $(CACHE_DIR)_linux $(CMAKE) -G"Unix Makefiles"
 	$(EXEC_BUILD)_linux make $(TARGET)
 
-vc05: needcmake
-	$(MK_DIR) $(PROJECT_PREFIX)_vc05
-	$(CH_DIR) $(PROJECT_PREFIX)_vc05 $(CMAKE) -G"Visual Studio 8 2005"
-	$(ECHO) Please open the solution $(PROJECT).slnin $(PROJECT_PREFIX)_vc05 in VC IDE.
-
-vc08: needcmake
-	$(MK_DIR) $(PROJECT_PREFIX)_vc08
-	$(CH_DIR) $(PROJECT_PREFIX)_vc08 $(CMAKE) -G"Visual Studio 9 2008"
-	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc08 in VC IDE.
-
-vc10: needcmake
-	$(MK_DIR) $(PROJECT_PREFIX)_vc10
-	$(CH_DIR) $(PROJECT_PREFIX)_vc10 $(CMAKE) -G"Visual Studio 10"
-	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc10 in VC IDE.
-
-vc12: needcmake
-	$(MK_DIR) $(PROJECT_PREFIX)_vc12
-	$(CH_DIR) $(PROJECT_PREFIX)_vc12 $(CMAKE) -G"Visual Studio 11"
-	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc12 in VC IDE.
-
-vc13: needcmake
-	$(MK_DIR) $(PROJECT_PREFIX)_vc13
-	$(CH_DIR) $(PROJECT_PREFIX)_vc13 $(CMAKE) -G"Visual Studio 12"
-	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc13 in VC IDE.
+vc15: needcmake
+	$(MK_DIR) $(PROJECT_PREFIX)_vc15
+	$(CH_DIR) $(PROJECT_PREFIX)_vc15 $(CMAKE) -G"Visual Studio 14"
+	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc15 in VC IDE.
 
 cb_mingw: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_cb_mingw
 	$(CH_DIR) $(PROJECT_PREFIX)_cb_mingw $(CMAKE) -G"CodeBlocks - MinGW Makefiles"
 	$(ECHO) Please open the project file $(PROJECT).cbp in $(PROJECT_PREFIX)_cb_mingw in Code::Blocks.
+
+cb_mingw_debug: needcmake
+	$(MK_DIR) $(PROJECT_PREFIX)_cb_mingw_debug
+	$(CH_DIR) $(PROJECT_PREFIX)_cb_mingw_debug $(CMAKE) -DCMAKE_BUILD_TYPE=Debug -G"CodeBlocks - MinGW Makefiles"
+	$(ECHO) Please open the project file $(PROJECT).cbp in $(PROJECT_PREFIX)_cb_mingw_debug in Code::Blocks.
 
 cb_nmake: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_cb_nmake

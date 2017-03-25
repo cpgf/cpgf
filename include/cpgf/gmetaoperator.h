@@ -1,7 +1,7 @@
 #ifndef CPGF_GMETAOPERATOR_H
 #define CPGF_GMETAOPERATOR_H
 
-
+#include "cpgf/gtypeutil.h"
 #include "cpgf/private/gmetainvoke_p.h"
 #include "cpgf/private/gmetadefaultparam_p.h"
 #include "cpgf/gmetacommon.h"
@@ -62,6 +62,7 @@ public:
 	virtual bool isResultTransferOwnership() const;
 	
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+	virtual GVariant executeByData(void * instance, const GVariantData * * params, size_t paramCount) const;
 
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 

@@ -17,7 +17,7 @@ public:
 	~GMetaObjectArray();
 
 	GVariant getItem(uint32_t index) const;
-	void setItem(uint32_t index, const GVariant & value, const GMetaVariadicParam * moreValues = NULL);
+	void setItem(uint32_t index, const GVariant & value, const GMetaVariadicParam * moreValues = nullptr);
 	
 	uint32_t getCount() const;
 

@@ -6,7 +6,6 @@
 #pragma warning(disable:4127) // warning C4127: conditional expression is constant
 #endif
 
-
 namespace meta_internal {
 
 template <GMetaOpType op>
@@ -55,7 +54,7 @@ struct ConvertReference <T, true>
 inline GVariant convertSelf(const GVariant & param)
 {
 	if(vtIsByPointer(param.getType())) {
-		return pointerToRefVariant(param);
+		return variantPointerToLvalueReference(param);
 	}
 	else {
 		return param;
@@ -155,11 +154,7 @@ struct MetaOperatorExecuter;
 #define DEF_BINARY_FULL(OP, EXP) \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GEnableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
-			GVarTypeData typeData = GVarTypeData(); \
-			deduceVariantType<typename FT::ResultType>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
-			GVariant v; \
-			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>(v, typeData, (EXP)); \
-			return v; \
+			return createVariant<typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 	} }; \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT> { \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
@@ -218,11 +213,7 @@ DEF_BINARY(mopPointerMember, ->*)
 #define DEF_UNARY(OP, EXP) \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
-			GVarTypeData typeData = GVarTypeData(); \
-			deduceVariantType<typename FT::ResultType>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
-			GVariant v; \
-			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>(v, typeData, (EXP)); \
-			return v; \
+			return createVariant<typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 	} }; \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
@@ -259,7 +250,8 @@ struct GMetaOperatorDataVirtual
 	GVariant (*invoke2)(const GVariant & p0, const GVariant & p1);
 	GVariant (*invokeFunctor)(void * instance, GVariant const * const * params, size_t paramCount);
 	GVariant (*execute)(const void * self, void * instance, const GVariant * params, size_t paramCount);
-	
+	GVariant (*executeByData)(const void * self, void * instance, const GVariantData * * params, size_t paramCount);
+
 	GMetaOpType (*getOperator)();
 	size_t (*getParamCount)();
 	bool (*hasResult)();
@@ -311,6 +303,7 @@ public:
 	GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const;
 
 	GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+	GVariant executeByData(void * instance, const GVariantData * * params, size_t paramCount) const;
 
 	bool isParamTransferOwnership(size_t paramIndex) const;
 	bool isResultTransferOwnership() const;
@@ -451,6 +444,14 @@ private:
 		return virtualInvoke2(params[0], params[1]);
 	}
 
+	static GVariant virtualExecuteByData(const void * /*self*/, void * /*instance*/, const GVariantData * * params, size_t paramCount) {
+		if(paramCount != virtualGetParamCount()) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
+		}
+
+		return virtualInvoke2(createVariantFromData(*params[0]), createVariantFromData(*params[1]));
+	}
+
 	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
@@ -469,10 +470,11 @@ public:
 		static GMetaOperatorDataVirtual thisFunctions = {
 			&virtualBaseMetaDeleter<ThisType>,
 			
-			NULL,
+			nullptr,
 			&virtualInvoke2,
-			NULL,
+			nullptr,
 			&virtualExecute,
+			&virtualExecuteByData,
 
 			&virtualGetOperator,
 			&virtualGetParamCount,
@@ -599,6 +601,14 @@ private:
 		return virtualInvoke(params[0]);
 	}
 
+	static GVariant virtualExecuteByData(const void * /*self*/, void * /*instance*/, const GVariantData * * params, size_t paramCount) {
+		if(paramCount != virtualGetParamCount()) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
+		}
+
+		return virtualInvoke(createVariantFromData(*params[0]));
+	}
+
 	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
@@ -618,9 +628,10 @@ public:
 			&virtualBaseMetaDeleter<ThisType>,
 			
 			&virtualInvoke,
-			NULL,
-			NULL,
+			nullptr,
+			nullptr,
 			&virtualExecute,
+			&virtualExecuteByData,
 
 			&virtualGetOperator,
 			&virtualGetParamCount,
@@ -668,16 +679,22 @@ private:
 		return false;
 	}
 
+	template <unsigned int N>
+	struct GetParamTypeSelector
+	{
+		template <typename TypeList>
+		GMetaType operator()(const TypeList & /*typeList*/)
+		{
+			return createMetaType<typename TypeList_GetWithDefault<TypeList, N>::Result>();
+		}
+	};
+
 	static GMetaType virtualGetParamType(size_t index) {
 		if((int)index < static_cast<int>(FT::Arity)) {
-			switch(index) {
-#define REF_GETPARAM_HELPER(N, unused) \
-	case N: return createMetaType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>();
-
-			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_HELPER, GPP_EMPTY)
-
-#undef REF_GETPARAM_HELPER
-			}
+			return GTypeSelector<FT::Arity>::template select<GMetaType, GetParamTypeSelector>(
+				index,
+				typename FT::ArgTypeList()
+			);
 		}
 
 		operatorIndexOutOfBound(index, FT::Arity);
@@ -696,20 +713,28 @@ private:
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
 
+	template <typename TypeList>
+	struct GetParamExtendTypeSelectorParam
+	{
+		uint32_t flags;
+	};
+	
+	template <unsigned int N>
+	struct GetParamExtendTypeSelector
+	{
+		template <typename TypeList>
+		GMetaExtendType operator()(const GetParamExtendTypeSelectorParam<TypeList> & param)
+		{
+			return createMetaExtendType<typename TypeList_GetWithDefault<TypeList, N>::Result>(param.flags);
+		}
+	};
+
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
 		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
-		
-#define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
-	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(flags);
-
-		switch(index) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
-
-			default:
-				raiseCoreException(Error_Meta_ParamOutOfIndex);
-				return GMetaExtendType();
-		}
-#undef REF_GETPARAM_EXTENDTYPE_HELPER
+		return GTypeSelector<FT::Arity>::template select<GMetaExtendType, GetParamExtendTypeSelector>(
+			index,
+			GetParamExtendTypeSelectorParam<typename FT::ArgTypeList>{ flags }
+		);
 	}
 	
 
@@ -721,8 +746,21 @@ private:
 		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result;
 	}
 
-#define REF_CHECKPARAM_HELPER(N, unused) \
-	case N: return canFromVariant<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(param);
+	template <typename TypeList>
+	struct CheckParamSelectorParam
+	{
+		const GVariant & param;
+	};
+	
+	template <unsigned int N>
+	struct CheckParamSelector
+	{
+		template <typename TypeList>
+		bool operator()(const CheckParamSelectorParam<TypeList> & param)
+		{
+			return canFromVariant<typename TypeList_GetWithDefault<TypeList, N>::Result>(param.param);
+		}
+	};
 
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
 		if(virtualIsVariadic() && paramIndex >= virtualGetParamCount()) {
@@ -734,22 +772,18 @@ private:
 			}
 		}
 
-		switch(paramIndex) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_CHECKPARAM_HELPER, GPP_EMPTY)
-
-			default:
-				raiseCoreException(Error_Meta_ParamOutOfIndex);
-				return false;
-		}
+		return GTypeSelector<FT::Arity>::template select<bool, CheckParamSelector>(
+			paramIndex,
+			CheckParamSelectorParam<typename FT::ArgTypeList>{ param }
+		);
 	}
-#undef REF_CHECKPARAM_HELPER
 
 	static GMetaType virtualCreateOperatorMetaType() {
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
 	static GVariant virtualInvoke(const GVariant & p0) {
-		return virtualInvokeFunctor(objectAddressFromVariant(p0), NULL, 0);
+		return virtualInvokeFunctor(objectAddressFromVariant(p0), nullptr, 0);
 	}
 
 	static GVariant virtualInvoke2(const GVariant & p0, const GVariant & p1) {
@@ -771,6 +805,19 @@ private:
 		>::invoke(instance, *static_cast<OT *>(instance), params, paramCount);
 	}
 
+	static GVariant virtualInvokeFunctorByData(void * instance, GVariantData const * const * params, size_t paramCount) {
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
+
+		return GMetaInvokeHelper<OT,
+			FT,
+			FT::Arity,
+			typename FT::ResultType,
+			Policy,
+			IsVariadicFunction<FT>::Result,
+			PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
+		>::invokeByData(instance, *static_cast<OT *>(instance), params, paramCount);
+	}
+
 	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -787,6 +834,18 @@ private:
 		}
 
 		return virtualInvokeFunctor(instance, variantPointers, paramCount);
+	}
+
+	static GVariant virtualExecuteByData(const void * self, void * instance, const GVariantData * * params, size_t paramCount) {
+		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
+
+		if(static_cast<const ThisType *>(self)->hasDefaultParam()) {
+			static_cast<const ThisType *>(self)->getDefaultParamList()->loadDefaultParamsByData(params, paramCount, virtualGetParamCount());
+		}
+
+		return virtualInvokeFunctorByData(instance, params, paramCount);
 	}
 
 	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
@@ -811,6 +870,7 @@ public:
 			&virtualInvoke2,
 			&virtualInvokeFunctor,
 			&virtualExecute,
+			&virtualExecuteByData,
 
 			&virtualGetOperator,
 			&virtualGetParamCount,

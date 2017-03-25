@@ -44,7 +44,7 @@ GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
 
 void metaCheckError(IExtendObject * object)
 {
-	if(object != NULL && object->getErrorCode() != Error_None) {
+	if(object != nullptr && object->getErrorCode() != Error_None) {
 		raiseException(object->getErrorCode(), object->getErrorMessage());
 	}
 }
@@ -196,7 +196,7 @@ IMetaClass * metaGetGlobalMetaClass(IMetaService * service, size_t index)
 
 const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance)
 {
-	if(outCastedInstance != NULL) {
+	if(outCastedInstance != nullptr) {
 		*outCastedInstance = const_cast<void *>(instance);
 	}
 
@@ -207,24 +207,24 @@ const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMet
 	const GMetaClass * currentClass = metaClass;
 
 	for(;;) {
-		void * derivedInstance = NULL;
+		void * derivedInstance = nullptr;
 		size_t derivedCount = currentClass->getDerivedCount();
 
 		for(size_t i = 0; i < derivedCount; ++i) {
 			derivedInstance = currentClass->castToDerived(instance, i);
-			if(derivedInstance != NULL) {
+			if(derivedInstance != nullptr) {
 				currentClass = currentClass->getDerivedClass(i);
 				instance = derivedInstance;
 				break;
 			}
 		}
 
-		if(derivedInstance == NULL) {
+		if(derivedInstance == nullptr) {
 			break;
 		}
 	}
 
-	if(outCastedInstance != NULL) {
+	if(outCastedInstance != nullptr) {
 		*outCastedInstance = const_cast<void *>(instance);
 	}
 	return currentClass;
@@ -232,7 +232,7 @@ const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMet
 
 IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * metaClass, void ** outCastedInstance)
 {
-	if(outCastedInstance != NULL) {
+	if(outCastedInstance != nullptr) {
 		*outCastedInstance = const_cast<void *>(instance);
 	}
 
@@ -245,24 +245,24 @@ IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * met
 	GScopedInterface<IMetaClass> currentClass(metaClass);
 
 	for(;;) {
-		void * derivedInstance = NULL;
+		void * derivedInstance = nullptr;
 		uint32_t derivedCount = currentClass->getDerivedCount();
 
 		for(uint32_t i = 0; i < derivedCount; ++i) {
 			derivedInstance = currentClass->castToDerived(instance, i);
-			if(derivedInstance != NULL) {
+			if(derivedInstance != nullptr) {
 				currentClass.reset(currentClass->getDerivedClass(i));
 				instance = derivedInstance;
 				break;
 			}
 		}
 
-		if(derivedInstance == NULL) {
+		if(derivedInstance == nullptr) {
 			break;
 		}
 	}
 
-	if(outCastedInstance != NULL) {
+	if(outCastedInstance != nullptr) {
 		*outCastedInstance = const_cast<void *>(instance);
 	}
 	return currentClass.take();
@@ -281,17 +281,17 @@ void * doMetaCastToBase(void * instance, IMetaClass * currentClass, IMetaClass *
 		}
 		
 		void * castedInstance = doMetaCastToBase(currentClass->castToBase(instance, i), base.get(), targetBaseClass);
-		if(castedInstance != NULL) {
+		if(castedInstance != nullptr) {
 			return castedInstance;
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 void * metaCastToBase(void * instance, IMetaClass * currentClass, IMetaClass * targetBaseClass)
 {
-	if(instance == NULL) {
+	if(instance == nullptr) {
 		return instance;
 	}
 	
@@ -311,23 +311,49 @@ void * doMetaCastToDerived(void * instance, IMetaClass * currentClass, IMetaClas
 		}
 		
 		void * castedInstance = doMetaCastToDerived(currentClass->castToDerived(instance, i), derived.get(), targetDerivedClass);
-		if(castedInstance != NULL) {
+		if(castedInstance != nullptr) {
 			return castedInstance;
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 void * metaCastToDerived(void * instance, IMetaClass * currentClass, IMetaClass * targetDerivedClass)
 {
-	if(instance == NULL) {
+	if(instance == nullptr) {
 		return instance;
 	}
 	
 	return doMetaCastToDerived(instance, currentClass, targetDerivedClass);
 }
 
+void * doMetaCastAny(void * instance, IMetaClass * fromClass, IMetaClass * toClass)
+{
+	if(fromClass->equals(toClass)) {
+		return instance;
+	}
+
+	void * casted;
+
+	casted = metaCastToBase(instance, fromClass, toClass);
+	if(casted == nullptr) {
+		casted = metaCastToDerived(instance, fromClass, toClass);
+	}
+
+	// TODO: support multi-inheritance that fromClass and toClass are not on the same inheritance line.
+
+	return casted;
+}
+
+void * metaCastAny(void * instance, IMetaClass * fromClass, IMetaClass * toClass)
+{
+	if(instance == nullptr) {
+		return instance;
+	}
+
+	return doMetaCastAny(instance, fromClass, toClass);
+}
 
 
 } // namespace cpgf

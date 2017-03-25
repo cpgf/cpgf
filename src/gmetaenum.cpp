@@ -37,7 +37,7 @@ size_t GMetaEnum::getCount() const
 const char * GMetaEnum::getKey(size_t index) const
 {
 	if(index >= this->getCount()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return this->implement->keyNameList[index].c_str();

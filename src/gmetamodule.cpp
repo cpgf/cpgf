@@ -11,28 +11,18 @@ namespace cpgf {
 
 namespace {
 
-#if SUPPORT_CPP_11
-	#define GTYPEHASH_TYPE size_t
-#else
-	#define GTYPEHASH_TYPE std::string
-#endif
-
-inline GTYPEHASH_TYPE getTypeInfoHash(const GTypeInfo &type) {
+inline std::size_t getTypeInfoHash(const GTypeInfo &type) {
 	if (type.isEmpty()) {
 		throw std::runtime_error("missing type information");
 	}
-#if SUPPORT_CPP_11
 	return type.getStdTypeInfo().hash_code();
-#else
-	return type.getStdTypeInfo().name();
-#endif
 }
 
 }
 
 class GMetaTypedItemList
 {
-	typedef std::map<GTYPEHASH_TYPE, const GMetaTypedItem *> ItemsByTypeHashMap;
+	typedef std::map<std::size_t, const GMetaTypedItem *> ItemsByTypeHashMap;
 public:
 	typedef GStringMap<const GMetaTypedItem *, GStringMapReuseKey> MapType;
 
@@ -68,18 +58,18 @@ public:
 	const GMetaTypedItem * findByType(const GTypeInfo & type) const {
 		ItemsByTypeHashMap::const_iterator it = itemsByTypeHash.find(getTypeInfoHash(type));
 		if (it == itemsByTypeHash.end()) {
-			return NULL;
+			return nullptr;
 		}
 		return it->second;
 	}
 
 	const GMetaTypedItem * findByName(const char * name) const {
-		if(name == NULL || !*name) {
-			return NULL;
+		if(name == nullptr || !*name) {
+			return nullptr;
 		}
 
 		MapType::const_iterator it = this->itemMap.find(name);
-		return it == this->itemMap.end() ? NULL : it->second;
+		return it == this->itemMap.end() ? nullptr : it->second;
 	}
 
 	const MapType * getItemMap() const {
@@ -115,7 +105,7 @@ void GMetaModule::unregisterAll()
 		GScopedPointer<GMetaTypedItemList> tempClassList(this->implement->classList.take());
 		for(GMetaTypedItemList::MapType::const_iterator it = tempClassList->getItemMap()->begin(); it != tempClassList->getItemMap()->end(); ++it) {
 			this->unregisterMetaClass(static_cast<const GMetaClass *>(it->second));
-			static_cast<const GMetaClass *>(it->second)->setModule(NULL);
+			static_cast<const GMetaClass *>(it->second)->setModule(nullptr);
 		}
 	}
 }
@@ -188,13 +178,13 @@ void GMetaModule::doUnregisterMetaEnum(const GMetaEnum * metaEnum)
 
 const GMetaTypedItem * GMetaModule::findItemByType(const GTypeInfo & type) const
 {
-	const GMetaTypedItem * item = NULL;
+	const GMetaTypedItem * item = nullptr;
 
 	if(this->implement->classList) {
 		item = this->implement->classList->findByType(type);
 	}
 
-	if(item == NULL && this->implement->enumList) {
+	if(item == nullptr && this->implement->enumList) {
 		item = this->implement->enumList->findByType(type);
 	}
 
@@ -203,13 +193,13 @@ const GMetaTypedItem * GMetaModule::findItemByType(const GTypeInfo & type) const
 
 const GMetaTypedItem * GMetaModule::findItemByName(const char * name) const
 {
-	const GMetaTypedItem * item = NULL;
+	const GMetaTypedItem * item = nullptr;
 
 	if(this->implement->classList) {
 		item = this->implement->classList->findByName(name);
 	}
 
-	if(item == NULL && this->implement->enumList) {
+	if(item == nullptr && this->implement->enumList) {
 		item = this->implement->enumList->findByName(name);
 	}
 
@@ -222,7 +212,7 @@ const GMetaClass * GMetaModule::findClassByType(const GTypeInfo & type) const
 		return static_cast<const GMetaClass *>(this->implement->classList->findByType(type));
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -232,7 +222,7 @@ const GMetaClass * GMetaModule::findClassByName(const char * name) const
 		return static_cast<const GMetaClass *>(this->implement->classList->findByName(name));
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -255,14 +245,14 @@ void GMetaModule::initializeMetaClasses()
 
 GMetaModule * getItemModule(const GMetaItem * metaItem)
 {
-	while(metaItem != NULL) {
+	while(metaItem != nullptr) {
 		if(metaIsClass(metaItem->getCategory())) {
 			return static_cast<const GMetaClass *>(metaItem)->getModule();
 		}
 		metaItem = metaItem->getOwnerItem();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

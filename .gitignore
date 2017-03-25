@@ -1,7 +1,6 @@
 /build/bin/
-/build/temp_cache_mingw
-/build/project_vc13
-/build/project_vc12
+/build/temp_*
+/build/project_*
 /lib/
 /test/metagen/xml/
 /tools/metagen/tool/bin/

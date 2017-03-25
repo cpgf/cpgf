@@ -1,1 +1,0 @@
-perl ../metagen.pl --xml xml/index.xml --config config.box2d.pl

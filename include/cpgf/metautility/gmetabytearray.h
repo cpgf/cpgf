@@ -1,10 +1,10 @@
 #ifndef CPGF_GMETABYTEARRAY_H
 #define CPGF_GMETABYTEARRAY_H
 
-#include "cpgf/gstdint.h"
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gapi.h"
 
+#include <cstdint>
 #include <stddef.h>
 
 namespace cpgf {
@@ -44,18 +44,18 @@ public:
 
     void readBuffer(void * buffer, size_t length) const;
 
-    void writeInt8(int8_t value, const GMetaVariadicParam * moreValues = NULL);
-    void writeInt16(int16_t value, const GMetaVariadicParam * moreValues = NULL);
-    void writeInt32(int32_t value, const GMetaVariadicParam * moreValues = NULL);
-    void writeInt64(int64_t value, const GMetaVariadicParam * moreValues = NULL);
+    void writeInt8(int8_t value, const GMetaVariadicParam * moreValues = nullptr);
+    void writeInt16(int16_t value, const GMetaVariadicParam * moreValues = nullptr);
+    void writeInt32(int32_t value, const GMetaVariadicParam * moreValues = nullptr);
+    void writeInt64(int64_t value, const GMetaVariadicParam * moreValues = nullptr);
 
-    void writeUint8(uint8_t value, const GMetaVariadicParam * moreValues = NULL);
-    void writeUint16(uint16_t value, const GMetaVariadicParam * moreValues = NULL);
-    void writeUint32(uint32_t value, const GMetaVariadicParam * moreValues = NULL);
-    void writeUint64(uint64_t value, const GMetaVariadicParam * moreValues = NULL);
+    void writeUint8(uint8_t value, const GMetaVariadicParam * moreValues = nullptr);
+    void writeUint16(uint16_t value, const GMetaVariadicParam * moreValues = nullptr);
+    void writeUint32(uint32_t value, const GMetaVariadicParam * moreValues = nullptr);
+    void writeUint64(uint64_t value, const GMetaVariadicParam * moreValues = nullptr);
     
-    void writeFloat32(float value, const GMetaVariadicParam * moreValues = NULL);
-    void writeFloat64(double value, const GMetaVariadicParam * moreValues = NULL);
+    void writeFloat32(float value, const GMetaVariadicParam * moreValues = nullptr);
+    void writeFloat64(double value, const GMetaVariadicParam * moreValues = nullptr);
 
     void writeBuffer(const void * buffer, size_t length);
 private:

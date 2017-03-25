@@ -17,7 +17,7 @@ namespace cpgf {
 GMetaType::GMetaType()
 {
 	vtInit(data.typeData);
-	data.baseName = NULL;
+	data.baseName = nullptr;
 	data.flags = 0;
 }
 
@@ -66,7 +66,7 @@ bool GMetaType::operator == (const GMetaType & other) const
 		}
 	}
 
-	if(this->data.baseName != NULL && other.data.baseName != NULL) {
+	if(this->data.baseName != nullptr && other.data.baseName != nullptr) {
 		return strcmp(this->data.baseName, other.data.baseName) == 0;
 	}
 
@@ -116,10 +116,12 @@ bool GMetaType::baseIsStdString() const
 {
 	return this->hasFlag(meta_internal::mtFlagBaseIsStdString);
 }
+
 bool GMetaType::baseIsStdWideString() const
 {
 	return this->hasFlag(meta_internal::mtFlagBaseIsStdWideString);
 }
+
 bool GMetaType::isFundamental() const
 {
 	return vtIsFundamental(this->getVariantType());
@@ -208,15 +210,15 @@ bool GMetaType::isReference() const
 
 bool GMetaType::isString() const
 {
-	return (this->getVariantType() == vtString)
-		|| (vtGetBaseType(this->getVariantType()) == vtChar && this->getPointerDimension() == 1)
+	return (this->getVariantType() == GVariantType::vtString)
+		|| (vtGetBaseType(this->getVariantType()) == GVariantType::vtChar && this->getPointerDimension() == 1)
 	;
 }
 
 bool GMetaType::isWideString() const
 {
-	return (this->getVariantType() == vtWideString)
-		|| (vtGetBaseType(this->getVariantType()) == vtWchar && this->getPointerDimension() == 1)
+	return (this->getVariantType() == GVariantType::vtWideString)
+		|| (vtGetBaseType(this->getVariantType()) == GVariantType::vtWchar && this->getPointerDimension() == 1)
 	;
 }
 
@@ -248,7 +250,7 @@ GMetaTypeData & GMetaType::refData()
 void GMetaType::addPointer()
 {
 	vtSetPointers(this->data.typeData, vtGetPointers(this->data.typeData) + 1);
-	vtSetType(this->data.typeData, vtGetType(this->data.typeData) | byPointer);
+	vtSetType(this->data.typeData, vtGetType(this->data.typeData) | GVariantType::byPointer);
 	this->data.flags |= meta_internal::mtFlagIsPointer;
 }
 
@@ -278,7 +280,7 @@ void GMetaType::addConst()
 void GMetaType::removeReference()
 {
 	this->data.flags &= ~meta_internal::mtFlagIsReference;
-	vtSetType(this->data.typeData, vtGetType(this->data.typeData) & ~byReference);
+	vtSetType(this->data.typeData, vtGetType(this->data.typeData) & ~GVariantType::maskByReference);
 }
 
 GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)
@@ -292,14 +294,14 @@ void initializeMetaType(GMetaTypeData * data)
 {
 	vtInit(data->typeData);
 	data->flags = 0;
-	data->baseName = NULL;
+	data->baseName = nullptr;
 }
 
 void fixupMetaType(GMetaType * type)
 {
-	if(type->refData().baseName == NULL && ! type->getBaseType().isEmpty()) {
+	if(type->refData().baseName == nullptr && ! type->getBaseType().isEmpty()) {
 		const GMetaTypedItem * item = getGlobalMetaClass()->getModule()->findItemByType(type->getBaseType());
-		if(item != NULL) {
+		if(item != nullptr) {
 			type->refData().baseName = item->getQualifiedName().c_str();
 		}
 	}
@@ -307,19 +309,19 @@ void fixupMetaType(GMetaType * type)
 
 void fixupMetaType(GMetaType * type, const GMetaItem * metaItem)
 {
-	if(type->refData().baseName == NULL) {
+	if(type->refData().baseName == nullptr) {
 		return fixupMetaType(type, getItemModule(metaItem));
 	}
 }
 
 void fixupMetaType(GMetaType * type, const GMetaModule * module)
 {
-	if(type->refData().baseName == NULL && ! type->getBaseType().isEmpty()) {
-		if(module == NULL) {
+	if(type->refData().baseName == nullptr && ! type->getBaseType().isEmpty()) {
+		if(module == nullptr) {
 			module = getGlobalMetaClass()->getModule();
 		}
 		const GMetaTypedItem * item = module->findItemByType(type->getBaseType());
-		if(item != NULL) {
+		if(item != nullptr) {
 			type->refData().baseName = item->getQualifiedName().c_str();
 		}
 	}

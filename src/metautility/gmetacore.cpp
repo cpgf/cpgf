@@ -20,17 +20,17 @@ GVariant GMetaCore::cast(const GVariant & instance, IMetaClass * targetMetaClass
 	GVariant value = getVariantRealValue(instance);
 	GMetaType type = getVariantRealMetaType(instance);
 	
-	if(canFromVariant<void *>(value) && type.getBaseName() != NULL) {
+	if(canFromVariant<void *>(value) && type.getBaseName() != nullptr) {
 		GScopedInterface<IMetaService> metaService(this->scriptObject->getMetaService());
 		GScopedInterface<IMetaClass> sourceClass(metaService->findClassByName(type.getBaseName()));
 		if(sourceClass) {
 			void * ptr = objectAddressFromVariant(instance);
 			void * oldPtr = ptr;
-			if(ptr != NULL) {
+			if(ptr != nullptr) {
 				GMetaType targetType;
-				if(targetMetaClass != NULL) {
+				if(targetMetaClass != nullptr) {
 					ptr = metaCastToDerived(oldPtr, sourceClass.get(), targetMetaClass);
-					if(ptr == NULL) {
+					if(ptr == nullptr) {
 						ptr = metaCastToBase(oldPtr, sourceClass.get(), targetMetaClass);
 					}
 					targetType = metaGetItemType(targetMetaClass);
@@ -41,13 +41,13 @@ GVariant GMetaCore::cast(const GVariant & instance, IMetaClass * targetMetaClass
 						targetType = metaGetItemType(derivedClass.get());
 					}
 					else {
-						ptr = NULL;
+						ptr = nullptr;
 					}
 				}
 
-				if(ptr != NULL) {
+				if(ptr != nullptr) {
 					targetType.addPointer();
-					return createTypedVariant(pointerToObjectVariant(ptr), targetType);
+					return createTypedVariant(createObjectVariantFromPointer(ptr), targetType);
 				}
 			}
 		}

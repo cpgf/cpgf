@@ -2,13 +2,15 @@
 #define CPGF_GSTRINGMAP_H
 
 #include "cpgf/gassert.h"
+#include "cpgf/gstringutil.h"
 
-#include <map>
+#include <unordered_map>
 
 #include <string.h>
 
 namespace cpgf {
 
+// We need to duplicate the key if the passed-in key will be freed outside.
 struct GStringMapNewKey
 {
 	static const char * allocateKey(const char * key) {
@@ -37,13 +39,7 @@ template <typename T, typename KeyOp = GStringMapNewKey>
 class GStringMap
 {
 private:
-	struct CStringCompare {
-		bool operator () (const char * a, const char * b) const {
-			return strcmp(a, b) < 0;
-		}
-	};
-
-	typedef std::map<const char *, T, CStringCompare> MapType;
+	typedef std::unordered_map<const char *, T, GCStringHash, GCStringEqual> MapType;
 
 public:
 	typedef typename MapType::iterator iterator;

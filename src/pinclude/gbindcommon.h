@@ -13,8 +13,10 @@
 #include "cpgf/gflags.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gsharedinterface.h"
+#include "cpgf/gstringutil.h"
 
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <vector>
 #include <algorithm>
@@ -163,7 +165,7 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 class GMetaMapClass : public GNoncopyable
 {
 public:
-	typedef std::map<const char *, GMetaMapItem, meta_internal::CStringCompare> MapType;
+	typedef std::unordered_map<const char *, GMetaMapItem, GCStringHash, GCStringEqual> MapType;
 
 public:
 	GMetaMapClass(IMetaClass * metaClass);
@@ -193,7 +195,8 @@ private:
 class GMetaMap
 {
 private:
-	typedef std::map<const char *, GMetaMapClass *, meta_internal::CStringCompare> MapType;
+	// Change this to unorder_map may hit performance.
+	typedef std::map<const char *, GMetaMapClass *, GCStringCompare> MapType;
 
 public:
 	GMetaMap();
@@ -803,15 +806,24 @@ private:
 class ConvertRank
 {
 public:
-	ConvertRank();
-
-	void reset();
+	void resetRank() {
+		this->weight = 0; //ValueMatchRank_Unknown;
+/* it's safe to not reset the pointers because they are used according to weight.
+		this->sourceClass = nullptr;
+		this->targetClass.reset();
+		this->userConverter = nullptr;
+		this->userConverterTag = 0;
+*/
+	}
 
 public:
 	int weight;
-	GSharedInterface<IMetaClass> sourceClass;
+	IMetaClass * sourceClass;
+	// We have to use GSharedInterface to hold targetClass
+	// because the targetClass may be created dynamically from the global repository.
+	// sourceClass doesn't have this problem, it's always hold by the caller.
 	GSharedInterface<IMetaClass> targetClass;
-	GSharedInterface<IScriptUserConverter> userConverter;
+	IScriptUserConverter * userConverter;
 	uint32_t userConverterTag;
 };
 
@@ -829,9 +841,13 @@ public:
 	~InvokeCallableParam();
 
 public:
-	CallableParamData params[REF_MAX_ARITY];
+	CallableParamData * params;
+	char paramsBuffer[sizeof(CallableParamData) * REF_MAX_ARITY];
 	size_t paramCount;
-	ConvertRank paramRanks[REF_MAX_ARITY];
+	ConvertRank * paramRanks;
+	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
+	ConvertRank * backParamRanks;
+	char paramRanksBackBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
 	GSharedInterface<IScriptContext> scriptContext;
 };
 
@@ -853,7 +869,7 @@ template <typename T>
 GGlueDataWrapper * newGlueDataWrapper(const T & p, GGlueDataWrapperPool * pool)
 {
 	GGlueDataWrapper * wrapper = newGlueDataWrapper(p);
-	if(pool != NULL) {
+	if(pool != nullptr) {
 		pool->dataWrapperCreated(wrapper);
 	}
 	return wrapper;
@@ -883,7 +899,7 @@ inline void freeGlueDataWrapper(GGlueDataWrapper * p)
 
 inline void freeGlueDataWrapper(GGlueDataWrapper * p, GGlueDataWrapperPool * pool)
 {
-	if(pool != NULL) {
+	if(pool != nullptr) {
 		pool->dataWrapperDestroyed(p);
 	}
 	freeGlueDataWrapper(p);
@@ -977,7 +993,13 @@ private:
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
-int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks);
+int rankCallable(
+	IMetaService * service,
+	const GObjectGlueDataPointer & objectData,
+	IMetaCallable * callable,
+	const InvokeCallableParam * callbackParam,
+	ConvertRank * paramRanks
+);
 
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
@@ -994,9 +1016,6 @@ char * wideStringToString(const wchar_t * ws);
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
-
-void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
-			const GObjectGlueDataPointer & objectData, const char * methodName);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
@@ -1019,12 +1038,12 @@ std::string getMethodNameFromMethodList(IMetaList * methodList);
 
 inline void * getInstanceHash(const GVariant & instance)
 {
-	return referenceAddressFromVariant(instance);
+	return objectAddressFromVariant(instance);
 }
 
 
 struct GScriptObjectCacheKey {
-	GScriptObjectCacheKey() : key(NULL), className(NULL), cv(opcvNone) {
+	GScriptObjectCacheKey() : key(nullptr), className(nullptr), cv(opcvNone) {
 	}
 
 	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv)
@@ -1082,7 +1101,7 @@ public:
 		if(it != this->objectMap.end()) {
 			return dynamic_cast<T *>(it->second.get());
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
@@ -1119,25 +1138,52 @@ private:
 	ObjectMapType objectMap;
 };
 
+struct ConvertRankBuffer
+{
+	explicit ConvertRankBuffer(const size_t paramCount)
+		: paramCount(paramCount), paramRanks((ConvertRank *)paramRanksBuffer)
+	{
+		memset(this->paramRanksBuffer, 0, sizeof(ConvertRank) * paramCount);
+	};
+	
+	~ConvertRankBuffer()
+	{
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		this->paramRanks[i].~ConvertRank();
+	}
+	}
+
+	size_t paramCount;
+	ConvertRank * paramRanks;
+	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
+};
+
 template <typename Getter, typename Predict>
-int findAppropriateCallable(IMetaService * service,
+int findAppropriateCallable(
+	IMetaService * service,
 	const GObjectGlueDataPointer & objectData,
-	const Getter & getter, size_t callableCount,
-	InvokeCallableParam * callableParam, Predict predict)
+	const Getter & getter,
+	const size_t callableCount,
+	InvokeCallableParam * callableParam,
+	const Predict & predict
+)
 {
 	int maxRank = -1;
 	int maxRankIndex = -1;
 
-	ConvertRank paramRanks[REF_MAX_ARITY];
-
 	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanks);
+			const int weight = rankCallable(service, objectData, meta.get(), callableParam, callableParam->backParamRanks);
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
-				std::copy(paramRanks, paramRanks + callableParam->paramCount, callableParam->paramRanks);
+				std::swap(callableParam->paramRanks, callableParam->backParamRanks);
+			}
+			if(callableCount > 1) {
+				for(size_t i = 0; i < callableParam->paramCount; ++i) {
+					callableParam->backParamRanks[i].resetRank();
+				}
 			}
 		}
 	}
@@ -1150,7 +1196,7 @@ template <typename Methods>
 typename Methods::ResultType complexVariantToScript(const GContextPointer & context,
 			const GVariant & value, const GMetaType & type, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
 {
-	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
 
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
@@ -1195,7 +1241,7 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
 		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
-		if(s != NULL) {
+		if(s != nullptr) {
 			typename Methods::ResultType result = Methods::doStringToScript(context, s);
 
 			if(needFree) {
@@ -1212,7 +1258,7 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
 		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
 
-		if(ws != NULL) {
+		if(ws != nullptr) {
 			typename Methods::ResultType result = Methods::doWideStringToScript(context, ws);
 
 			if(needFree) {
@@ -1285,7 +1331,7 @@ typename Methods::ResultType extendVariantToScript(const GContextPointer & conte
 	}
 
 	if(! Methods::isSuccessResult(result)) {
-		result = Methods::doRawToScript(context, value, NULL);
+		result = Methods::doRawToScript(context, value, nullptr);
 	}
 
 	if(! Methods::isSuccessResult(result)) {
@@ -1304,7 +1350,7 @@ public:
 	}
 
 	~GReturnedFromMethodObjectGuard() {
-		if(this->objectLifeManager && this->instance != NULL) {
+		if(this->objectLifeManager && this->instance != nullptr) {
 			this->objectLifeManager->returnedFromMethod(this->instance);
 		}
 	}
@@ -1341,19 +1387,19 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 			metaCheckError(callable);
 		}
 
-		void * instance = NULL;
+		void * instance = nullptr;
 		if(canFromVariant<void *>(value)) {
 			instance = objectAddressFromVariant(value);
 		}
 		GReturnedFromMethodObjectGuard objectGuard(instance);
 		objectGuard.reset(createObjectLifeManagerForInterface(value));
-		if(objectGuard.getObjectLifeManager() == NULL) {
+		if(objectGuard.getObjectLifeManager() == nullptr) {
 			objectGuard.reset(metaGetResultExtendType(callable, GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
 		}
 
 		GBindValueFlags flags;
 		flags.setByBool(bvfAllowGC, !! callable->isResultTransferOwnership());
-		result = Methods::doVariantToScript(context, createTypedVariant(value, type), flags, NULL);
+		result = Methods::doVariantToScript(context, createTypedVariant(value, type), flags, nullptr);
 
 		if(! Methods::isSuccessResult(result)) {
 			result = extendVariantToScript<Methods>(context,
@@ -1374,7 +1420,7 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
 
-	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), GBindValueFlags(), NULL);
+	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), GBindValueFlags(), nullptr);
 
 	if(! Methods::isSuccessResult(result)) {
 		result = extendVariantToScript<Methods>(context,
@@ -1410,7 +1456,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(glueData));
 
-	void * instance = NULL;
+	void * instance = nullptr;
 	IMetaClass * outDerived;
 
 	for(;;) {
@@ -1427,7 +1473,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		}
 
 		GMetaMapItem * mapItem = mapClass->findItem(name);
-		if(mapItem == NULL) {
+		if(mapItem == nullptr) {
 			continue;
 		}
 
@@ -1455,7 +1501,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			case mmitEnumValue:
 				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw), NULL);
+					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw), nullptr);
 				}
 				break;
 

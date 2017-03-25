@@ -2,357 +2,206 @@
 #include "cpgf/gcompiler.h"
 #include "pinclude/gstaticuninitializerorders.h"
 
-#include <string.h>
+#include <thread>
+#include <cassert>
 
 using namespace std;
 
 namespace cpgf {
 
-
-namespace memorypool_internal {
-
-class GMemoryPoolChunk
-{
-private:
-	typedef unsigned char FreeListType;
-
-public:
-	GMemoryPoolChunk(unsigned int blockSize, unsigned int blockCount);
-	~GMemoryPoolChunk();
-
-	GMemoryPoolRange getRange() const;
-
-	bool isFull() const;
-
-	bool isEmpty() const;
-
-	void * allocate();
-	void free(void * p);
-
-	bool ownsPointer(void * p) const;
-
-	void setInit(void (*funcInit)(void * p));
-	void setDeinit(void (*funcDeinit)(void * p));
-
-private:
-	void deinitAll();
-	void * getMemory() const;
-
-private:
-	const unsigned int blockSize;
-	const unsigned int blockCount;
-	unsigned int usedCount;
-	FreeListType * freeList;
-	GScopedArray<char> memory;
-
-	void (*funcInit)(void * p);
-	void (*funcDeinit)(void * p);
-};
-
-
-GMemoryPoolRange::GMemoryPoolRange(void * start) : start(start), end(NULL) {
-}
-
-GMemoryPoolRange::GMemoryPoolRange(void * start, void * end) : start(start), end(end) {
-}
-
-GMemoryPoolRange::GMemoryPoolRange(const GMemoryPoolRange & other) : start(other.start), end(other.end) {
-}
-
-GMemoryPoolRange & GMemoryPoolRange::operator = (const GMemoryPoolRange & other) {
-	this->start = other.start;
-	this->end = other.end;
-
-	return *this;
-}
-
-bool GMemoryPoolRange::operator < (const GMemoryPoolRange & other) const {
-	if(this->end == NULL) {
-		return this->start < other.start;
-	}
-	else {
-		if(other.end == NULL) {
-			return other.start >= this->end;
-		}
-		else {
-			return this->start < other.start;
-		}
-	}
-}
-
-
-inline void * poolAddPointer(void * p, int offset)
-{
-	return static_cast<char *>(p) + offset;
-}
-
-GMemoryPoolChunk::GMemoryPoolChunk(unsigned int blockSize, unsigned int blockCount)
-	: blockSize(blockSize), blockCount(blockCount), usedCount(0), memory(new char[blockSize * blockCount + sizeof(FreeListType) * blockCount]),
-		funcInit(NULL), funcDeinit(NULL) {
-	GASSERT(blockCount > 1);
-	GASSERT(blockCount <= (1 << (sizeof(FreeListType) * 8)));
-
-	this->freeList = (FreeListType *)(this->memory.get());
-
-	for(unsigned int i = 0; i < this->blockCount; ++i) {
-		this->freeList[i] = static_cast<FreeListType>(i);
-	}
-}
-
-GMemoryPoolChunk::~GMemoryPoolChunk() {
-	this->deinitAll();
-}
-
-GMemoryPoolRange GMemoryPoolChunk::getRange() const {
-	return GMemoryPoolRange(this->getMemory(),
-		poolAddPointer(this->getMemory(), this->blockCount * this->blockSize));
-}
-
-bool GMemoryPoolChunk::isFull() const {
-	return this->usedCount == this->blockCount;
-}
-
-bool GMemoryPoolChunk::isEmpty() const {
-	return this->usedCount == 0;
-}
-
-void * GMemoryPoolChunk::allocate() {
-	if(! this->isFull()) {
-		void * p = poolAddPointer(
-			this->getMemory(),
-			this->freeList[this->usedCount++] * this->blockSize)
-		;
-		if(this->funcInit != NULL) {
-			this->funcInit(p);
-		}
-		return p;
-	}
-	else {
-		return NULL;
-	}
-}
-
-void GMemoryPoolChunk::free(void * p) {
-	if(this->ownsPointer(p)) {
-		void * m = this->getMemory();
-
-		// GCC will give "invalid use of void" error if we don't convert to char *
-		long offset = static_cast<long>((char *)p - (char *)m);
-			
-		GASSERT(offset % this->blockSize == 0);
-
-		if(this->funcDeinit != NULL) {
-			this->funcDeinit(p);
-		}
-
-		--this->usedCount;
-		this->freeList[this->usedCount] = static_cast<FreeListType>(offset / this->blockSize);
-
-#if G_DEBUG
-		memset(p, 0xbd, this->blockSize);
-#endif
-
-	}
-}
-
-bool GMemoryPoolChunk::ownsPointer(void * p) const {
-	void * m = this->getMemory();
-	return usedCount > 0 && p >= m && p < poolAddPointer(m, this->blockSize * this->blockCount);
-}
-
-void GMemoryPoolChunk::setInit(void (*funcInit)(void * p)) {
-	this->funcInit = funcInit;
-}
-
-void GMemoryPoolChunk::setDeinit(void (*funcDeinit)(void * p)) {
-	this->funcDeinit = funcDeinit;
-}
-
-void GMemoryPoolChunk::deinitAll() {
-	if(this->funcDeinit != NULL && this->usedCount > 0) {
-		bool usedList[(1 << (sizeof(FreeListType) * 8))];
-		for(unsigned int i = 0; i < this->blockCount; ++i) {
-			usedList[i] = true;
-		}
-		for(unsigned int i = this->usedCount; i < this->blockCount; ++i) {
-			usedList[this->freeList[i]] = false;
-		}
-		for(unsigned int i = 0; i < this->blockCount; ++i) {
-			if(usedList[i]) {
-				void * p = poolAddPointer(
-					this->getMemory(),
-					this->freeList[i] * this->blockSize)
-				;
-				this->funcDeinit(p);
-			}
-		}
-	}
-}
-
-void * GMemoryPoolChunk::getMemory() const {
-	return (char *)(this->memory.get()) + sizeof(FreeListType) * this->blockCount;
-}
-
-
-
-GMemoryPoolImplement::GMemoryPoolImplement(unsigned int blockSize, unsigned int blockCount)
-	: blockSize(blockSize), blockCount(blockCount),
-		funcInit(NULL), funcDeinit(NULL) {
-}
-
-GMemoryPoolImplement::~GMemoryPoolImplement() {
-	this->freeAll();
-}
-
-void * GMemoryPoolImplement::allocate() {
-	if(this->freeMap.empty()) {
-		GMemoryPoolChunk * chunk = new GMemoryPoolChunk(this->blockSize, this->blockCount);
-		chunk->setInit(this->funcInit);
-		chunk->setDeinit(this->funcDeinit);
-
-		this->freeMap[chunk->getRange()] = chunk;
-		return chunk->allocate();
-	}
-	else {
-		MapType::iterator it = this->freeMap.begin();
-		GMemoryPoolChunk * chunk = it->second;
-		void * p = chunk->allocate();
-		if(chunk->isFull()) {
-			this->freeMap.erase(it);
-			this->fullMap[chunk->getRange()] = chunk;
-		}
-		return p;
-	}
-}
-
-void GMemoryPoolImplement::free(void * p) {
-	GMemoryPoolRange range(p);
-	MapType::iterator it;
-		
-	it = this->fullMap.find(range);
-	if(it != this->fullMap.end()) {
-		GMemoryPoolChunk * chunk = it->second;
-		this->fullMap.erase(it);
-		chunk->free(p);
-		this->freeMap[chunk->getRange()] = chunk;
-	}
-	else {
-		it = this->freeMap.find(range);
-		if(it != this->freeMap.end()) {
-			GMemoryPoolChunk * chunk = it->second;
-			chunk->free(p);
-			if(chunk->isEmpty()) {
-				this->freeMap.erase(chunk->getRange());
-				delete chunk;
-			}
-		}
-		else {
-			GASSERT(false);
-		}
-	}
-}
-
-void GMemoryPoolImplement::setInit(void (*funcInit)(void * p)) {
-	this->funcInit = funcInit;
-}
-
-void GMemoryPoolImplement::setDeinit(void (*funcDeinit)(void * p)) {
-	this->funcDeinit = funcDeinit;
-}
-
-void GMemoryPoolImplement::freeAll() {
-	this->freeAllMap(&this->fullMap);
-	this->freeAllMap(&this->freeMap);
-}
-
-void GMemoryPoolImplement::freeAllMap(MapType * m) {
-	for(MapType::iterator it = m->begin(); it != m->end(); ++it) {
-		delete it->second;
-	}
-	m->clear();
-}
-
-
-} // namespace memorypool_internal
-
-
-class GMemoryPoolManagerImplement
-{
-private:
-	class PoolMapKey {
-	public:
-		PoolMapKey()
-			: blockSize(0), blockCount(0)
-		{
-		}
-
-		PoolMapKey(unsigned int blockSize, unsigned int blockCount)
-			: blockSize(blockSize), blockCount(blockCount)
-		{
-		}
-
-		bool operator < (const PoolMapKey & other) const {
-			return this->blockSize < other.blockSize
-				|| (this->blockSize == other.blockSize && this->blockCount < other.blockCount);
-		}
-
-	private:
-		unsigned int blockSize;
-		unsigned int blockCount;
-	};
-
-
-	typedef map<PoolMapKey, GMemoryPool *> PoolMapType;
-
-public:
-	~GMemoryPoolManagerImplement() {
-		for(PoolMapType::iterator it = this->poolMap.begin(); it != this->poolMap.end(); ++it) {
-			delete it->second;
-		}
-	}
-
-	GMemoryPool * getMemoryPool(unsigned int blockSize, unsigned int blockCount) {
-		PoolMapKey key(blockSize, blockCount);
-		GMemoryPool * pool = this->poolMap[key];
-		if(pool == NULL) {
-			pool = new GMemoryPool(blockSize, blockCount);
-			this->poolMap[key] = pool;
-		}
-		return pool;
-	}
-
-private:
-	PoolMapType poolMap;
-};
+constexpr size_t memoryPoolAlignment = 64;
+constexpr size_t memoryPoolBlockCountPerTrunk = 256;
 
 namespace {
 
-GMemoryPoolManager * globalPool = NULL;
-
-} // unnamed namespace
-
-GMemoryPoolManager * GMemoryPoolManager::getGlobal()
+size_t alignSize(const size_t size, const size_t alignment)
 {
-	if(globalPool == NULL && isLibraryLive()) {
-		globalPool = new GMemoryPoolManager();
-		addOrderedStaticUninitializer(suo_MemoryPool, makeUninitializerDeleter(&globalPool));
+	return (size + alignment - 1) & ~(alignment - 1);
+}
+
+template <typename T>
+T * alignPointer(T * p, const size_t alignment)
+{
+	return (T *)(alignSize((size_t)p, alignment));
+}
+
+
+} //unnamed namespace
+
+GMemoryPoolChunk::GMemoryPoolChunk(
+		const size_t blockSize,
+		const size_t alignment,
+		const size_t blockCount
+	)
+	:
+		alignment(alignment),
+		blockCount(blockCount),
+		alignedBlockSize(alignSize(blockSize, alignment)),
+		chunkSize(alignSize(alignedBlockSize * blockCount, alignment) + alignment - 1),
+		buffer(new unsigned char[chunkSize]),
+		data(alignPointer(buffer.get(), alignment)),
+		availableIndex(0),
+		availableCount(blockCount)
+{
+	unsigned char * p = data;
+	for(size_t i = 1; i <= this->blockCount; ++i) {
+		*(IndexType *)p = (IndexType)i;
+		p += this->alignedBlockSize;
 	}
-
-	return globalPool;
 }
 
-GMemoryPoolManager::GMemoryPoolManager()
-	: implement(new GMemoryPoolManagerImplement)
+GMemoryPoolChunk::~GMemoryPoolChunk()
 {
 }
 
-GMemoryPoolManager::~GMemoryPoolManager()
+void * GMemoryPoolChunk::allocate()
+{
+	// don't check if there is available block here
+	// it's the caller's duty to ensure it.
+	
+	unsigned char * result = this->data + this->availableIndex * this->alignedBlockSize;
+	this->availableIndex = *(IndexType *)result;
+	--this->availableCount;
+	
+	return result;
+}
+
+void GMemoryPoolChunk::free(void * p)
+{
+	assert(p >= this->data);
+	assert(p < this->data + this->blockCount * this->alignedBlockSize);
+	assert(((unsigned char *)p - data) % this->alignedBlockSize == 0);
+	
+	*(IndexType *)p = this->availableIndex;
+	this->availableIndex = (IndexType)(((unsigned char *)p - this->data) / this->alignedBlockSize);
+	++this->availableCount;
+}
+
+
+GMemorySizedPool::GMemorySizedPool(
+		const size_t blockSize,
+		const size_t alignment,
+		const size_t blockCount
+	)
+	:
+		blockSize(blockSize),
+		alignment(alignment),
+		blockCount(blockCount)
+{
+	this->chunkList.emplace_back(blockSize, alignment, blockCount);
+	this->availableChunk = &this->chunkList.back();
+}
+
+GMemorySizedPool::~GMemorySizedPool()
 {
 }
 
-GMemoryPool * GMemoryPoolManager::getMemoryPool(unsigned int blockSize, unsigned int blockCount)
+void * GMemorySizedPool::allocate()
 {
-	return this->implement->getMemoryPool(blockSize, blockCount);
+	if(! this->availableChunk->isAvailable()) {
+		this->availableChunk = nullptr;
+		for(auto it = this->chunkList.rbegin(); it != this->chunkList.rend(); ++it) {
+			if(it->isAvailable()) {
+				this->availableChunk = &*it;
+				break;
+			}
+		}
+		if(this->availableChunk == nullptr) {
+			this->chunkList.emplace_back(blockSize, alignment, blockCount);
+			this->availableChunk = &this->chunkList.back();
+		}
+	}
+	
+	return this->availableChunk->allocate();
+}
+
+void GMemorySizedPool::free(void * p)
+{
+	GMemoryPoolChunk * chunk = nullptr;
+	if(this->availableChunk->belongsTo(p)) {
+		chunk = this->availableChunk;
+		chunk->free(p);
+	}
+	else {
+		for(auto it = this->chunkList.begin(); it != this->chunkList.end(); ++it) {
+			if(it->belongsTo(p)) {
+				chunk = &*it;
+				chunk->free(p);
+				break;
+			}
+		}
+	}
+	
+	assert(chunk != nullptr);
+
+	if(chunk != nullptr && chunk->isFree() && chunk != this->availableChunk) {
+		// If chunk is free and the back() is not, swap chunk to back(),
+		// If chunk is free and the back() is free too, free back() and swap chunk to back();
+
+		if(chunk != &this->chunkList.back()) {
+			if(this->chunkList.back().isFree()) {
+				this->chunkList.pop_back();
+			}
+		}
+
+		if(chunk != &this->chunkList.back()) {
+			std::swap(*chunk, this->chunkList.back());
+		}
+
+//		this->availableChunk = &this->chunkList.back();
+	}
+}
+
+
+GMemoryPool * GMemoryPool::getInstance()
+{
+	static GMemoryPool instance(memoryPoolAlignment, memoryPoolBlockCountPerTrunk);
+	
+	return &instance;
+}
+
+GMemoryPool::GMemoryPool(
+		const size_t alignment,
+		const size_t blockCountPerChunk
+	)
+	:
+		alignment(alignment),
+		blockCountPerChunk(blockCountPerChunk)
+{
+}
+
+GMemoryPool::~GMemoryPool()
+{
+}
+
+void * GMemoryPool::allocate(const size_t size)
+{
+	GMemorySizedPool * pool = nullptr;
+
+	const size_t alignedSize = alignSize(size, this->alignment);
+
+	auto it = this->poolMap.find(alignedSize);
+	if(it != this->poolMap.end()) {
+		pool = it->second.get();
+	}
+	else {
+		pool = new GMemorySizedPool(alignedSize, this->alignment, this->blockCountPerChunk);
+		this->poolMap.insert(std::make_pair(alignedSize, std::unique_ptr<GMemorySizedPool>(pool)));
+	}
+	
+	return pool->allocate();
+}
+
+void GMemoryPool::free(void * p, const size_t size)
+{
+	const size_t alignedSize = alignSize(size, this->alignment);
+	
+	auto it = this->poolMap.find(alignedSize);
+	if(it != this->poolMap.end()) {
+		it->second->free(p);
+	}
+	else {
+	}
 }
 
 

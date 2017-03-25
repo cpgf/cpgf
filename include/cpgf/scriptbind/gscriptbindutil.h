@@ -4,19 +4,141 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/gtypeutil.h"
 
 namespace cpgf {
 
+template <typename T>
+GVariant createTypedVariant(const T & value)
+{
+	return createTypedVariant(GVariant(value), createMetaType<T>());
+}
 
-#define DECLARE_CALL_HELPER(N, unused) \
-	GScriptValue invokeScriptFunction(GScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)); \
-	GScriptValue invokeScriptFunction(IScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)); \
-	GScriptValue invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)); \
-	GScriptValue invokeScriptFunctionOnObject(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p));
+template <typename Tuple>
+struct LoadVariantListParam
+{
+	GVariant * variantList;
+	const Tuple & tuple;
+};
 
-GPP_REPEAT_2(REF_MAX_ARITY, DECLARE_CALL_HELPER, GPP_EMPTY())
+template <unsigned int N>
+struct LoadVariantListFunc
+{
+	template <typename Param>
+	void operator()(Param & param)
+	{
+		param.variantList[N] = createTypedVariant(std::get<N>(param.tuple));
+	}
+};
 
-#undef DECLARE_CALL_HELPER
+template <typename... Parameters>
+void loadVariantList(GVariant * variantList, const Parameters & ... parameters)
+{
+	const auto tuple = std::forward_as_tuple(parameters...);
+	LoadVariantListParam<decltype(tuple)> param { variantList, tuple };
+	GTypeForEach<sizeof...(Parameters)>::template forEach<LoadVariantListFunc>(param);
+}
+
+
+template <typename Tuple>
+struct LoadVariantDataListParam
+{
+	GVariant * variantList;
+	GVariantData ** variantDataList;
+	const Tuple & tuple;
+};
+
+template <unsigned int N>
+struct LoadVariantDataListFunc
+{
+	template <typename Param>
+	void operator()(Param & param)
+	{
+		param.variantList[N] = createTypedVariant(std::get<N>(param.tuple));
+		param.variantDataList[N] = &param.variantList[N].refData();
+	}
+};
+
+template <typename... Parameters>
+void loadVariantDataList(GVariant * variantList, GVariantData ** variantDataList, const Parameters & ... parameters)
+{
+	const auto tuple = std::forward_as_tuple(parameters...);
+	LoadVariantDataListParam<decltype(tuple)> param { variantList, variantDataList, tuple };
+	GTypeForEach<sizeof...(Parameters)>::template forEach<LoadVariantDataListFunc>(param);
+}
+
+// This function is defined in gscriptvalue.cpp internally.
+GScriptValue createScriptValueFromData(const GScriptValueData & data);
+
+
+template <typename... Parameters>
+GScriptValue invokeScriptFunction(GScriptObject * scriptObject, const char * functionName, const Parameters & ... parameters)
+{
+	constexpr size_t paramCount = sizeof...(Parameters);
+
+	GVariant variantList[paramCount == 0 ? 1 : paramCount];
+	loadVariantList(variantList, parameters...);
+	
+	return scriptObject->invoke(functionName, variantList, paramCount);
+}
+
+template <typename... Parameters>
+GScriptValue invokeScriptFunction(IScriptObject * scriptObject, const char * functionName, const Parameters & ... parameters)
+{
+	constexpr size_t paramCount = sizeof...(Parameters);
+
+	GScriptValueData data;
+	// Hold the object so metaCheckError won't crash if scriptObject is freed in invoke
+	GSharedInterface<IScriptObject> holder(scriptObject);
+
+	GVariant variantList[paramCount == 0 ? 1 : paramCount];
+	GVariantData * variantDataList[paramCount == 0 ? 1 : paramCount];
+	loadVariantDataList(variantList, variantDataList, parameters...);
+	
+	scriptObject->invokeIndirectly(&data, functionName, variantDataList, paramCount);
+	metaCheckError(scriptObject);
+
+	return createScriptValueFromData(data);
+}
+
+template <typename... Parameters>
+GScriptValue invokeScriptFunction(IScriptFunction * scriptFunction, const Parameters & ... parameters)
+{
+	constexpr size_t paramCount = sizeof...(Parameters);
+
+	GScriptValueData data;
+	// Hold the object so metaCheckError won't crash if scriptFunction is freed in invoke
+	GSharedInterface<IScriptFunction> holder(scriptFunction);
+
+	GVariant variantList[paramCount == 0 ? 1 : paramCount];
+	GVariantData * variantDataList[paramCount == 0 ? 1 : paramCount];
+	loadVariantDataList(variantList, variantDataList, parameters...);
+	
+	scriptFunction->invokeIndirectly(&data, variantDataList, paramCount);
+	metaCheckError(scriptFunction);
+
+	return createScriptValueFromData(data);
+}
+
+template <typename... Parameters>
+GScriptValue invokeScriptFunctionOnObject(IScriptFunction * scriptFunction, const Parameters & ... parameters)
+{
+	constexpr size_t paramCount = sizeof...(Parameters);
+
+	GScriptValueData data;
+	// Hold the object so metaCheckError won't crash if scriptFunction is freed in invoke
+	GSharedInterface<IScriptFunction> holder(scriptFunction);
+
+	GVariant variantList[paramCount == 0 ? 1 : paramCount];
+	GVariantData * variantDataList[paramCount == 0 ? 1 : paramCount];
+	loadVariantDataList(variantList, variantDataList, parameters...);
+	
+	scriptFunction->invokeIndirectlyOnObject(&data, variantDataList, paramCount);
+	metaCheckError(scriptFunction);
+
+	return createScriptValueFromData(data);
+}
+
 
 GScriptValue scriptGetValue(GScriptObject * scriptObject, const char * name);
 GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name);
@@ -43,12 +165,12 @@ GScriptValue scriptCreateScriptArray(IScriptArray * scriptArray, size_t index);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
 
-void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
+void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
 
-// We can't do this for GScriptObject because if namespaces is NULL, we can't return owner of GScriptObject (we can't share the ownership)
+// We can't do this for GScriptObject because if namespaces is nullptr, we can't return owner of GScriptObject (we can't share the ownership)
 IScriptObject * createScriptObject(IScriptObject * owner, const char * namespaces);
 
 

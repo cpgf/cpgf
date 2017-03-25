@@ -91,7 +91,7 @@ void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T 
 template <typename T>
 void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T & instance) 
 {
-	serializeReadData(archiveReader, name, instance, NULL);
+	serializeReadData(archiveReader, name, instance, nullptr);
 }
 
 
