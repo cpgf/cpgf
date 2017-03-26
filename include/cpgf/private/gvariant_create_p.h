@@ -392,7 +392,7 @@ void doVariantDeduceAndSet(
 	VariantDeduceTag_Interface
 )
 {
-	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
+	data->typeData.vt = (GVtType)GVariantType::vtInterface;
 	constexpr uint16_t size = sizeof(cpgf::IObject *);
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
 	vtSetSizeAndPointers(data->typeData, size, pointers);
@@ -437,7 +437,7 @@ void doVariantDeduceType(
 	VariantDeduceTag_Interface
 )
 {
-	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
+	data->typeData.vt = (GVtType)GVariantType::vtInterface;
 	constexpr uint16_t size = sizeof(cpgf::IObject *);
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
 	vtSetSizeAndPointers(data->typeData, size, pointers);

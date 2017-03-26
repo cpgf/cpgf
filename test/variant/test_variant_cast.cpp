@@ -112,16 +112,16 @@ GTEST(TestVariant_CastFromFloat)
 
 	float a = 5.0f;
 	value = &a;
-	value.refData().typeData.vt = (uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtFloat;
+	value.refData().typeData.vt = (GVtType)GVariantType::byLvalueReference | (GVtType)GVariantType::vtFloat;
 
-	GCHECK((uint16_t)value.getType() == ((uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtFloat));
+	GCHECK((GVtType)value.getType() == ((GVtType)GVariantType::byLvalueReference | (GVtType)GVariantType::vtFloat));
 
 	casted = (float)fromVariant<double>(value);
 	GCHECK(casted > 4.9f && casted < 5.1f);
 
 	int b = 3;
 	value = &b;
-	value.refData().typeData.vt = (uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtSignedInt;
+	value.refData().typeData.vt = (GVtType)GVariantType::byLvalueReference | (GVtType)GVariantType::vtSignedInt;
 	CAN_FROM(void *, value);
 	CAN_FROM(const void *, value);
 	CAN_FROM(const void * const, value);

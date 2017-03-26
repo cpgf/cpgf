@@ -546,7 +546,7 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
 
-	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
+	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 
 	if(vtIsEmpty(vt)) {
 		return Handle<Value>();

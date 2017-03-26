@@ -1196,7 +1196,7 @@ template <typename Methods>
 typename Methods::ResultType complexVariantToScript(const GContextPointer & context,
 			const GVariant & value, const GMetaType & type, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
 {
-	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
+	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));

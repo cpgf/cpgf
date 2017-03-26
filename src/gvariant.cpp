@@ -119,7 +119,7 @@ GVariant createStringVariant(const char * s)
 	GVariant v;
 	GVariantData & data = v.refData();
 
-	data.typeData.vt = (uint16_t)GVariantType::vtString;
+	data.typeData.vt = (GVtType)GVariantType::vtString;
 	vtSetSizeAndPointers(data.typeData, sizeof(void *), 0);
 	data.valueInterface = new variant_internal::GVariantShadowObject<std::string>(std::string(s));
 
@@ -131,7 +131,7 @@ GVariant createWideStringVariant(const wchar_t * s)
 	GVariant v;
 	GVariantData & data = v.refData();
 
-	data.typeData.vt = (uint16_t)GVariantType::vtWideString;
+	data.typeData.vt = (GVtType)GVariantType::vtWideString;
 	vtSetSizeAndPointers(data.typeData, sizeof(void *), 0);
 	data.valueInterface = new variant_internal::GVariantShadowObject<std::wstring>(std::wstring(s));
 
@@ -143,7 +143,7 @@ GVariant createTypedVariant(const GVariant & value, const cpgf::GMetaType & type
 	GVariant v;
 	GVariantData & data = v.refData();
 
-	data.typeData.vt = (uint16_t)GVariantType::vtTypedVar;
+	data.typeData.vt = (GVtType)GVariantType::vtTypedVar;
 	vtSetSizeAndPointers(data.typeData, sizeof(void *), 0);
 	data.valueInterface = new variant_internal::GVariantTypedVar(getVariantRealValue(value), type);
 
@@ -181,7 +181,7 @@ GVariant createObjectVariantFromPointer(void * p)
 	GVariant result;
 	GVariantData & data = result.refData();
 
-	data.typeData.vt = (uint16_t)GVariantType::vtObject | (uint16_t)GVariantType::byPointer;
+	data.typeData.vt = (GVtType)GVariantType::vtObject | (GVtType)GVariantType::byPointer;
 	data.pointer = p;
 	vtSetSizeAndPointers(data.typeData, sizeof(void *), 1);
 
@@ -193,7 +193,7 @@ GVariant createObjectVariant(void * object)
 	GVariant result;
 	GVariantData & data = result.refData();
 
-	data.typeData.vt = (uint16_t)GVariantType::vtObject;
+	data.typeData.vt = (GVtType)GVariantType::vtObject;
 	data.pointer = object;
 	vtSetSizeAndPointers(data.typeData, sizeof(void *), 0);
 
