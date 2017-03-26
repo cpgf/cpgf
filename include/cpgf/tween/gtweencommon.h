@@ -159,9 +159,11 @@ protected:
 	GTweenCallback callbackOnDestroy;
 	GTweenCallback callbackOnUpdate;
 	GTweenCallback callbackOnRepeat;
-	
+
+	/// @cond Make Doxygen happy
 private:
 	friend class GTimeline;
+	/// @endcond
 };
 
 
