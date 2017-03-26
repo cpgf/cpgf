@@ -232,6 +232,13 @@ public class MetaClassWriter {
 			usePrototype = usePrototype || this.cppClass.isGlobal() || item.getUseFullPrototype();
 
 			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, usePrototype);
+			
+			List<String> aliasList = this.callbackData.getAliasList();
+			if(aliasList != null) {
+				for(String alias : aliasList) {
+					WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, alias, name, usePrototype);
+				}
+			}
 		}
 	}
 

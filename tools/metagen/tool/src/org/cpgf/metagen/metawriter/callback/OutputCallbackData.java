@@ -13,6 +13,7 @@ public class OutputCallbackData {
 	private String sourceCode;
 	private ClassWrapperConfig wrapperConfig;
 	private List<String> headerIncludeList;
+	private List<String> aliasList;
 	
 	public OutputCallbackData() {
 		this.skipBind = false;
@@ -83,6 +84,17 @@ public class OutputCallbackData {
 			this.headerIncludeList = new ArrayList<String>();
 		}
 		this.headerIncludeList.add(include);
+	}
+
+	public List<String> getAliasList() {
+		return this.aliasList;
+	}
+	
+	public void addAlias(String alias) {
+		if(this.aliasList == null) {
+			this.aliasList = new ArrayList<String>();
+		}
+		this.aliasList.add(alias);
 	}
 	
 }

@@ -19,7 +19,12 @@ import org.mozilla.javascript.ScriptableObject;
 public class JavascriptConfigLoader implements IOutputCallback {
     static class Shell extends ScriptableObject {
 
-        @Override
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
         public String getClassName() {
             return "global";
         }

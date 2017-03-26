@@ -116,11 +116,6 @@ public class MetaWriter {
 		this.fileWriterList.add(new MainSourceFileWriter(this.config));
 	}
 
-	private String makeTargetFileName(String sourceFileName)
-	{
-		return Util.makeTargetFileName(this.config, sourceFileName);
-	}
-
 	private String makeTargetFileName(String sourceFileName, CppClass cppClass)
 	{
         return Util.makeTargetFileName(this.config, sourceFileName, cppClass);
