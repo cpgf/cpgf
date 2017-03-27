@@ -165,7 +165,7 @@ public:
 	GInstanceSetter() : setter() {
 	}
 
-	explicit GInstanceSetter(const T & setter) : setter(setter) {
+	GInstanceSetter(const T & setter) : setter(setter) {
 	}
 	
 	GInstanceSetter(const GInstanceSetter & other) : setter(other.setter) {

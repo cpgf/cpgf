@@ -160,7 +160,7 @@ public:
 	GInstanceGetter() : getter() {
 	}
 
-	explicit GInstanceGetter(const T & getter) : getter(getter) {
+	GInstanceGetter(const T & getter) : getter(getter) {
 	}
 	
 	GInstanceGetter(const GInstanceGetter & other) : getter(other.getter) {

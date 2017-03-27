@@ -9,13 +9,10 @@
 
 namespace cpgf {
 
-template <typename RawGetter, typename RawSetter, typename Policy = GMetaPolicyDefault>
+template <typename GetterType, typename SetterType>
 class GInstanceAccessor
 {
 public:
-	typedef GInstanceGetter<RawGetter, Policy> GetterType;
-	typedef GInstanceSetter<RawSetter, Policy> SetterType;
-
 	typedef typename std::conditional<
 		GetterType::HasGetter,
 		typename GetterType::ValueType,
@@ -23,15 +20,19 @@ public:
 	>::type ValueType;
 	
 public:
-	GInstanceAccessor(RawGetter rawGetter, RawSetter rawSetter) : getter(GetterType(rawGetter)), setter(SetterType(rawSetter)) {
+	GInstanceAccessor(const GetterType & getter, const SetterType & setter)
+		: getter(getter), setter(setter) {
 	}
-	
-	GInstanceAccessor(const GInstanceAccessor & other) : getter(other.getter), setter(other.setter) {
+
+	GInstanceAccessor(const GInstanceAccessor & other)
+		: getter(other.getter), setter(other.setter) {
 	}
 	
 	GInstanceAccessor & operator = (const GInstanceAccessor & other) {
-		this->getter = other.getter;
-		this->setter = other.setter;
+		if(this != &other) {
+			this->getter = other.getter;
+			this->setter = other.setter;
+		}
 		
 		return *this;
 	}
@@ -58,13 +59,10 @@ private:
 };
 
 
-template <typename RawGetter, typename RawSetter, typename Policy = GMetaPolicyDefault>
+template <typename GetterType, typename SetterType>
 class GAccessor
 {
 public:
-	typedef GInstanceGetter<RawGetter, Policy> GetterType;
-	typedef GInstanceSetter<RawSetter, Policy> SetterType;
-
 	typedef typename std::conditional<
 		GetterType::HasGetter,
 		typename GetterType::ValueType,
@@ -72,17 +70,19 @@ public:
 	>::type ValueType;
 	
 public:
-	GAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
-		: instance(instance), getter(GetterType(rawGetter)), setter(SetterType(rawSetter)) {
+	GAccessor(const GetterType & getter, const SetterType & setter)
+		: getter(getter), setter(setter) {
 	}
 
-	GAccessor(const GAccessor & other) : instance(other.instance), getter(other.getter), setter(other.setter) {
+	GAccessor(const GAccessor & other)
+		: getter(other.getter), setter(other.setter) {
 	}
 	
 	GAccessor & operator = (const GAccessor & other) {
-		this->getter = other.getter;
-		this->setter = other.setter;
-		this->instance = other.instance;
+		if(this != &other) {
+			this->getter = other.getter;
+			this->setter = other.setter;
+		}
 		
 		return *this;
 	}
@@ -96,7 +96,7 @@ public:
 	}
 
 	typename GetterType::PassType get() const {
-		return this->getter.get(this->instance);
+		return this->getter.get();
 	}
 	
 	typename GetterType::PassType operator() () const {
@@ -107,8 +107,8 @@ public:
 		return this->get();
 	}
 	
-	void set(typename SetterType::PassType value) const {
-		this->setter.set(const_cast<void *>(this->instance), value);
+	void set(const typename SetterType::PassType & value) const {
+		this->setter.set(value);
 	}
 	
 	void operator() (typename SetterType::PassType value) const {
@@ -123,50 +123,100 @@ public:
 
 	void * getAddress() const {
 		if(GetterType::HasGetter) {
-			return this->getter.getAddress(this->instance);
+			return this->getter.getAddress();
 		}
 		else {
-			return this->setter.getAddress(const_cast<void *>(this->instance));
+			return this->setter.getAddress();
 		}
 	}
 
 	const void * getInstance() const {
-		return this->instance;
+		if(GetterType::HasGetter) {
+			return this->getter.getInstance();
+		}
+		else {
+			return this->setter.getInstance();
+		}
 	}
 
 	void setInstance(const void * newInstance) {
-		this->instance = newInstance;
+		if(GetterType::HasGetter) {
+			this->getter.setInstance(newInstance);
+		}
+		if(SetterType::HasSetter) {
+			this->setter.setInstance(newInstance);
+		}
 	}
 	
 private:
-	const void * instance;
 	GetterType getter;
 	SetterType setter;
 };
 
 
 template <typename RawGetter, typename RawSetter, typename Policy>
-GInstanceAccessor<RawGetter, RawSetter, Policy> createInstanceAccessor(RawGetter rawGetter, RawSetter rawSetter)
+GInstanceAccessor<GInstanceGetter<RawGetter, Policy>, GInstanceSetter<RawSetter, Policy> >
+createInstanceAccessor(
+		const RawGetter & rawGetter,
+		const RawSetter & rawSetter,
+		Policy
+	)
 {
-	return GInstanceAccessor<RawGetter, RawSetter, Policy>(rawGetter, rawSetter);
+	return { rawGetter, rawSetter };
 }
 
 template <typename RawGetter, typename RawSetter>
-GInstanceAccessor<RawGetter, RawSetter, GMetaPolicyDefault> createInstanceAccessor(RawGetter rawGetter, RawSetter rawSetter)
+GInstanceAccessor<GInstanceGetter<RawGetter, GMetaPolicyDefault>, GInstanceSetter<RawSetter, GMetaPolicyDefault> >
+createInstanceAccessor(
+		const RawGetter & rawGetter,
+		const RawSetter & rawSetter
+	)
 {
-	return GInstanceAccessor<RawGetter, RawSetter, GMetaPolicyDefault>(rawGetter, rawSetter);
+	return { rawGetter, rawSetter };
 }
 
 template <typename RawGetter, typename RawSetter, typename Policy>
-GAccessor<RawGetter, RawSetter, Policy> createAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
+GInstanceAccessor<GInstanceGetter<RawGetter, Policy>, GInstanceSetter<RawSetter, Policy> >
+createInstanceAccessor(
+		const GInstanceGetter<RawGetter, Policy> & getter,
+		const GInstanceSetter<RawSetter, Policy> & setter
+	)
 {
-	return GAccessor<RawGetter, RawSetter, Policy>(instance, rawGetter, rawSetter);
+	return { getter, setter };
+}
+
+
+template <typename RawGetter, typename RawSetter, typename Policy>
+GAccessor<GGetter<RawGetter, Policy>, GSetter<RawSetter, Policy> >
+createAccessor(
+		void * instance,
+		const RawGetter & rawGetter,
+		const RawSetter & rawSetter,
+		Policy policy
+	)
+{
+	return { createGetter(instance, rawGetter, policy), createSetter(instance, rawSetter, policy) };
 }
 
 template <typename RawGetter, typename RawSetter>
-GAccessor<RawGetter, RawSetter, GMetaPolicyDefault> createAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
+GAccessor<GGetter<RawGetter, GMetaPolicyDefault>, GSetter<RawSetter, GMetaPolicyDefault> >
+createAccessor(
+		void * instance,
+		const RawGetter & rawGetter,
+		const RawSetter & rawSetter
+	)
 {
-	return GAccessor<RawGetter, RawSetter, GMetaPolicyDefault>(instance, rawGetter, rawSetter);
+	return { createGetter(instance, rawGetter), createSetter(instance, rawSetter) };
+}
+
+template <typename RawGetter, typename RawSetter, typename Policy>
+GAccessor<GGetter<RawGetter, Policy>, GSetter<RawSetter, Policy> >
+createAccessor(
+		const GGetter<RawGetter, Policy> & getter,
+		const GSetter<RawSetter, Policy> & setter
+	)
+{
+	return { getter, setter };
 }
 
 
