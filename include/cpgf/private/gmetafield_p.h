@@ -50,6 +50,63 @@ protected:
 	GMetaFieldDataVirtual * virtualFunctions;
 };
 
+template <typename Accessor>
+class GMetaFieldDataAccessor : public GMetaFieldDataBase
+{
+private:
+	static constexpr bool Readable = Accessor::Readable;
+	static constexpr bool Writable = Accessor::Writable;
+	
+	typedef typename Accessor::ValueType ValueType;
+
+private:
+	static bool virtualCanGet() {
+		return Readable;
+	}
+
+	static bool virtualCanSet() {
+		return Writable;
+	}
+
+	static GVariant virtualGet(const void * self, const void * instance) {
+		return createVariant<ValueType>(static_cast<const GMetaFieldDataAccessor *>(self)->accessor.get(instance), true);
+	}
+
+	static void virtualSet(const void * self, void * instance, const GVariant & value) {
+		static_cast<const GMetaFieldDataAccessor *>(self)->accessor.set(instance, fromVariant<ValueType>(value));
+	}
+
+	static size_t virtualGetFieldSize() {
+		return sizeof(ValueType);
+	}
+
+	static void * virtualGetFieldAddress(const void * self, const void * instance) {
+		return static_cast<const GMetaFieldDataAccessor *>(self)->accessor.getAddress(instance);
+	}
+	
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
+	{
+		return createMetaExtendType<ValueType>(flags, metaItem);
+	}
+
+public:
+	GMetaFieldDataAccessor(const Accessor & accessor) : accessor(accessor) {
+		static GMetaFieldDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<GMetaFieldDataAccessor>,
+			&virtualCanGet,
+			&virtualCanSet,
+			&virtualGet,
+			&virtualSet,
+			&virtualGetFieldSize,
+			&virtualGetFieldAddress,
+			&virtualGetItemExtendType
+		};
+		this->virtualFunctions = &thisFunctions;
+	}
+
+private:
+	mutable Accessor accessor;
+};
 
 template <typename FT, typename Policy>
 class GMetaFieldDataGlobal : public GMetaFieldDataBase

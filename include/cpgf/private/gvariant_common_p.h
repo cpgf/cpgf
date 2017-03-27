@@ -108,39 +108,6 @@ private:
 	T obj;
 };
 
-template <typename T>
-struct ArrayToPointer
-{
-	typedef T Result;
-
-	G_STATIC_CONSTANT(bool, IsArray = false);
-};
-
-#define DEF_ARRAY_TO_PTR(CV) \
-	template <typename T> struct ArrayToPointer <CV T[]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); }; \
-	template <typename T> struct ArrayToPointer <CV T (*) []> { typedef const volatile typename ArrayToPointer<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); };
-
-DEF_ARRAY_TO_PTR(GPP_EMPTY())
-DEF_ARRAY_TO_PTR(const)
-DEF_ARRAY_TO_PTR(volatile)
-DEF_ARRAY_TO_PTR(const volatile)
-
-#undef DEF_ARRAY_TO_PTR
-
-#ifndef G_COMPILER_CPPBUILDER
-#define DEF_ARRAY_TO_PTR(CV) \
-	template <typename T, unsigned int N> struct ArrayToPointer <CV T[N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); }; \
-	template <typename T, unsigned int N> struct ArrayToPointer <CV T (*) [N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); }; \
-	template <typename T, unsigned int N> struct ArrayToPointer <CV T (&) [N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); };
-
-DEF_ARRAY_TO_PTR(GPP_EMPTY())
-DEF_ARRAY_TO_PTR(const)
-DEF_ARRAY_TO_PTR(volatile)
-DEF_ARRAY_TO_PTR(const volatile)
-
-#undef DEF_ARRAY_TO_PTR
-#endif
-
 void retainVariantData(GVariantData & data);
 void releaseVariantData(GVariantData & data);
 
@@ -168,6 +135,12 @@ template <typename T>
 struct VariantCastResult <const T &, VarantCastCopyConstRef>
 {
 	typedef T Result;
+};
+
+template <typename T>
+struct VariantDecay
+{
+	typedef typename ArrayToPointers<T>::Result Result;
 };
 
 

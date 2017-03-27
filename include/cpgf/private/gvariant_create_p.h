@@ -27,7 +27,7 @@ struct GVariantCreatingType
 	static constexpr bool rvalueRef = std::is_rvalue_reference<A>::value;
 	
 	typedef typename std::decay<
-		typename ArrayToPointer<
+		typename ArrayToPointers<
 			A
 		>::Result
 	>::type B;

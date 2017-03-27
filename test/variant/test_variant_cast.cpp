@@ -130,11 +130,21 @@ GTEST(TestVariant_CastFromFloat)
 
 GTEST(TestVariant_CastFromArray)
 {
-	GVariant value;
 	int a[] = { 1, 2, 3 };
 
-	value = a;
+	GVariant value = a;
 	int * casted = fromVariant<int *>(value);
+	GCHECK(casted[0] == 1);
+	GCHECK(casted[1] == 2);
+	GCHECK(casted[2] == 3);
+}
+
+GTEST(TestVariant_CastFromArray2)
+{
+	int a[] = { 1, 2, 3 };
+
+	GVariant value = createVariant<int [3]>(a);
+	int * casted = fromVariant<int []>(value);
 	GCHECK(casted[0] == 1);
 	GCHECK(casted[1] == 2);
 	GCHECK(casted[2] == 3);

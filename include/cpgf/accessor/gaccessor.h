@@ -37,7 +37,7 @@ public:
 		return *this;
 	}
 
-	typename GetterType::PassType get(void * instance) const {
+	typename GetterType::PassType get(const void * instance) const {
 		return this->getter.get(instance);
 	}
 	
@@ -45,7 +45,7 @@ public:
 		this->setter.set(instance, value);
 	}
 	
-	void * getAddress(void * instance) const {
+	void * getAddress(const void * instance) const {
 		if(GetterType::HasGetter) {
 			return this->getter.getAddress(instance);
 		}
