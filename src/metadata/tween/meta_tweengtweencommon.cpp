@@ -1,6 +1,6 @@
 // Auto generated file, don't modify.
 
-
+#include "cpgf/tween/gtimeline.h"
 #include "cpgf/tween/gtweencommon.h"
 
 #include "cpgf/metadata/tween/meta_tweengtweencommon.h"

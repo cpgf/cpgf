@@ -22,7 +22,7 @@ var config = {
 	wrapOperator : true, // default is true 
 
 	metaNamespace : "tween",
-	sourceHeaderCode : '',
+	sourceHeaderCode : '#include "cpgf/tween/gtimeline.h"',
 	sourceHeaderReplacer : [ '!.*include/cpgf!i', 'cpgf' ],
 	metaHeaderPath : "cpgf/metadata/tween/",
 	
