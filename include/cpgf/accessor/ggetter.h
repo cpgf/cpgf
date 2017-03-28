@@ -172,6 +172,10 @@ public:
 	}
 	
 	PassType get(const void * instance) const {
+		if(! Readable) {
+			raiseCoreException(Error_Meta_ReadDenied);
+		}
+
 		return ImplmentType::get(this->getter, instance);
 	}
 	

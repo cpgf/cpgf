@@ -58,7 +58,9 @@ public:
 		typename std::remove_pointer<T>::type
 	>::type ValueType;
 
-	typedef const ValueType & PassType;
+	static constexpr bool IsArray = std::is_array<typename std::remove_reference<ValueType>::type>::value;
+
+	typedef const typename std::decay<typename ArrayToPointers<ValueType>::Result>::type & PassType;
 	
 	static constexpr bool HasSetter = true;
 
@@ -73,12 +75,21 @@ public:
 
 private:
 	template <typename U>
-	static void doSet(typename std::enable_if<IsMember, U>::type data, const void * instance, const PassType & value) {
+	static void doSet(typename std::enable_if<! IsArray, U>::type data, const void * instance, const PassType & value) {
+		doSetData<U>(data, instance, value);
+	}
+
+	template <typename U>
+	static void doSet(typename std::enable_if<IsArray, U>::type /*data*/, const void * /*instance*/, const PassType & /*value*/) {
+	}
+
+	template <typename U>
+	static void doSetData(typename std::enable_if<IsMember, U>::type data, const void * instance, const PassType & value) {
 		(typename MemberTrait::ObjectType *)(instance)->*data = value;
 	}
 
 	template <typename U>
-	static void doSet(typename std::enable_if<! IsMember, U>::type data, const void * /*instance*/, const PassType & value) {
+	static void doSetData(typename std::enable_if<! IsMember, U>::type data, const void * /*instance*/, const PassType & value) {
 		*data = value;
 	}
 
@@ -116,6 +127,7 @@ public:
 		typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 1>::Result,
 		typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 0>::Result
 	>::type ValueType;
+	
 	typedef ValueType PassType;
 	
 	static constexpr bool HasSetter = true;
@@ -177,6 +189,10 @@ public:
 	}
 	
 	void set(const void * instance, const PassType & value) const {
+		if(! Writable) {
+			raiseCoreException(Error_Meta_WriteDenied);
+		}
+
 		ImplmentType::set(this->setter, instance, value);
 	}
 	

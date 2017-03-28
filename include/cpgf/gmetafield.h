@@ -2,10 +2,9 @@
 #define CPGF_GMETAFIELD_H
 
 #include "cpgf/private/gmetafield_p.h"
-
+#include "cpgf/accessor/gaccessor.h"
 
 namespace cpgf {
-
 
 GMAKE_FINAL(GMetaField)
 
@@ -16,13 +15,27 @@ private:
 
 public:
 	template <typename OT, typename FT, typename Policy>
-	GMetaField(const char * name, FT OT::* field, const Policy &)
-		: super(name, createMetaType<FT>(), mcatField), baseData(new meta_internal::GMetaFieldDataMember<OT, FT, Policy>(field)) {
+	GMetaField(const char * name, FT OT::* field, const Policy & policy)
+		:
+			super(name, createMetaType<FT>(), mcatField),
+			baseData(
+				new meta_internal::GMetaFieldDataAccessor<decltype(createInstanceAccessor(field, field, policy))>(
+					createInstanceAccessor(field, field, policy)
+				)
+			)
+	{
 	}
 
 	template <typename FT, typename Policy>
-	GMetaField(const char * name, FT * field, const Policy &)
-		: super(name, createMetaType<FT>(), mcatField), baseData(new meta_internal::GMetaFieldDataGlobal<FT, Policy>(field)) {
+	GMetaField(const char * name, FT * field, const Policy & policy)
+		:
+			super(name, createMetaType<FT>(), mcatField),
+			baseData(
+				new meta_internal::GMetaFieldDataAccessor<decltype(createInstanceAccessor(field, field, policy))>(
+					createInstanceAccessor(field, field, policy)
+				)
+			)
+	{
 		this->addModifier(metaModifierStatic);
 	}
 

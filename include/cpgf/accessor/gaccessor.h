@@ -9,16 +9,22 @@
 
 namespace cpgf {
 
-template <typename GetterType, typename SetterType>
+template <typename Getter, typename Setter>
 class GInstanceAccessor
 {
 public:
+	typedef Getter GetterType;
+	typedef Setter SetterType;
+	
 	typedef typename std::conditional<
 		GetterType::HasGetter,
 		typename GetterType::ValueType,
 		typename SetterType::ValueType
 	>::type ValueType;
 	
+	static constexpr bool Readable = GetterType::Readable;
+	static constexpr bool Writable = SetterType::Writable;
+
 public:
 	GInstanceAccessor(const GetterType & getter, const SetterType & setter)
 		: getter(getter), setter(setter) {
@@ -69,6 +75,9 @@ public:
 		typename SetterType::ValueType
 	>::type ValueType;
 	
+	static constexpr bool Readable = GetterType::Readable;
+	static constexpr bool Writable = SetterType::Writable;
+
 public:
 	GAccessor(const GetterType & getter, const SetterType & setter)
 		: getter(getter), setter(setter) {

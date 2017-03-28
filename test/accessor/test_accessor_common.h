@@ -11,6 +11,7 @@ public:
 
 public:
 	int n;
+	int arr[5];
 };
 
 #endif

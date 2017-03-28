@@ -12,7 +12,7 @@ TestAccessorObject globalObject;
 const TestAccessorObject globalConstObject;
 
 
-GTEST(Getter_Global_Variable_int)
+GTEST(InstanceGetter_Global_Variable_int)
 {
 	GInstanceGetter<int *> getter = createInstanceGetter(&globalA);
 	GEQUAL(&globalA, getter.getAddress(NULL));
@@ -24,7 +24,7 @@ GTEST(Getter_Global_Variable_int)
 	GEQUAL(38, getter.get(NULL));
 }
 
-GTEST(InstanceGetter_Global_Variable_int)
+GTEST(Getter_Global_Variable_int)
 {
 	GGetter<int *> getter = createGetter(NULL, &globalA);
 	GEQUAL(&globalA, getter.getAddress());
@@ -41,7 +41,7 @@ GTEST(InstanceGetter_Global_Variable_int)
 }
 
 
-GTEST(Getter_Global_Variable_object)
+GTEST(InstanceGetter_Global_Variable_object)
 {
 	GInstanceGetter<TestAccessorObject *> getter = createInstanceGetter(&globalObject);
 	GEQUAL(&globalObject, getter.getAddress(NULL));
@@ -53,7 +53,7 @@ GTEST(Getter_Global_Variable_object)
 	GEQUAL(38, getter.get(NULL).n);
 }
 
-GTEST(InstanceGetter_Global_Variable_object)
+GTEST(Getter_Global_Variable_object)
 {
 	GGetter<TestAccessorObject *> getter = createGetter(NULL, &globalObject);
 	GEQUAL(&globalObject, getter.getAddress());
@@ -68,7 +68,7 @@ GTEST(InstanceGetter_Global_Variable_object)
 }
 
 
-GTEST(Getter_Global_Variable_const_object)
+GTEST(InstanceGetter_Global_Variable_const_object)
 {
 	GInstanceGetter<const TestAccessorObject *> getter = createInstanceGetter(&globalConstObject);
 	GEQUAL(&globalConstObject, getter.getAddress(NULL));
@@ -80,7 +80,7 @@ GTEST(Getter_Global_Variable_const_object)
 	GEQUAL(38, getter.get(NULL).n);
 }
 
-GTEST(InstanceGetter_Global_Variable_const_object)
+GTEST(Getter_Global_Variable_const_object)
 {
 	GGetter<const TestAccessorObject *> getter = createGetter(NULL, &globalConstObject);
 	GEQUAL(&globalConstObject, getter.getAddress());
@@ -94,23 +94,37 @@ GTEST(InstanceGetter_Global_Variable_const_object)
 	GEQUAL(38, getter().n);
 }
 
-
-GTEST(Getter_Member_Variable_object)
+GTEST(InstanceGetter_Global_Variable_Array)
 {
-	TestAccessorObject a;
-	GInstanceGetter<int TestAccessorObject::*> getter = createInstanceGetter(&TestAccessorObject::n);
-	GEQUAL(&a.n, getter.getAddress(&a));
-
-	a.n = 1;
-	GEQUAL(1, getter.get(&a));
-
-	a.n = 38;
-	GEQUAL(38, getter.get(&a));
+	int data[3] { 5, 38, 1999 };
+	auto getter = createInstanceGetter(&data);
+	GEQUAL(data, getter.get(nullptr));
 }
+
+GTEST(Getter_Global_Variable_Array)
+{
+	int data[3] { 5, 38, 1999 };
+	auto getter = createGetter(nullptr, &data);
+	GEQUAL(data, getter.get());
+}
+
 
 GTEST(InstanceGetter_Member_Variable_object)
 {
 	TestAccessorObject a;
+	GInstanceGetter<int TestAccessorObject::*> getter = createInstanceGetter(&TestAccessorObject::n);
+	GEQUAL(&a.n, getter.getAddress(&a));
+
+	a.n = 1;
+	GEQUAL(1, getter.get(&a));
+
+	a.n = 38;
+	GEQUAL(38, getter.get(&a));
+}
+
+GTEST(Getter_Member_Variable_object)
+{
+	TestAccessorObject a;
 	GGetter<int TestAccessorObject::*> getter = createGetter(&a, &TestAccessorObject::n);
 	GEQUAL(&a.n, getter.getAddress());
 
@@ -126,7 +140,7 @@ GTEST(InstanceGetter_Member_Variable_object)
 }
 
 
-GTEST(Getter_Member_Variable_const_object)
+GTEST(InstanceGetter_Member_Variable_const_object)
 {
 	const TestAccessorObject a;
 	GInstanceGetter<int TestAccessorObject::*> getter = createInstanceGetter(&TestAccessorObject::n);
@@ -139,7 +153,7 @@ GTEST(Getter_Member_Variable_const_object)
 	GEQUAL(38, getter.get(&a));
 }
 
-GTEST(InstanceGetter_Member_Variable_const_object)
+GTEST(Getter_Member_Variable_const_object)
 {
 	const TestAccessorObject a;
 	GGetter<int TestAccessorObject::*> getter = createGetter(&a, &TestAccessorObject::n);
@@ -156,20 +170,14 @@ GTEST(InstanceGetter_Member_Variable_const_object)
 	GEQUAL(38, getter);
 }
 
-/*
-GTEST(Getter_Constant_Getter)
+GTEST(InstanceGetter_Member_Variable_array)
 {
-	GConstantGetter<int> getter = createConstantGetter(1);
-	GEQUAL(1, getter.get());
-	
-	getter = createConstantGetter(5);
-	GEQUAL(5, getter.get());
+	const TestAccessorObject a;
+	auto getter = createInstanceGetter(&TestAccessorObject::arr);
+	GEQUAL((void *)&a.arr, (void *)getter.getAddress(&a));
 
-	int x = 38;
-	getter = createConstantGetter(x);
-	GEQUAL(38, getter.get());
+	GEQUAL((void *)&a.arr, (void *)getter.get(&a));
 }
-*/
 
 
 } // unnamed namespace
