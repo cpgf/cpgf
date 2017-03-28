@@ -189,9 +189,7 @@ public:
 };
 
 
-GMAKE_FINAL(GMetaList)
-
-class GMetaList : GFINAL_BASE(GMetaList)
+class GMetaList final
 {
 public:
 	GMetaList();

@@ -11,9 +11,7 @@ class GMetaEnum;
 
 class GMetaEnumDataImplement;
 
-GMAKE_FINAL(GMetaEnum)
-
-class GMetaEnum : public GMetaTypedItem, GFINAL_BASE(GMetaEnum)
+class GMetaEnum final : public GMetaTypedItem
 {
 private:
 	typedef GMetaTypedItem super;

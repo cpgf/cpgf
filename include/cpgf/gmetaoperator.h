@@ -34,9 +34,7 @@ const meta_internal::GMetaOperatorHolder mopHolder = meta_internal::GMetaOperato
 #endif
 
 
-GMAKE_FINAL(GMetaOperator)
-
-class GMetaOperator : public GMetaCallable, GFINAL_BASE(GMetaOperator)
+class GMetaOperator final : public GMetaCallable
 {
 private:
 	typedef GMetaCallable super;

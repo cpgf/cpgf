@@ -25,9 +25,7 @@ class GMetaModule;
 
 class GMetaClassImplement;
 
-GMAKE_FINAL(GMetaClass)
-
-class GMetaClass : public GMetaTypedItem, GFINAL_BASE(GMetaClass)
+class GMetaClass final : public GMetaTypedItem
 {
 private:
 	typedef GMetaTypedItem super;

@@ -7,9 +7,7 @@
 namespace cpgf {
 
 
-GMAKE_FINAL(GMetaProperty)
-
-class GMetaProperty : public GMetaAccessible, GFINAL_BASE(GMetaProperty)
+class GMetaProperty final : public GMetaAccessible
 {
 private:
 	typedef GMetaAccessible super;

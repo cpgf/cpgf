@@ -12,10 +12,7 @@
 
 namespace cpgf {
 
-
-GMAKE_FINAL(GMetaMethod)
-
-class GMetaMethod : public GMetaCallable, GFINAL_BASE(GMetaMethod)
+class GMetaMethod final : public GMetaCallable
 {
 private:
 	typedef GMetaCallable super;
@@ -73,9 +70,7 @@ protected:
 };
 
 
-GMAKE_FINAL(GMetaConstructor)
-
-class GMetaConstructor : public GMetaCallable, GFINAL_BASE(GMetaConstructor)
+class GMetaConstructor final : public GMetaCallable
 {
 private:
 	typedef GMetaCallable super;

@@ -122,9 +122,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 } // namespace meta_internal
 
 
-GMAKE_FINAL(GMetaExtendType)
-
-class GMetaExtendType : GFINAL_BASE(GMetaExtendType)
+class GMetaExtendType final
 {
 public:
 	GMetaExtendType();

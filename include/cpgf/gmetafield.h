@@ -6,9 +6,7 @@
 
 namespace cpgf {
 
-GMAKE_FINAL(GMetaField)
-
-class GMetaField : public GMetaAccessible, GFINAL_BASE(GMetaField)
+class GMetaField final : public GMetaAccessible
 {
 private:
 	typedef GMetaAccessible super;

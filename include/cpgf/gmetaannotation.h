@@ -13,9 +13,7 @@
 
 namespace cpgf {
 
-GMAKE_FINAL(GAnnotationValue)
-
-class GAnnotationValue : GFINAL_BASE(GAnnotationValue)
+class GAnnotationValue final
 {
 public:
 	GAnnotationValue() {
@@ -54,9 +52,7 @@ private:
 };
 
 
-GMAKE_FINAL(GAnnotationItem)
-
-class GAnnotationItem : GFINAL_BASE(GAnnotationItem)
+class GAnnotationItem final
 {
 public:
 	GAnnotationItem();
@@ -77,9 +73,7 @@ private:
 };
 
 
-GMAKE_FINAL(GMetaAnnotation)
-
-class GMetaAnnotation : public GMetaItem, GFINAL_BASE(GMetaAnnotation)
+class GMetaAnnotation final : public GMetaItem
 {
 private:
 	typedef GMetaItem super;

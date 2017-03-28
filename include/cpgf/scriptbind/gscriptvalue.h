@@ -40,9 +40,7 @@ struct GScriptValueData
 };
 #pragma pack(pop)
 
-GMAKE_FINAL(GScriptValue)
-
-class GScriptValue : GFINAL_BASE(GScriptValue)
+class GScriptValue final
 {
 public:
 	enum Type {

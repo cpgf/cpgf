@@ -7,10 +7,7 @@
 
 namespace cpgf {
 
-
-GMAKE_FINAL(GScriptConfig)
-
-class GScriptConfig : GFINAL_BASE(GScriptConfig)
+class GScriptConfig final
 {
 private:
 	enum {
