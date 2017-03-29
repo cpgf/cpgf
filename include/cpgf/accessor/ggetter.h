@@ -23,6 +23,7 @@ public:
 	typedef ValueType PassType;
 	
 	static constexpr bool HasGetter = false;
+	static constexpr bool Readable = false;
 
 public:
 	static PassType get(DataType & /*data*/, const void * /*instance*/) {
@@ -61,6 +62,7 @@ public:
 	typedef ValueType & PassType;
 	
 	static constexpr bool HasGetter = true;
+	static constexpr bool Readable = true;
 
 public:
 	static PassType get(DataType & data, const void * instance){
@@ -115,6 +117,7 @@ public:
 	typedef ValueType PassType;
 	
 	static constexpr bool HasGetter = true;
+	static constexpr bool Readable = true;
 
 public:
 	static PassType get(DataType & data, const void * instance) {
@@ -154,7 +157,7 @@ public:
 	typedef typename ImplmentType::PassType PassType;
 	
 	static constexpr bool HasGetter = ImplmentType::HasGetter;
-	static constexpr bool Readable = HasGetter && ! PolicyHasRule<Policy, GMetaRuleForbidRead>::Result;
+	static constexpr bool Readable = HasGetter && ImplmentType::Readable && ! PolicyHasRule<Policy, GMetaRuleForbidRead>::Result;
 	
 public:
 	GInstanceGetter() : getter() {

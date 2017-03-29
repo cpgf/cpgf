@@ -109,6 +109,11 @@ public class MetaClassWriter {
 		return this.skipItem() || ! Util.allowMetaData(this.config, item) || item.isTemplate();
 	}
 
+	private boolean shouldSkipItemAllowTemplate(ParameteredItem item)
+	{
+		return this.skipItem() || ! Util.allowMetaData(this.config, item);
+	}
+
 	public void write() {
 		if(this.allowedMetaData(EnumCategory.Constructor)) {
 			this.writeConstructors();
@@ -225,18 +230,25 @@ public class MetaClassWriter {
 
 			this.doCallback(item);
 
-			if(this.shouldSkipItem(item)) {
+			if(this.shouldSkipItemAllowTemplate(item)) {
 				continue;
 			}
 
 			usePrototype = usePrototype || this.cppClass.isGlobal() || item.getUseFullPrototype();
 
-			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, usePrototype);
+			if(! item.isTemplate()) {
+				WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, usePrototype);
+			}
 			
 			List<String> aliasList = this.callbackData.getAliasList();
 			if(aliasList != null) {
-				for(String alias : aliasList) {
-					WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, alias, name, usePrototype);
+				for(int i = 0; i < aliasList.size(); i += 2) {
+					String n = aliasList.get(i);
+					String proto = aliasList.get(i + 1);
+					if(proto == null) {
+						proto = name;
+					}
+					WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, n, proto, usePrototype);
 				}
 			}
 		}

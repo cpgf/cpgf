@@ -90,11 +90,16 @@ public class OutputCallbackData {
 		return this.aliasList;
 	}
 	
-	public void addAlias(String alias) {
+	public void addAlias(String alias, String proto) {
 		if(this.aliasList == null) {
 			this.aliasList = new ArrayList<String>();
 		}
 		this.aliasList.add(alias);
+		this.aliasList.add(proto);
+	}
+	
+	public void addAlias(String alias) {
+		this.addAlias(alias, null);
 	}
 	
 }
