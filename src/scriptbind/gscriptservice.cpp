@@ -76,7 +76,7 @@ bool GScriptCoreService::loadLibrary(const char * namespaces, const GMetaVariadi
 
 void GScriptCoreService::setAllowGC(const GVariant & instance, bool allowGC)
 {
-	this->scriptObject->getContext()->setAllowGC(instance, allowGC);
+	this->scriptObject->getContext()->setAllowGC(&instance.refData(), allowGC);
 }
 
 

@@ -716,12 +716,12 @@ private:
 	G_INTERFACE_IMPL_OBJECT
 
 protected:
-	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter);
-	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
-	virtual uint32_t G_API_CC getScriptUserConverterCount();
-	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
-	virtual void G_API_CC setAllowGC(const GVariant & instance, bool allowGC);
-	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass);
+	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter) override;
+	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter) override;
+	virtual uint32_t G_API_CC getScriptUserConverterCount() override;
+	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index) override;
+	virtual void G_API_CC setAllowGC(const GVariantData * instance, bool allowGC) override;
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass) override;
 
 private:
 	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
