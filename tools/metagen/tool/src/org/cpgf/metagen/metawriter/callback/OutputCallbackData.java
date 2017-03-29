@@ -14,6 +14,7 @@ public class OutputCallbackData {
 	private ClassWrapperConfig wrapperConfig;
 	private List<String> headerIncludeList;
 	private List<String> aliasList;
+	private List<String> rawCodeList;
 	
 	public OutputCallbackData() {
 		this.skipBind = false;
@@ -102,4 +103,15 @@ public class OutputCallbackData {
 		this.addAlias(alias, null);
 	}
 	
+	public List<String> getRawCodeList() {
+		return this.rawCodeList;
+	}
+	
+	public void addRawCode(String code) {
+		if(this.rawCodeList == null) {
+			this.rawCodeList = new ArrayList<String>();
+		}
+		
+		this.rawCodeList.add(code);
+	}
 }

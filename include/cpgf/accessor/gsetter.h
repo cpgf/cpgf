@@ -91,7 +91,7 @@ private:
 	template <typename U>
 	static
 	typename std::enable_if<! std::is_void<U>::value && Writable && ! IsArray && ! IsMember>::type
-	doSet(U data, const void * instance, const PassType & value)
+	doSet(U data, const void * /*instance*/, const PassType & value)
 	{
 		*data = value;
 	}

@@ -113,6 +113,16 @@ public class MetaClassWriter {
 	{
 		return this.skipItem() || ! Util.allowMetaData(this.config, item);
 	}
+	
+	private void doWriteRawCode()
+	{
+		List<String> rawCodeList = this.callbackData.getRawCodeList();
+		if(rawCodeList != null) {
+			for(String code : rawCodeList) {
+				this.codeWriter.writeLine(code);
+			}
+		}
+	}
 
 	public void write() {
 		if(this.allowedMetaData(EnumCategory.Constructor)) {
@@ -251,6 +261,8 @@ public class MetaClassWriter {
 					WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, n, proto, usePrototype);
 				}
 			}
+			
+			this.doWriteRawCode();
 		}
 	}
 
