@@ -286,7 +286,13 @@ typedef GWeakPointer<GObjectGlueData> GWeakObjectGlueDataPointer;
 class GObjectInstance
 {
 public:
-	GObjectInstance(const GContextPointer & context, const GVariant & instance, const GClassGlueDataPointer & classData, IMetaObjectLifeManager * objectLifeManager, bool allowGC);
+	GObjectInstance(
+		const GContextPointer & context,
+		const GVariant & instance,
+		const GClassGlueDataPointer & classData,
+		IMetaObjectLifeManager * objectLifeManager,
+		bool allowGC
+	);
 	~GObjectInstance();
 
 	void setDataStorage(IScriptDataStorage * dataStorage);
@@ -344,10 +350,20 @@ private:
 	typedef GGlueData super;
 
 private:
-	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GVariant & instance,
-		const GBindValueFlags & flags, ObjectPointerCV cv);
-	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GObjectInstancePointer & objectInstance,
-		const GBindValueFlags & flags, ObjectPointerCV cv);
+	GObjectGlueData(
+		const GContextPointer & context,
+		const GClassGlueDataPointer & classGlueData,
+		const GVariant & instance,
+		const GBindValueFlags & flags,
+		ObjectPointerCV cv
+	);
+	GObjectGlueData(
+		const GContextPointer & context,
+		const GClassGlueDataPointer & classGlueData,
+		const GObjectInstancePointer & objectInstance,
+		const GBindValueFlags & flags,
+		ObjectPointerCV cv
+	);
 
 public:
 	~GObjectGlueData();
@@ -582,7 +598,12 @@ private:
 	typedef GGlueData super;
 
 public:
-	GOperatorGlueData(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op)
+	GOperatorGlueData(
+		const GContextPointer & context,
+		const GObjectGlueDataPointer & objectData,
+		IMetaClass * metaClass,
+		GMetaOpType op
+	)
 		: super(gdtOperator, context), objectData(objectData), metaClass(metaClass), op(op) {
 	}
 
@@ -760,13 +781,23 @@ public:
 
 	GObjectInstancePointer findObjectInstance(const GVariant & instance);
 
-	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
-		const GBindValueFlags & flags, ObjectPointerCV cv);
-	GObjectGlueDataPointer newOrReuseObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
-		const GBindValueFlags & flags, ObjectPointerCV cv);
+	GObjectGlueDataPointer newObjectGlueData(
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const GBindValueFlags & flags,
+		ObjectPointerCV cv
+	);
+	GObjectGlueDataPointer newOrReuseObjectGlueData(
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const GBindValueFlags & flags,
+		ObjectPointerCV cv
+	);
 
-	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
-		IMetaList * methodList);
+	GMethodGlueDataPointer newMethodGlueData(
+		const GClassGlueDataPointer & classData,
+		IMetaList * methodList
+	);
 
 	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
 
@@ -774,9 +805,16 @@ public:
 
 	GRawGlueDataPointer newRawGlueData(const GVariant & data);
 
-	GObjectAndMethodGlueDataPointer newObjectAndMethodGlueData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
+	GObjectAndMethodGlueDataPointer newObjectAndMethodGlueData(
+		const GObjectGlueDataPointer & objectData,
+		const GMethodGlueDataPointer & methodData
+	);
 
-	GOperatorGlueDataPointer newOperatorGlueData(const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op);
+	GOperatorGlueDataPointer newOperatorGlueData(
+		const GObjectGlueDataPointer & objectData,
+		IMetaClass * metaClass,
+		GMetaOpType op
+	);
 
 	GScriptObjectCache * getScriptObjectCache();
 
@@ -1003,10 +1041,18 @@ int rankCallable(
 
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
-void * doInvokeConstructor(const GContextPointer & context, IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
-InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
-										const GObjectGlueDataPointer & objectData,
-										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam);
+void * doInvokeConstructor(
+	const GContextPointer & context,
+	IMetaService * service,
+	IMetaClass * metaClass,
+	InvokeCallableParam * callableParam
+);
+InvokeCallableResult doInvokeMethodList(
+	const GContextPointer & context,
+	const GObjectGlueDataPointer & objectData,
+	const GMethodGlueDataPointer & methodData,
+	InvokeCallableParam * callableParam
+);
 
 bool shouldRemoveReference(const GMetaType & type);
 
@@ -1015,12 +1061,21 @@ char * wideStringToString(const wchar_t * ws);
 
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData);
 
-GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
+GVariant getAccessibleValueAndType(
+	void * instance,
+	IMetaAccessible * accessible,
+	GMetaType * outType,
+	bool instanceIsConst
+);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
-bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name,
-	const GScriptValue & value, const GGlueDataPointer & valueGlueData);
+bool setValueOnNamedMember(
+	const GGlueDataPointer & glueData,
+	const char * name,
+	const GScriptValue & value,
+	const GGlueDataPointer & valueGlueData
+);
 
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
 GVariant getGlueDataInstance(const GGlueDataPointer & glueData);
@@ -1028,7 +1083,13 @@ void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData);
 
-InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
+InvokeCallableResult doInvokeOperator(
+	const GContextPointer & context,
+	const GObjectGlueDataPointer & objectData,
+	IMetaClass * metaClass,
+	GMetaOpType op,
+	InvokeCallableParam * callableParam
+);
 
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);
 
@@ -1104,8 +1165,12 @@ public:
 		return nullptr;
 	}
 
-	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv, GScriptObjectCacheData * scriptObject)
+	void addScriptObject(
+		const GVariant & instance,
+		const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv,
+		GScriptObjectCacheData * scriptObject
+	)
 	{
 		GScriptObjectCacheKey key(
 			getInstanceHash(instance),
@@ -1193,8 +1258,13 @@ int findAppropriateCallable(
 
 
 template <typename Methods>
-typename Methods::ResultType complexVariantToScript(const GContextPointer & context,
-			const GVariant & value, const GMetaType & type, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
+typename Methods::ResultType complexVariantToScript(
+	const GContextPointer & context,
+	const GVariant & value,
+	const GMetaType & type,
+	const GBindValueFlags & flags,
+	GGlueDataPointer * outputGlueData
+)
 {
 	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 
@@ -1233,7 +1303,11 @@ typename Methods::ResultType complexVariantToScript(const GContextPointer & cont
 
 
 template <typename Methods>
-typename Methods::ResultType converterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
+typename Methods::ResultType converterToScript(
+	const GContextPointer & context,
+	const GVariant & value,
+	IMetaConverter * converter
+)
 {
 	if(isMetaConverterCanRead(converter->capabilityForCString())) {
 		gapi_bool needFree;
@@ -1274,8 +1348,12 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 
 
 template <typename Methods>
-typename Methods::ResultType sharedPointerTraitsToScript(const GContextPointer & context, const GVariant & value,
-			IMetaSharedPointerTraits * sharedPointerTraits, const GBindValueFlags & flags)
+typename Methods::ResultType sharedPointerTraitsToScript(
+	const GContextPointer & context,
+	const GVariant & value,
+	IMetaSharedPointerTraits * sharedPointerTraits,
+	const GBindValueFlags & flags
+)
 {
 	GMetaTypeData typeData;
 	sharedPointerTraits->getMetaType(&typeData);
@@ -1313,8 +1391,12 @@ typename Methods::ResultType sharedPointerTraitsToScript(const GContextPointer &
 
 
 template <typename Methods>
-typename Methods::ResultType extendVariantToScript(const GContextPointer & context, const GMetaExtendType & extendType,
-		const GVariant & value, const GBindValueFlags & flags)
+typename Methods::ResultType extendVariantToScript(
+	const GContextPointer & context,
+	const GMetaExtendType & extendType,
+	const GVariant & value,
+	const GBindValueFlags & flags
+)
 {
 	typename Methods::ResultType result = Methods::defaultValue();
 
@@ -1369,7 +1451,11 @@ private:
 };
 
 template <typename Methods>
-typename Methods::ResultType methodResultToScript(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * resultValue)
+typename Methods::ResultType methodResultToScript(
+	const GContextPointer & context,
+	IMetaCallable * callable,
+	InvokeCallableResult * resultValue
+)
 {
 	if(resultValue->resultCount > 0) {
 		typename Methods::ResultType result;
@@ -1415,7 +1501,12 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 
 
 template <typename Methods>
-typename Methods::ResultType accessibleToScript(const GContextPointer & context, IMetaAccessible * accessible, void * instance, bool instanceIsConst)
+typename Methods::ResultType accessibleToScript(
+	const GContextPointer & context,
+	IMetaAccessible * accessible,
+	void * instance,
+	bool instanceIsConst
+)
 {
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);

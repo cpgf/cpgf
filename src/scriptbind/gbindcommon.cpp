@@ -1240,7 +1240,13 @@ int rankCallable(
 }
 
 bool implicitConvertForMetaClassCast(const ConvertRank & rank, GVariant * v);
-bool doConvertForMetaClassCast(const GContextPointer & context, GVariant * v, const GMetaType & targetType, const GGlueDataPointer & valueGlueData)
+
+bool doConvertForMetaClassCast(
+		const GContextPointer & context,
+		GVariant * v,
+		const GMetaType & targetType,
+		const GGlueDataPointer & valueGlueData
+	)
 {
 	IMetaClass * sourceClass = getGlueDataMetaClass(valueGlueData);
 	if(sourceClass != nullptr) {
@@ -1283,7 +1289,13 @@ bool implicitConvertForString(const ConvertRank & rank, GVariant * v, GVariant *
 	return false;
 }
 
-bool implicitConvertForSharedPointer(const GContextPointer & context, const ConvertRank & rank, GVariant * v, const GMetaType & targetType, const GGlueDataPointer & valueGlueData)
+bool implicitConvertForSharedPointer(
+		const GContextPointer & context,
+		const ConvertRank & rank,
+		GVariant * v,
+		const GMetaType & targetType,
+		const GGlueDataPointer & valueGlueData
+	)
 {
 	switch(rank.weight) {
 		case ValueMatchRank_Implicit_SharedPointerToRaw: {
@@ -1318,8 +1330,13 @@ bool implicitConvertForMetaClassCast(const ConvertRank & rank, GVariant * v)
 	return false;
 }
 
-bool implicitConvertForUserConvert(const ConvertRank & rank, GVariant * v,
-	IMetaCallable * callable, InvokeCallableParam * callableParam, size_t paramIndex)
+bool implicitConvertForUserConvert(
+		const ConvertRank & rank,
+		GVariant * v,
+		IMetaCallable * callable,
+		InvokeCallableParam * callableParam,
+		size_t paramIndex
+	)
 {
 	if(rank.weight != ValueMatchRank_Implicit_UserConvert) {
 		return false;
@@ -1339,8 +1356,13 @@ bool implicitConvertForUserConvert(const ConvertRank & rank, GVariant * v,
 	return true;
 }
 
-void implicitConvertCallableParam(const GContextPointer & context, GVariant * holder,
-	IMetaCallable * callable, InvokeCallableParam * callableParam, size_t paramIndex)
+void implicitConvertCallableParam(
+		const GContextPointer & context,
+		GVariant * holder,
+		IMetaCallable * callable,
+		InvokeCallableParam * callableParam,
+		size_t paramIndex
+	)
 {
 	const ConvertRank & rank = callableParam->paramRanks[paramIndex];
 	GMetaType targetType(metaGetParamType(callable, paramIndex));
@@ -1356,7 +1378,13 @@ void implicitConvertCallableParam(const GContextPointer & context, GVariant * ho
 	}
 }
 
-void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result)
+void doInvokeCallable(
+		const GContextPointer & context,
+		void * instance,
+		IMetaCallable * callable,
+		InvokeCallableParam * callableParam,
+		InvokeCallableResult * result
+	)
 {
 	result->resultCount = callable->hasResult() ? 1 : 0;
 
@@ -1391,7 +1419,12 @@ void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCal
 }
 
 
-void * doInvokeConstructor(const GContextPointer & context, IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam)
+void * doInvokeConstructor(
+		const GContextPointer & context,
+		IMetaService * service,
+		IMetaClass * metaClass,
+		InvokeCallableParam * callableParam
+	)
 {
 	void * instance = nullptr;
 
@@ -1420,9 +1453,12 @@ void * doInvokeConstructor(const GContextPointer & context, IMetaService * servi
 	return instance;
 }
 
-InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
-										const GObjectGlueDataPointer & objectData,
-										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam)
+InvokeCallableResult doInvokeMethodList(
+		const GContextPointer & context,
+		const GObjectGlueDataPointer & objectData,
+		const GMethodGlueDataPointer & methodData,
+		InvokeCallableParam * callableParam
+	)
 {
 	IMetaList * methodList = methodData->getMethodList();
 
@@ -1563,7 +1599,12 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 	return GScriptValue();
 }
 
-GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst)
+GVariant getAccessibleValueAndType(
+		void * instance,
+		IMetaAccessible * accessible,
+		GMetaType * outType,
+		bool instanceIsConst
+	)
 {
 	GVariant value;
 
@@ -1622,7 +1663,13 @@ void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * 
 	}
 }
 
-void doSetValueOnAccessible(const GContextPointer & context, IMetaAccessible * accessible, const GGlueDataPointer & instanceGlueData, GVariant value, const GGlueDataPointer & valueGlueData)
+void doSetValueOnAccessible(
+		const GContextPointer & context,
+		IMetaAccessible * accessible,
+		const GGlueDataPointer & instanceGlueData,
+		GVariant value,
+		const GGlueDataPointer & valueGlueData
+	)
 {
 	ConvertRank rank = ConvertRank();
 
@@ -1638,8 +1685,12 @@ void doSetValueOnAccessible(const GContextPointer & context, IMetaAccessible * a
 	metaSetValue(accessible, getGlueDataInstanceAddress(instanceGlueData), value);
 }
 
-bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char * name,
-	const GScriptValue & value, const GGlueDataPointer & valueGlueData)
+bool setValueOnNamedMember(
+		const GGlueDataPointer & instanceGlueData,
+		const char * name,
+		const GScriptValue & value,
+		const GGlueDataPointer & valueGlueData
+	)
 {
 	if(getGlueDataCV(instanceGlueData) == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
@@ -1781,7 +1832,13 @@ IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer
 	return nullptr;
 }
 
-InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
+InvokeCallableResult doInvokeOperator(
+		const GContextPointer & context,
+		const GObjectGlueDataPointer & objectData,
+		IMetaClass * metaClass,
+		GMetaOpType op,
+		InvokeCallableParam * callableParam
+	)
 {
 	const int maxRankIndex = findAppropriateCallable(
 		context->getService(),

@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <memory>
+#include <type_traits>
 
 namespace Test_Temp { namespace {
 
@@ -110,7 +111,9 @@ void TestScriptBindMetaData3()
 
 typedef int (*&FuncPtr)();
 
-int doIt(const std::shared_ptr<TestObject> & obj)
+typedef std::shared_ptr<TestObject> SP;
+
+int doIt(const SP & obj)
 {
 	cout << obj->value << endl;
 	return obj->value;
@@ -118,9 +121,9 @@ int doIt(const std::shared_ptr<TestObject> & obj)
 
 GTEST(TestTemp)
 {
-	void * p = new TestObject(38);
-	GVariant v(p);
-//	doIt(fromVariant<std::shared_ptr<TestObject> >(v));
+	std::shared_ptr<void> p(new TestObject(58));
+	GVariant a(p);
+	doIt(fromVariant<const SP &>(a));
 return;
 
 	TestLuaContext context;
