@@ -65,10 +65,13 @@ private:
 };
 
 
-template <typename GetterType, typename SetterType>
+template <typename Getter, typename Setter>
 class GAccessor
 {
 public:
+	typedef Getter GetterType;
+	typedef Setter SetterType;
+	
 	typedef typename std::conditional<
 		GetterType::HasGetter,
 		typename GetterType::ValueType,
