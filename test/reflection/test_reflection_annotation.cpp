@@ -26,7 +26,7 @@ std::wstring stringToWString(const std::string & s)
     return temp;
 }
 
-
+/*
 std::string wstringToString(const std::wstring & s)
 {
     std::string temp(s.length(), ' ');
@@ -35,6 +35,7 @@ std::string wstringToString(const std::wstring & s)
 
     return temp;
 }
+*/
 
 class TestData
 {

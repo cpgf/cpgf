@@ -4,7 +4,7 @@
 class SimpleOverridableIncrementer
 {
 public:
-	~SimpleOverridableIncrementer() {}
+	virtual ~SimpleOverridableIncrementer() {}
 	virtual int increment() = 0;
 };
 

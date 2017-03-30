@@ -13,7 +13,7 @@ void testStlVector_Helper(Binding * binding, TestScriptContext * c, const char *
 	buildMetaData_vector(define, p);
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.takeMetaClass(), true)));
-	binding->bindClass(className, metaClass.get());
+	scriptSetValue(binding, className, GScriptValue::fromClass(metaClass.get()));
 
 	GScopedPointer<TestScriptContext> context(c);
 

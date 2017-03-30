@@ -12,7 +12,7 @@ void testStlList_Helper(Binding * binding, TestScriptContext * c, const char * c
 	buildMetaData_list(define, typename GMetaDataPolicyDeduce<typename Container::value_type>::Result());
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.takeMetaClass(), true)));
-	binding->bindClass(className, metaClass.get());
+	scriptSetValue(binding, className, GScriptValue::fromClass(metaClass.get()));
 
 	GScopedPointer<TestScriptContext> context(c);
 

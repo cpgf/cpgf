@@ -79,7 +79,7 @@ template <typename T>
 void doBindCommonData(T * binding, IMetaService * service)
 {
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("testStl::StlTestData"));
-	binding->bindClass("StlTestData", metaClass.get());
+	scriptSetValue(binding, "StlTestData", GScriptValue::fromClass(metaClass.get()));
 }
 
 void bindCommonData(TestScriptContext * context)

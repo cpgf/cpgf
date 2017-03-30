@@ -1,8 +1,8 @@
+#if ENABLE_PYTHON
+
 #include "testmetagen.h"
 
-
 namespace {
-
 
 void metagenTest_Operators_Python_BitAndAssign(TestScriptContext * context)
 {
@@ -88,6 +88,7 @@ void metagenTest_Operators_Python_RightShiftAssign(TestScriptContext * context)
 #define CASE metagenTest_Operators_Python_RightShiftAssign
 #include "do_testcase_python.h"
 
-
-
 }
+
+
+#endif

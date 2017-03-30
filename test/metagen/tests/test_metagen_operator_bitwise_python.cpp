@@ -1,8 +1,9 @@
+#if ENABLE_PYTHON
+
 #include "testmetagen.h"
 
 
 namespace {
-
 
 void metagenTest_Operators_Python_BitAnd(TestScriptContext * context)
 {
@@ -111,3 +112,5 @@ void metagenTest_Operators_Python_BitNot(TestScriptContext * context)
 #include "do_testcase_python.h"
 
 }
+
+#endif
