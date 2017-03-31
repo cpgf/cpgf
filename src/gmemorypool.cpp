@@ -1,6 +1,6 @@
 #include "cpgf/gmemorypool.h"
 #include "cpgf/gcompiler.h"
-#include "pinclude/gstaticuninitializerorders.h"
+#include "gstaticuninitializerorders.h"
 
 #include <thread>
 #include <cassert>

@@ -1,7 +1,7 @@
 #include "cpgf/metatraits/gmetaconverter_widestring.h"
 #include "cpgf/gapiutil.h"
 
-#include "../pinclude/gmetaconverter_default.h"
+#include "gmetaconverter_default.h"
 
 #include <string>
 

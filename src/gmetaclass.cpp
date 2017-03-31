@@ -7,7 +7,7 @@
 #include "cpgf/gmetaproperty.h"
 #include "cpgf/gstringutil.h"
 
-#include "pinclude/gstaticuninitializerorders.h"
+#include "gstaticuninitializerorders.h"
 
 #include <string>
 #include <vector>

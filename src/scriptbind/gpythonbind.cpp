@@ -14,7 +14,7 @@
 
 #include "gbindcommon.h"
 #include "gbindapiimpl.h"
-#include "../pinclude/gstaticuninitializerorders.h"
+#include "../gstaticuninitializerorders.h"
 
 #include <stdexcept>
 

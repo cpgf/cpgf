@@ -3,7 +3,7 @@
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
 #include "cpgf/gerrorcode.h"
-#include "../pinclude/gmetaarchivecommonimpl.h"
+#include "gmetaarchivecommonimpl.h"
 
 #include "cpgf/thirdparty/jsoncpp/value.h"
 #include "cpgf/thirdparty/jsoncpp/reader.h"

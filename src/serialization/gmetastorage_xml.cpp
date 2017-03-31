@@ -4,7 +4,7 @@
 #include "cpgf/serialization/gmetaarchivewriter.h"
 #include "cpgf/serialization/gmetaarchivetypemap.h"
 #include "cpgf/gerrorcode.h"
-#include "../pinclude/gmetaarchivecommonimpl.h"
+#include "gmetaarchivecommonimpl.h"
 
 #include "cpgf/thirdparty/rapidxml/rapidxml.hpp"
 #include "cpgf/thirdparty/rapidxml/rapidxml_print.hpp"
