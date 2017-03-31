@@ -8,6 +8,8 @@
 
 namespace cpgf {
 
+namespace bind_internal {
+
 enum GMetaMapItemType {
 	mmitMethod = 0,
 	mmitMethodList = 1,
@@ -113,6 +115,7 @@ private:
 	MapType classMap;
 };
 
+} //namespace bind_internal
 
 } //namespace cpgf
 

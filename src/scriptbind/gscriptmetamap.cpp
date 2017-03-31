@@ -2,6 +2,8 @@
 
 namespace cpgf {
 
+namespace bind_internal {
+
 GMetaMapItem::GMetaMapItem()
 	: item(nullptr), type(mmitNone), enumIndex(0)
 {
@@ -179,5 +181,6 @@ GMetaMapClass * GMetaMap::getClassMap(IMetaClass * metaClass)
 	}
 }
 
+} //namespace bind_internal
 
 } //namespace cpgf
