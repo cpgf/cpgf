@@ -1,8 +1,81 @@
 #include "../pinclude/gscriptgluedata.h"
+#include "../pinclude/gbindcommon.h"
+
+#include <vector>
 
 namespace cpgf {
 
 namespace bind_internal {
+
+GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
+	: object(object)
+{
+}
+
+GScriptDataStorage::~GScriptDataStorage()
+{
+}
+
+IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * name)
+{
+	if(this->object.expired()) {
+		return nullptr;
+	}
+
+	GObjectGlueDataPointer obj(this->object);
+	IScriptFunction * func = nullptr;
+	if(obj->getDataHolder() != nullptr) {
+		func = obj->getDataHolder()->getScriptFunction(name);
+	}
+	if(func == nullptr && obj->getClassData()->getDataHolder() != nullptr) {
+		func = obj->getClassData()->getDataHolder()->getScriptFunction(name);
+	}
+	return func;
+}
+
+void GScriptDataHolder::requireDataMap()
+{
+	if(! this->dataMap) {
+		this->dataMap.reset(new MapType());
+	}
+}
+
+void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & value)
+{
+	GASSERT(value.isScriptFunction());
+
+	this->requireDataMap();
+	
+	const GVariant variant = value.getValue();
+
+	// Insert and overwrite the previous function if it exists.
+	(*this->dataMap)[name] = variant;
+
+	if(vtIsInteger(variant.getType())) {
+		IScriptFunction * func = dynamic_cast<IScriptFunction *>(fromVariant<IObject *>(variant));
+		if(func != nullptr) {
+			func->weaken();
+		}
+	}
+}
+
+IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
+{
+	if(this->dataMap) {
+		MapType::iterator it = this->dataMap->find(name);
+		if(it != this->dataMap->end()) {
+			if(vtIsInterface(it->second.getType())) {
+				IScriptFunction * func = dynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+				if(func != nullptr) {
+					func->addReference();
+				}
+				return func;
+			}
+		}
+	}
+	return nullptr;
+}
+
 
 GScriptDataHolder * GClassGlueData::getDataHolder() const
 {
@@ -111,6 +184,72 @@ void GObjectGlueData::initialize()
 std::string GMethodGlueData::getName() const
 {
 	return getMethodNameFromMethodList(this->methodList.get());
+}
+
+
+GGlueDataWrapperPool::GGlueDataWrapperPool()
+	: active(true)
+{
+}
+
+typedef std::vector<GGlueDataWrapper *> TempListType;
+GGlueDataWrapperPool::~GGlueDataWrapperPool()
+{
+	this->clear();
+	this->active = false;
+}
+
+typedef std::vector<GGlueDataWrapper *> TempListType;
+void GGlueDataWrapperPool::clear()
+{
+	this->active = false;
+
+	TempListType tempList(this->wrapperSet.begin(), this->wrapperSet.end());
+	this->wrapperSet.clear();
+
+	// delete objects first - as they depend on other bound data
+	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
+		if((*it)->getData() && (*it)->getData()->getType() == gdtObject) {
+			freeGlueDataWrapper(*it);
+			*it = nullptr;
+		}
+	}
+
+	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
+		if(*it != nullptr) {
+			if((*it)->getData() && (*it)->getData()->getType() != gdtClass) {
+				freeGlueDataWrapper(*it);
+				*it = nullptr;
+			}
+		}
+	}
+
+	/* We must free class data after other data (especially, after object data).
+	   This is because when class data is freed, the meta class maybe freed which object is still using.
+	   Though object holds a shared pointer of class data, the class data may free its nested class which the object is using.
+	   That will cause memory access error.
+	*/
+	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
+		if(*it != nullptr) {
+			freeGlueDataWrapper(*it);
+		}
+	}
+	this->active = true;
+}
+
+void GGlueDataWrapperPool::dataWrapperCreated(GGlueDataWrapper * dataWrapper)
+{
+	if(this->active) {
+		GASSERT(this->wrapperSet.find(dataWrapper) == this->wrapperSet.end());
+		this->wrapperSet.insert(dataWrapper);
+	}
+}
+
+void GGlueDataWrapperPool::dataWrapperDestroyed(GGlueDataWrapper * dataWrapper)
+{
+	if(this->active) {
+		this->wrapperSet.erase(dataWrapper);
+	}
 }
 
 

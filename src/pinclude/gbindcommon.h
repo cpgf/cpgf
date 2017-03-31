@@ -11,6 +11,7 @@
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
 #include "cpgf/gflags.h"
+#include "cpgf/gstringmap.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gstringutil.h"
@@ -80,99 +81,6 @@ typedef GWeakPointer<GBindingContext> GWeakContextPointer;
 class GClassGlueData;
 
 
-
-class GScriptDataStorage : public IScriptDataStorage
-{
-	G_INTERFACE_IMPL_OBJECT
-
-private:
-	explicit GScriptDataStorage(const GObjectGlueDataPointer & object);
-
-public:
-	virtual ~GScriptDataStorage();
-
-protected:
-	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
-
-private:
-	GWeakObjectGlueDataPointer object;
-
-private:
-	friend class GBindingContext;
-	friend class GObjectGlueData;
-};
-
-
-class GScriptDataHolder
-{
-private:
-	typedef std::map<std::string, GVariant> MapType;
-	typedef std::pair<std::string, GVariant> MapValueType;
-
-public:
-	void setScriptValue(const char * name, const GScriptValue & value);
-	IScriptFunction * getScriptFunction(const char * name);
-
-private:
-	void requireDataMap();
-
-private:
-	GScopedPointer<MapType> dataMap;
-};
-
-
-class GGlueDataWrapper
-{
-public:
-	virtual ~GGlueDataWrapper() {
-	}
-
-	virtual GGlueDataPointer getData() const = 0;
-
-	template <typename T>
-	GSharedPointer<T> getAs() const {
-		return sharedStaticCast<T>(this->getData());
-	}
-};
-
-template <typename T>
-class GGlueDataWrapperImplement : public GGlueDataWrapper
-{
-public:
-	explicit GGlueDataWrapperImplement(const T & p) : dataPointer(p) {
-		GASSERT((bool)p);
-
-	}
-
-	virtual ~GGlueDataWrapperImplement() {
-	}
-
-	virtual GGlueDataPointer getData() const {
-		return sharedStaticCast<GGlueData>(this->dataPointer);
-	}
-
-private:
-	T dataPointer;
-};
-
-
-class GGlueDataWrapperPool
-{
-private:
-	typedef std::set<GGlueDataWrapper *> SetType;
-
-public:
-	GGlueDataWrapperPool();
-	~GGlueDataWrapperPool();
-
-	void dataWrapperCreated(GGlueDataWrapper * dataWrapper);
-	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
-
-	void clear();
-private:
-	bool active;
-	SetType wrapperSet;
-};
 
 class GScriptContext : public IScriptContext
 {
@@ -290,6 +198,40 @@ private:
 	friend class GClassPool;
 };
 
+class GClassPool
+{
+private:
+	typedef std::map<void *, GWeakObjectInstancePointer> InstanceMapType;
+
+	typedef std::vector<GClassGlueDataPointer> ClassMapListType;
+	typedef GStringMap<ClassMapListType, GStringMapReuseKey> ClassMapType;
+
+public:
+	explicit GClassPool(GBindingContext * context);
+
+	void objectCreated(const GObjectInstancePointer & objectData);
+	void objectDestroyed(const GObjectInstance * objectData);
+	void classDestroyed(IMetaClass * metaClass);
+
+	GObjectInstancePointer findObjectData(const GVariant & instancecv);
+
+	GClassGlueDataPointer getOrNewClassData(const GVariant & instance, IMetaClass * metaClass);
+	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
+	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
+
+private:
+	ClassMapListType * getList(IMetaClass * metaClass);
+	GClassGlueDataPointer * findClassDataByPointer(ClassMapListType * classDataList, IMetaClass * metaClass);
+	GClassGlueDataPointer createClassDataAtSlot(ClassMapListType * classDataList, IMetaClass * metaClass, size_t slot);
+	size_t getFreeSlot(ClassMapListType * classDataList, size_t startSlot);
+
+private:
+	InstanceMapType instanceMap;
+	ClassMapType classMap;
+	GBindingContext * context;
+};
+
+
 class ConvertRank
 {
 public:
@@ -345,52 +287,6 @@ public:
 	GVariant resultData;
 	GSharedInterface<IMetaCallable> callable;
 };
-
-template <typename T>
-GGlueDataWrapper * newGlueDataWrapper(const T & p)
-{
-	return new GGlueDataWrapperImplement<T>(p);
-}
-
-template <typename T>
-GGlueDataWrapper * newGlueDataWrapper(const T & p, GGlueDataWrapperPool * pool)
-{
-	GGlueDataWrapper * wrapper = newGlueDataWrapper(p);
-	if(pool != nullptr) {
-		pool->dataWrapperCreated(wrapper);
-	}
-	return wrapper;
-}
-
-template <typename T>
-GGlueDataWrapper * newGlueDataWrapper(void * address, const T & p)
-{
-	return new (address) GGlueDataWrapperImplement<T>(p);
-}
-
-template <typename T>
-size_t getGlueDataWrapperSize()
-{
-	return sizeof(GGlueDataWrapperImplement<GSharedPointer<T> >);
-}
-
-inline void destroyGlueDataWrapper(GGlueDataWrapper * p)
-{
-	p->~GGlueDataWrapper();
-}
-
-inline void freeGlueDataWrapper(GGlueDataWrapper * p)
-{
-	delete p;
-}
-
-inline void freeGlueDataWrapper(GGlueDataWrapper * p, GGlueDataWrapperPool * pool)
-{
-	if(pool != nullptr) {
-		pool->dataWrapperDestroyed(p);
-	}
-	freeGlueDataWrapper(p);
-}
 
 class GScriptObjectBase : public GScriptObject
 {

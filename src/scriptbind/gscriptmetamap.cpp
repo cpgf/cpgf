@@ -1,4 +1,6 @@
-#include "./pinclude/gscriptmetamap.h"
+#include "../pinclude/gscriptmetamap.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gglobal.h"
 
 namespace cpgf {
 

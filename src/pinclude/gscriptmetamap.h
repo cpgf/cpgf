@@ -2,6 +2,8 @@
 #define GSCRIPTMETAMAP_H
 
 #include "cpgf/gsharedinterface.h"
+#include "cpgf/gmetaapi.h"
+#include "cpgf/gstringutil.h"
 
 #include <map>
 #include <unordered_map>
