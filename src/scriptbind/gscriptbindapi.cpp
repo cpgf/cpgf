@@ -1,6 +1,6 @@
 #include "cpgf/gapiutil.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
-#include "../pinclude/gscriptbindapiimpl.h"
+#include "gbindapiimpl.h"
 
 
 namespace cpgf {

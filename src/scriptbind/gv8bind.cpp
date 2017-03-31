@@ -5,7 +5,7 @@
 #include "cpgf/gerrorcode.h"
 
 #include "../pinclude/gbindcommon.h"
-#include "../pinclude/gscriptbindapiimpl.h"
+#include "gbindapiimpl.h"
 #include "../pinclude/gstaticuninitializerorders.h"
 
 #include <stdexcept>

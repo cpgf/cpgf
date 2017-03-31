@@ -1,5 +1,5 @@
 #include "cpgf/scriptbind/gscriptbindutil.h"
-#include "../pinclude/gscriptbindapiimpl.h"
+#include "gbindapiimpl.h"
 
 #include <string>
 

@@ -2,7 +2,7 @@
 #include "cpgf/gglobal.h"
 
 #include "../pinclude/gbindcommon.h"
-#include "../pinclude/gscriptbindapiimpl.h"
+#include "gbindapiimpl.h"
 
 
 namespace cpgf {
