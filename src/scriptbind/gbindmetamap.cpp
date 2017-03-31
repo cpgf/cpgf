@@ -1,4 +1,5 @@
-#include "../pinclude/gscriptmetamap.h"
+#include "../pinclude/gbindmetamap.h"
+#include "../pinclude/gbindgluedata.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gglobal.h"
 
@@ -71,6 +72,10 @@ IObject * GMetaMapItem::getItem() const
 GMetaMapClass::GMetaMapClass(IMetaClass * metaClass)
 {
 	this->buildMap(metaClass);
+}
+
+GMetaMapClass::~GMetaMapClass()
+{
 }
 
 GMetaMapItem * GMetaMapClass::findItem(const char * name)
@@ -182,6 +187,17 @@ GMetaMapClass * GMetaMap::getClassMap(IMetaClass * metaClass)
 		return this->classMap.insert(MapType::value_type(name, new GMetaMapClass(metaClass))).first->second;
 	}
 }
+
+
+GMapItemMethodData::GMapItemMethodData(const GMethodGlueDataPointer & methodData)
+	: methodData(methodData)
+{
+}
+
+GMapItemMethodData::~GMapItemMethodData()
+{
+}
+
 
 } //namespace bind_internal
 

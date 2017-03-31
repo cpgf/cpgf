@@ -1,7 +1,8 @@
-#ifndef GSCRIPTMETAMAP_H
-#define GSCRIPTMETAMAP_H
+#ifndef GBINDMETAMAP_H
+#define GBINDMETAMAP_H
 
 #include "cpgf/gsharedinterface.h"
+#include "cpgf/gsharedptr.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gstringutil.h"
 
@@ -78,6 +79,7 @@ public:
 
 public:
 	GMetaMapClass(IMetaClass * metaClass);
+	~GMetaMapClass();
 
 	GMetaMapItem * findItem(const char * name);
 
@@ -116,6 +118,24 @@ public:
 private:
 	MapType classMap;
 };
+
+class GMethodGlueData;
+typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
+
+class GMapItemMethodData : public GUserData
+{
+public:
+	explicit GMapItemMethodData(const GMethodGlueDataPointer & methodData);
+	~GMapItemMethodData();
+
+	const GMethodGlueDataPointer & getMethodData() const {
+		return this->methodData;
+	}
+
+private:
+	GMethodGlueDataPointer methodData;
+};
+
 
 } //namespace bind_internal
 

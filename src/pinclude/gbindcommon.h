@@ -16,9 +16,9 @@
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gstringutil.h"
 
-#include "gscriptmetamap.h"
-#include "gscriptgluedata.h"
-#include "gscriptcommon.h"
+#include "gbindmetamap.h"
+#include "gbindgluedata.h"
+#include "gbindobject.h"
 #include "gbindcontext.h"
 
 #include <map>
@@ -39,9 +39,6 @@ namespace bind_internal {
 
 class GBindingContext;
 class GScriptDataHolder;
-
-typedef GSharedPointer<GBindingContext> GContextPointer;
-typedef GWeakPointer<GBindingContext> GWeakContextPointer;
 
 class GClassGlueData;
 
@@ -100,92 +97,6 @@ public:
 	GVariant resultData;
 	GSharedInterface<IMetaCallable> callable;
 };
-
-class GScriptObjectBase : public GScriptObject
-{
-private:
-	typedef GScriptObject super;
-
-public:
-	GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config);
-	GScriptObjectBase(const GScriptObjectBase & other);
-	virtual ~GScriptObjectBase();
-
-	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
-
-	IMetaService * getMetaService();
-
-	virtual IScriptContext * getContext() const;
-
-protected:
-	const GContextPointer & getBindingContext() const {
-		return this->context;
-	}
-
-	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
-
-private:
-	GContextPointer context;
-};
-
-
-class GScriptFunctionBase : public GScriptFunction
-{
-private:
-	typedef GScriptFunction super;
-
-public:
-	explicit GScriptFunctionBase(const GContextPointer & context)
-		: context(context), weakContext(context)
-	{
-	}
-
-	virtual void weaken() {
-		this->context.reset();
-	}
-
-protected:
-	GContextPointer getBindingContext() {
-		return this->weakContext.get();
-	}
-
-private:
-	// Here we must use strong shared pointer,
-	// otherwise the context may be freed by the script object
-	// while the script function is still live.
-	// But there is cyclic shared pointer chain
-	// IScriptFunction->GBindingContext->GClassPool->GClassGlueData->GScriptDataHolder->IScriptFunction
-	// Now the cyclic chain is broken by calling weaken when setting IScriptFunction to GScriptDataHolder
-	// The solution is super ugly, but I can't find better solution for now.
-
-	GContextPointer context;
-	GWeakContextPointer weakContext;
-};
-
-
-class GScriptArrayBase : public GScriptArray
-{
-private:
-	typedef GScriptArray super;
-
-public:
-	explicit GScriptArrayBase(const GContextPointer & context)
-		: context(context)
-	{
-	}
-
-protected:
-	GContextPointer getBindingContext() {
-		return this->context;
-	}
-
-private:
-	// Here we must use strong shared pointer,
-	// otherwise the context may be freed by the script object
-	// while the script array is still live.
-	GContextPointer context;
-};
-
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
@@ -254,112 +165,6 @@ IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & va
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
 std::string getMethodNameFromMethodList(IMetaList * methodList);
-
-inline void * getInstanceHash(const GVariant & instance)
-{
-	return objectAddressFromVariant(instance);
-}
-
-
-struct GScriptObjectCacheKey {
-	GScriptObjectCacheKey() : key(nullptr), className(nullptr), cv(opcvNone) {
-	}
-
-	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv)
-		: key(key), className(className), cv(cv) {
-	}
-
-	bool operator < (const GScriptObjectCacheKey & other) const {
-		if(key < other.key) {
-			return true;
-		}
-		if(key == other.key) {
-			if(cv < other.cv) {
-				return true;
-			}
-			if(cv > other.cv) {
-				return false;
-			}
-
-			if(className == other.className) {
-				return false;
-			}
-			else {
-				return strcmp(className, other.className) < 0;
-			}
-		}
-		return false;
-	}
-
-	void * key;
-	const char * className;
-	ObjectPointerCV cv;
-};
-
-class GScriptObjectCacheData {
-public:
-	virtual ~GScriptObjectCacheData() {}
-};
-
-class GScriptObjectCache
-{
-private:
-	typedef std::map<GScriptObjectCacheKey, GSharedPointer<GScriptObjectCacheData> > ObjectMapType;
-
-public:
-	template <class T>
-	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv)
-	{
-		GScriptObjectCacheKey key(
-			getInstanceHash(instance),
-			classData->getMetaClass()->getQualifiedName(),
-			cv
-		);
-		typename ObjectMapType::iterator it = this->objectMap.find(key);
-		if(it != this->objectMap.end()) {
-			return dynamic_cast<T *>(it->second.get());
-		}
-		return nullptr;
-	}
-
-	void addScriptObject(
-		const GVariant & instance,
-		const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv,
-		GScriptObjectCacheData * scriptObject
-	)
-	{
-		GScriptObjectCacheKey key(
-			getInstanceHash(instance),
-			classData->getMetaClass()->getQualifiedName(),
-			cv
-		);
-		this->objectMap.insert(std::make_pair(key, GSharedPointer<GScriptObjectCacheData>(scriptObject)));
-	}
-
-	void freeScriptObject(GGlueDataWrapper * dataWrapper)
-	{
-		GVariant instance = getGlueDataInstance(dataWrapper->getData());
-		if(instance.isEmpty()) {
-			return;
-		}
-		GScriptObjectCacheKey entry(
-			getInstanceHash(instance),
-			getGlueDataMetaClass(dataWrapper->getData())->getQualifiedName(),
-			getGlueDataCV(dataWrapper->getData())
-		);
-
-		this->objectMap.erase(entry);
-	}
-
-	void clear() {
-		this->objectMap.clear();
-	}
-
-private:
-	ObjectMapType objectMap;
-};
 
 struct ConvertRankBuffer
 {
@@ -768,22 +573,6 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 	return Methods::defaultValue();
 }
-
-
-class GMapItemMethodData : public GUserData
-{
-public:
-	explicit GMapItemMethodData(const GMethodGlueDataPointer & methodData)
-		: methodData(methodData) {
-	}
-
-	const GMethodGlueDataPointer & getMethodData() const {
-		return this->methodData;
-	}
-
-private:
-	GMethodGlueDataPointer methodData;
-};
 
 
 } // namespace bind_internal

@@ -8,7 +8,7 @@
 #include "cpgf/gstringmap.h"
 #include "cpgf/glifecycle.h"
 
-#include "gscriptgluedata.h"
+#include "gbindgluedata.h"
 
 #include <vector>
 
@@ -18,6 +18,7 @@ namespace bind_internal {
 
 class GBindingContext;
 class GClassPool;
+class GScriptObjectCache;
 
 class GScriptContext : public IScriptContext
 {
@@ -48,8 +49,6 @@ private:
 	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
-
-class GScriptObjectCache;
 
 class GBindingContext : public GShareFromThis<GBindingContext>
 {

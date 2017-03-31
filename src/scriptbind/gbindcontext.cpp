@@ -1,5 +1,6 @@
 #include "../pinclude/gbindcontext.h"
 #include "../pinclude/gbindcommon.h"
+#include "../pinclude/gbindobjectcache.h"
 
 namespace cpgf {
 

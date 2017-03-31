@@ -1,5 +1,5 @@
-#ifndef GSCRIPTGLUEDATA_H
-#define GSCRIPTGLUEDATA_H
+#ifndef GBINDGLUEDATA_H
+#define GBINDGLUEDATA_H
 
 #include "cpgf/gsharedptr.h"
 #include "cpgf/gscopedptr.h"
@@ -11,8 +11,8 @@
 #include "cpgf/scriptbind/gscriptwrapper.h"
 #include "cpgf/scriptbind/gscriptvalue.h"
 
-#include "gscriptcommon.h"
-#include "gscriptmetamap.h"
+#include "gbindobject.h"
+#include "gbindmetamap.h"
 
 #include <set>
 #include <map>
@@ -609,7 +609,6 @@ inline void freeGlueDataWrapper(GGlueDataWrapper * p, GGlueDataWrapperPool * poo
 
 
 } //namespace bind_internal
-
 
 } //namespace cpgf
 

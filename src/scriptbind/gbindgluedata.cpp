@@ -1,4 +1,4 @@
-#include "../pinclude/gscriptgluedata.h"
+#include "../pinclude/gbindgluedata.h"
 #include "../pinclude/gbindcommon.h"
 
 #include <vector>

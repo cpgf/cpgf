@@ -1,0 +1,73 @@
+#include "../pinclude/gbindobject.h"
+#include "../pinclude/gbindcontext.h"
+
+#include "cpgf/scriptbind/gscriptuserconverter.h"
+#include "cpgf/gglobal.h"
+
+namespace cpgf {
+
+namespace bind_internal {
+
+GScriptObjectBase::GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config)
+	: super(config), context(context)
+{
+}
+
+GScriptObjectBase::GScriptObjectBase(const GScriptObjectBase & other)
+	: super(other), context(other.context)
+{
+}
+
+GScriptObjectBase::~GScriptObjectBase()
+{
+}
+
+IMetaClass * GScriptObjectBase::cloneMetaClass(IMetaClass * metaClass)
+{
+	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());
+
+	this->context->getClassData(metaClass);
+	this->context->newClassData(newMetaClass);
+
+	return newMetaClass;
+}
+
+IMetaService * GScriptObjectBase::getMetaService()
+{
+	IMetaService * service = this->context->getService();
+	service->addReference();
+	return service;
+}
+
+IScriptContext * GScriptObjectBase::getContext() const
+{
+	IScriptContext * scriptContext = this->context->borrowScriptContext();
+	scriptContext->addReference();
+	return scriptContext;
+}
+
+void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
+{
+	this->getBindingContext()->bindScriptCoreService(this, name, libraryLoader);
+}
+
+
+GScriptFunctionBase::GScriptFunctionBase(const GContextPointer & context)
+	: context(context), weakContext(context)
+{
+}
+
+GScriptFunctionBase::~GScriptFunctionBase()
+{
+}
+
+void GScriptFunctionBase::weaken()
+{
+	this->context.reset();
+}
+
+
+} //namespace bind_internal
+
+} //namespace cpgf
+
