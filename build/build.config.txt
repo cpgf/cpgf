@@ -5,7 +5,7 @@ set(HAS_LUA	1) #release=false
 set(HAS_V8 0) #release=false
 
 # set 1 to enable Python binding, 0 to disable
-set(HAS_PYTHON 1) #release=false
+set(HAS_PYTHON 0) #release=false
 
 # set 1 to enable Mozilla SpiderMonkey binding, 0 to disable
 set(HAS_SPIDERMONKEY 0) #release=false
