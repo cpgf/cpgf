@@ -6,7 +6,7 @@
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/gexception.h"
 
-#include "../pinclude/gbindcommon.h"
+#include "gbindcommon.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push)

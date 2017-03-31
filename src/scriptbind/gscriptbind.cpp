@@ -1,7 +1,7 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gglobal.h"
 
-#include "../pinclude/gbindcommon.h"
+#include "gbindcommon.h"
 #include "gbindapiimpl.h"
 
 

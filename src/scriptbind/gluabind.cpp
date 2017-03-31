@@ -5,7 +5,7 @@
 #include "cpgf/gcallback.h"
 #include "cpgf/gerrorcode.h"
 
-#include "../pinclude/gbindcommon.h"
+#include "gbindcommon.h"
 #include "gbindapiimpl.h"
 
 

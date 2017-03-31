@@ -94,25 +94,12 @@ private:
 class GGlueData : public GNoncopyable
 {
 public:
-	GGlueData(GGlueDataType type, const GContextPointer & context)
-		: type(type), context(GWeakContextPointer(context))
-	{
-	}
+	GGlueData(GGlueDataType type, const GContextPointer & context);
+	virtual ~GGlueData();
 
-	virtual ~GGlueData() {
-	}
-
-	GGlueDataType getType() const {
-		return this->type;
-	}
-
-	GContextPointer getBindingContext() const {
-		return GContextPointer(this->context);
-	}
-
-	bool isValid() const {
-		return ! this->context.expired();
-	}
+	GGlueDataType getType() const;
+	GContextPointer getBindingContext() const;
+	bool isValid() const;
 
 private:
 	GGlueDataType type;
@@ -195,9 +182,7 @@ public:
 		return this->classData;
 	}
 
-	GContextPointer getBindingContext() const {
-		return GContextPointer(this->context);
-	}
+	GContextPointer getBindingContext() const;
 
 	GScriptDataHolder * getDataHolder() const;
 	GScriptDataHolder * requireDataHolder() const;

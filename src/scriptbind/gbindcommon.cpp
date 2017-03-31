@@ -1,4 +1,4 @@
-#include "../pinclude/gbindcommon.h"
+#include "gbindcommon.h"
 
 #include "cpgf/gstringmap.h"
 #include "cpgf/gcallback.h"

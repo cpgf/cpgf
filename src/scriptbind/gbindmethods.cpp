@@ -1,4 +1,4 @@
-#include "../pinclude/gbindmethods.h"
+#include "gbindmethods.h"
 
 #include "cpgf/metatraits/gmetaobjectlifemanager_iobject.h"
 

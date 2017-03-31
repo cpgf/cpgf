@@ -4,7 +4,7 @@
 #include "cpgf/gstringmap.h"
 #include "cpgf/gerrorcode.h"
 
-#include "../pinclude/gbindcommon.h"
+#include "gbindcommon.h"
 #include "gbindapiimpl.h"
 #include "../pinclude/gstaticuninitializerorders.h"
 

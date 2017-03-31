@@ -1,5 +1,6 @@
-#include "../pinclude/gbindmetamap.h"
-#include "../pinclude/gbindgluedata.h"
+#include "gbindmetamap.h"
+#include "gbindgluedata.h"
+
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gglobal.h"
 

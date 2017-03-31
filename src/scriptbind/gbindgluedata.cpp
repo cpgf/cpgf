@@ -1,5 +1,5 @@
-#include "../pinclude/gbindgluedata.h"
-#include "../pinclude/gbindcommon.h"
+#include "gbindgluedata.h"
+#include "gbindcommon.h"
 
 #include <vector>
 
@@ -77,6 +77,31 @@ IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
 }
 
 
+GGlueData::GGlueData(GGlueDataType type, const GContextPointer & context)
+	: type(type), context(GWeakContextPointer(context))
+{
+}
+
+GGlueData::~GGlueData()
+{
+}
+
+GGlueDataType GGlueData::getType() const
+{
+	return this->type;
+}
+
+GContextPointer GGlueData::getBindingContext() const
+{
+	return GContextPointer(this->context);
+}
+
+bool GGlueData::isValid() const
+{
+	return ! this->context.expired();
+}
+
+
 GScriptDataHolder * GClassGlueData::getDataHolder() const
 {
 	return this->dataHolder.get();
@@ -133,6 +158,12 @@ void * GObjectInstance::getInstanceAddress() const
 {
 	return objectAddressFromVariant(this->instance);
 }
+
+GContextPointer GObjectInstance::getBindingContext() const
+{
+	return GContextPointer(this->context);
+}
+
 
 GScriptDataHolder * GObjectInstance::getDataHolder() const
 {

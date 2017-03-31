@@ -100,9 +100,7 @@ public:
 	virtual void weaken();
 
 protected:
-	GContextPointer getBindingContext() {
-		return this->weakContext.get();
-	}
+	GContextPointer getBindingContext();
 
 private:
 	// Here we must use strong shared pointer,
@@ -124,15 +122,11 @@ private:
 	typedef GScriptArray super;
 
 public:
-	explicit GScriptArrayBase(const GContextPointer & context)
-		: context(context)
-	{
-	}
+	explicit GScriptArrayBase(const GContextPointer & context);
+	~GScriptArrayBase();
 
 protected:
-	GContextPointer getBindingContext() {
-		return this->context;
-	}
+	GContextPointer getBindingContext();
 
 private:
 	// Here we must use strong shared pointer,

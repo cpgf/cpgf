@@ -1,5 +1,5 @@
-#include "../pinclude/gbindobject.h"
-#include "../pinclude/gbindcontext.h"
+#include "gbindobject.h"
+#include "gbindcontext.h"
 
 #include "cpgf/scriptbind/gscriptuserconverter.h"
 #include "cpgf/gglobal.h"
@@ -64,6 +64,25 @@ GScriptFunctionBase::~GScriptFunctionBase()
 void GScriptFunctionBase::weaken()
 {
 	this->context.reset();
+}
+
+GContextPointer GScriptFunctionBase::getBindingContext()
+{
+	return this->weakContext.get();
+}
+
+GScriptArrayBase::GScriptArrayBase(const GContextPointer & context)
+	: context(context)
+{
+}
+
+GScriptArrayBase::~GScriptArrayBase()
+{
+}
+
+GContextPointer GScriptArrayBase::getBindingContext()
+{
+	return this->context;
 }
 
 
