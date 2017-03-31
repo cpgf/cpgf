@@ -3,6 +3,8 @@
 #pragma warning(disable:4127) // warning C4127: conditional expression is constant
 #endif
 
+// Include cmath to avoid error: '::hypot' has not been declared
+#include <cmath>
 #include "Python.h"
 
 #include "cpgf/scriptbind/gpythonbind.h"
