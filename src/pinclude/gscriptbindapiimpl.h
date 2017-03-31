@@ -25,7 +25,6 @@
 
 namespace cpgf {
 
-
 class ImplScriptConfig : public IScriptConfig
 {
 public:

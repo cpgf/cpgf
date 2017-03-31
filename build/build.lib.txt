@@ -58,15 +58,17 @@ set(SRC_ROOT
 )
 
 set(SRC_SCRIPTBIND
+	${SRC_PATH}/scriptbind/gbindcontext.cpp
+	${SRC_PATH}/scriptbind/gscriptcommon.cpp
+	${SRC_PATH}/scriptbind/gscriptgluedata.cpp
+	${SRC_PATH}/scriptbind/gscriptmetamap.cpp
 	${SRC_PATH}/scriptbind/gbindcommon.cpp
+	
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
 	${SRC_PATH}/scriptbind/gscriptbuiltinlibrary.cpp
-	${SRC_PATH}/scriptbind/gscriptcommon.cpp
-	${SRC_PATH}/scriptbind/gscriptgluedata.cpp
 	${SRC_PATH}/scriptbind/gscriptlibraryapi.cpp
-	${SRC_PATH}/scriptbind/gscriptmetamap.cpp
 	${SRC_PATH}/scriptbind/gscriptrunner.cpp
 	${SRC_PATH}/scriptbind/gscriptservice.cpp
 	${SRC_PATH}/scriptbind/gscriptvalue.cpp
