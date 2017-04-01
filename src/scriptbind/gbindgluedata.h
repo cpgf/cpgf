@@ -76,8 +76,8 @@ private:
 class GScriptDataHolder
 {
 private:
-	typedef std::map<std::string, GVariant> MapType;
-	typedef std::pair<std::string, GVariant> MapValueType;
+	typedef std::map<std::string, GScriptValue> MapType;
+	typedef std::pair<std::string, GScriptValue> MapValueType;
 
 public:
 	void setScriptValue(const char * name, const GScriptValue & value);

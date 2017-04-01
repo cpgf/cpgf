@@ -629,19 +629,34 @@ struct GLuaMethods
 {
 	typedef bool ResultType;
 
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+	static ResultType doObjectToScript(
+			const GContextPointer & context,
+			const GClassGlueDataPointer & classData,
+			const GVariant & instance,
+			const GBindValueFlags & flags,
+			ObjectPointerCV cv,
+			GGlueDataPointer * outputGlueData
+		)
 	{
 		objectToLua(context, classData, instance, flags, cv, outputGlueData);
 		return true;
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
+	static ResultType doVariantToScript(
+			const GContextPointer & context,
+			const GVariant & value,
+			const GBindValueFlags & flags,
+			GGlueDataPointer * outputGlueData
+		)
 	{
 		return variantToLua(context, value, flags, outputGlueData);
 	}
 	
-	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
+	static ResultType doRawToScript(
+			const GContextPointer & context,
+			const GVariant & value,
+			GGlueDataPointer * outputGlueData
+		)
 	{
 		return rawToLua(context, value, outputGlueData);
 	}
@@ -677,8 +692,13 @@ struct GLuaMethods
 		return ResultType();
 	}
 
-	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
-		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
+	static ResultType doMethodsToScript(
+			const GClassGlueDataPointer & classData,
+			GMetaMapItem * mapItem,
+			IMetaClass * metaClass,
+			IMetaClass * derived,
+			const GObjectGlueDataPointer & objectData
+		)
 	{
 		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
 		GContextPointer context = classData->getBindingContext();
@@ -694,7 +714,11 @@ struct GLuaMethods
 		return true;
 	}
 	
-	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
+	static ResultType doEnumToScript(
+			const GClassGlueDataPointer & classData,
+			GMetaMapItem * mapItem,
+			const char * /*enumName*/
+		)
 	{
 		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 		helperBindEnum(classData->getBindingContext(), metaEnum.get());
