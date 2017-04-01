@@ -2,6 +2,7 @@
 #define GBINDOBJECTCACHE_H
 
 #include "gbindobject.h"
+#include "gbindgluedata.h"
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gsharedptr.h"
@@ -18,34 +19,10 @@ inline void * getInstanceHash(const GVariant & instance)
 }
 
 struct GScriptObjectCacheKey {
-	GScriptObjectCacheKey() : key(nullptr), className(nullptr), cv(opcvNone) {
-	}
+	GScriptObjectCacheKey();
+	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv);
 
-	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv)
-		: key(key), className(className), cv(cv) {
-	}
-
-	bool operator < (const GScriptObjectCacheKey & other) const {
-		if(key < other.key) {
-			return true;
-		}
-		if(key == other.key) {
-			if(cv < other.cv) {
-				return true;
-			}
-			if(cv > other.cv) {
-				return false;
-			}
-
-			if(className == other.className) {
-				return false;
-			}
-			else {
-				return strcmp(className, other.className) < 0;
-			}
-		}
-		return false;
-	}
+	bool operator < (const GScriptObjectCacheKey & other) const;
 
 	void * key;
 	const char * className;
@@ -64,17 +41,15 @@ private:
 
 public:
 	template <class T>
-	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv)
+	T * findScriptObject(
+			const GVariant & instance,
+			const GClassGlueDataPointer & classData,
+			const ObjectPointerCV cv
+		)
 	{
-		GScriptObjectCacheKey key(
-			getInstanceHash(instance),
-			classData->getMetaClass()->getQualifiedName(),
-			cv
-		);
-		typename ObjectMapType::iterator it = this->objectMap.find(key);
-		if(it != this->objectMap.end()) {
-			return dynamic_cast<T *>(it->second.get());
+		GScriptObjectCacheData * result = this->doFindScriptObject(instance, classData, cv);
+		if(result != nullptr) {
+			return dynamic_cast<T *>(result);
 		}
 		return nullptr;
 	}
@@ -84,34 +59,16 @@ public:
 		const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv,
 		GScriptObjectCacheData * scriptObject
-	)
-	{
-		GScriptObjectCacheKey key(
-			getInstanceHash(instance),
-			classData->getMetaClass()->getQualifiedName(),
-			cv
-		);
-		this->objectMap.insert(std::make_pair(key, GSharedPointer<GScriptObjectCacheData>(scriptObject)));
-	}
+	);
+	void freeScriptObject(GGlueDataWrapper * dataWrapper);
+	void clear();
 
-	void freeScriptObject(GGlueDataWrapper * dataWrapper)
-	{
-		GVariant instance = getGlueDataInstance(dataWrapper->getData());
-		if(instance.isEmpty()) {
-			return;
-		}
-		GScriptObjectCacheKey entry(
-			getInstanceHash(instance),
-			getGlueDataMetaClass(dataWrapper->getData())->getQualifiedName(),
-			getGlueDataCV(dataWrapper->getData())
-		);
-
-		this->objectMap.erase(entry);
-	}
-
-	void clear() {
-		this->objectMap.clear();
-	}
+private:
+	GScriptObjectCacheData * doFindScriptObject(
+		const GVariant & instance,
+		const GClassGlueDataPointer & classData,
+		const ObjectPointerCV cv
+	);
 
 private:
 	ObjectMapType objectMap;
