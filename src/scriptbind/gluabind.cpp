@@ -704,16 +704,9 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 		return true;
 	}
 
-	if(variantIsString(value)) {
-		lua_pushstring(L, fromVariant<char *>(value));
+	if(variantIsAnyString(value)) {
+		lua_pushstring(L, stringFromVariant(value).c_str());
 
-		return true;
-	}
-
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		std::string s(wideStringToString(ws));
-		lua_pushstring(L, s.c_str());
 		return true;
 	}
 

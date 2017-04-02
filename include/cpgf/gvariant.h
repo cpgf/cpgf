@@ -346,25 +346,6 @@ inline void swap(GVariant & a, GVariant & b)
 	a.swap(b);
 }
 
-inline bool variantIsString(const GVariant & v)
-{
-	const GVariantData & data = v.refData();
-	return data.typeData.vt == (GVtType)GVariantType::vtString
-		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtChar));
-}
-
-inline bool variantIsWideString(const GVariant & v)
-{
-	const GVariantData & data = v.refData();
-	return data.typeData.vt == (GVtType)GVariantType::vtWideString
-		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtWchar));
-}
-
-inline GVariant createVariantFromData(const GVariantData & data)
-{
-	return GVariant(data);
-}
-
 namespace variant_internal {
 
 struct VariantCastTag {};
@@ -413,6 +394,23 @@ auto fromVariantData(const GVariantData & data)
 
 template <typename T, typename Policy = VarantCastKeepConstRef>
 bool canFromVariantData(const GVariantData & data);
+
+inline GVariant createVariantFromData(const GVariantData & data)
+{
+	return GVariant(data);
+}
+
+bool variantIsString(const GVariant & v);
+bool variantIsWideString(const GVariant & v);
+
+// Is either string or wide string
+bool variantIsAnyString(const GVariant & v);
+// If the variant is a string, return it
+// If the variant is a wide string, convert it to string
+std::string stringFromVariant(const GVariant & v);
+// If the variant is a wide string, return it
+// If the variant is a string, convert it to wide string
+std::wstring wideStringFromVariant(const GVariant & v);
 
 // The result is vtString
 GVariant createStringVariant(const char * s);

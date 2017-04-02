@@ -550,16 +550,8 @@ JsValue variantToSpider(const GContextPointer & context, const GVariant & data, 
 		return JSVAL_NULL;
 	}
 
-	if(variantIsString(value)) {
-		char * s = fromVariant<char *>(value);
-		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s);
-		return StringValue(jsString);
-	}
-
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		std::string s(wideStringToString(ws));
-		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.c_str());
+	if(variantIsAnyString(value)) {
+		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), stringFromVariant(value).c_str());
 		return StringValue(jsString);
 	}
 

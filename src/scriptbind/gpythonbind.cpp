@@ -1275,14 +1275,8 @@ PyObject * variantToPython(const GContextPointer & context, const GVariant & dat
 		return pyAddRef(Py_None);
 	}
 
-	if(variantIsString(value)) {
-		return PyString_FromString(fromVariant<char *>(value));
-	}
-
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		std::string s(wideStringToString(ws));
-		return PyString_FromString(s.c_str());
+	if(variantIsAnyString(value)) {
+		return PyString_FromString(stringFromVariant(value).c_str());
 	}
 
 	return complexVariantToScript<GPythonMethods>(context, value, type, flags, outputGlueData);

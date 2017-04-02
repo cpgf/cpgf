@@ -1,6 +1,7 @@
 #include "cpgf/gvariant.h"
 #include "cpgf/gmemorypool.h"
 #include "cpgf/gmetatype.h"
+#include "cpgf/gstringutil.h"
 
 namespace cpgf {
 
@@ -211,6 +212,44 @@ GVariant variantPointerToLvalueReference(const GVariant & p)
 	return v;
 }
 
+bool variantIsString(const GVariant & v)
+{
+	const GVariantData & data = v.refData();
+	return data.typeData.vt == (GVtType)GVariantType::vtString
+		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtChar));
+}
+
+bool variantIsWideString(const GVariant & v)
+{
+	const GVariantData & data = v.refData();
+	return data.typeData.vt == (GVtType)GVariantType::vtWideString
+		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtWchar));
+}
+
+bool variantIsAnyString(const GVariant & v)
+{
+	return variantIsString(v) || variantIsWideString(v);
+}
+
+std::string stringFromVariant(const GVariant & v)
+{
+	if(variantIsString(v)) {
+		return fromVariant<const char *>(v);
+	}
+	else {
+		return wideStringToString(fromVariant<const wchar_t *>(v));
+	}
+}
+
+std::wstring wideStringFromVariant(const GVariant & v)
+{
+	if(variantIsString(v)) {
+		return stringToWideString(fromVariant<const char *>(v));
+	}
+	else {
+		return fromVariant<const wchar_t *>(v);
+	}
+}
 
 
 } //namespace cpgf

@@ -569,14 +569,8 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 		return Null(getV8Isolate());
 	}
 
-	if(variantIsString(value)) {
-		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )fromVariant<char *>(value));
-	}
-
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		std::string s(wideStringToString(ws));
-		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.c_str());
+	if(variantIsAnyString(value)) {
+		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )stringFromVariant(value).c_str());
 	}
 
 	return complexVariantToScript<GV8Methods>(context, value, type, flags, outputGlueData);
