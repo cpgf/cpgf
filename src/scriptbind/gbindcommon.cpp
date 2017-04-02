@@ -278,9 +278,9 @@ void rankCallableParam(
 		return;
 	}
 
-	if(proto.isFundamental() && type == GScriptValue::typeFundamental) {
+	if(proto.isFundamental() && type == GScriptValue::typePrimary) {
 		outputRank->weight = rankFundamental(proto.getVariantType(),
-			callableParam->params[paramIndex].value.toFundamental().getType());
+			callableParam->params[paramIndex].value.toPrimary().getType());
 		return;
 	}
 

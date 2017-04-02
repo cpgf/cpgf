@@ -57,7 +57,7 @@ void GScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 
 void GScriptObject::bindFundamental(const char * name, const GVariant & value)
 {
-	this->setValue(name, GScriptValue::fromFundamental(value));
+	this->setValue(name, GScriptValue::fromPrimary(value));
 }
 
 void GScriptObject::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
@@ -67,7 +67,7 @@ void GScriptObject::bindAccessible(const char * name, void * instance, IMetaAcce
 
 void GScriptObject::bindString(const char * stringName, const char * s)
 {
-	this->setValue(stringName, GScriptValue::fromString(s));
+	this->setValue(stringName, GScriptValue::fromPrimary(s));
 }
 
 void GScriptObject::bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership)
@@ -107,12 +107,12 @@ IMetaEnum * GScriptObject::getEnum(const char * enumName)
 
 GVariant GScriptObject::getFundamental(const char * name)
 {
-	return this->getValue(name).toFundamental();
+	return this->getValue(name).toPrimary();
 }
 
 std::string GScriptObject::getString(const char * stringName)
 {
-	return this->getValue(stringName).toString();
+	return fromVariant<std::string>(this->getValue(stringName).toPrimary());
 }
 
 void * GScriptObject::getObject(const char * objectName)

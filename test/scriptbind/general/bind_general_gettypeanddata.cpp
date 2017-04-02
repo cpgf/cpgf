@@ -62,21 +62,21 @@ void doTestGetType(T * binding, TestScriptContext * context)
 
 	RITEM;
 	value = scriptGetValue(binding, "s");
-	GCHECK(value.getType() == GScriptValue::typeString);
+	GCHECK(value.getType() == GScriptValue::typePrimary);
 	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
 	value = scriptGetValue(binding, "i");
-	GCHECK(value.getType() == GScriptValue::typeFundamental);
+	GCHECK(value.getType() == GScriptValue::typePrimary);
 	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
 	value = scriptGetValue(binding, "f");
-	GCHECK(value.getType() == GScriptValue::typeFundamental);
+	GCHECK(value.getType() == GScriptValue::typePrimary);
 	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
@@ -257,17 +257,17 @@ void testGetFundamental(TestScriptContext * context)
 	GVariant v;
 
 	if(context->getBindingLib()) {
-		v = scriptGetValue(context->getBindingLib(), "f").toFundamental();
+		v = scriptGetValue(context->getBindingLib(), "f").toPrimary();
 		GCHECK(fromVariant<int>(v) == 100);
-		v = scriptGetValue(context->getBindingLib(), "s").toFundamental();
-		GCHECK(v.isEmpty());
+		v = scriptGetValue(context->getBindingLib(), "s").toPrimary();
+		GCHECK(! v.isEmpty());
 	}
 	
 	if(context->getBindingApi()) {
-		v = scriptGetValue(context->getBindingApi(), "f").toFundamental();
+		v = scriptGetValue(context->getBindingApi(), "f").toPrimary();
 		GCHECK(fromVariant<int>(v) == 100);
-		v = scriptGetValue(context->getBindingApi(), "s").toFundamental();
-		GCHECK(v.isEmpty());
+		v = scriptGetValue(context->getBindingApi(), "s").toPrimary();
+		GCHECK(! v.isEmpty());
 	}
 }
 
@@ -280,11 +280,11 @@ void testGetString(TestScriptContext * context)
 	QVAR(oneString = "what")
 
 	if(context->getBindingLib()) {
-		GCHECK(scriptGetValue(context->getBindingLib(), "oneString").toString() == "what");
+		GCHECK(fromVariant<string>(scriptGetValue(context->getBindingLib(), "oneString").toPrimary()) == "what");
 	}
 	
 	if(context->getBindingApi()) {
-		string s = scriptGetValue(context->getBindingApi(), "oneString").toString();
+		string s = fromVariant<string>(scriptGetValue(context->getBindingApi(), "oneString").toPrimary());
 		GCHECK(s == "what");
 	}
 }

@@ -372,11 +372,11 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 	}
 
 	if(value->IsBoolean()) {
-		return GScriptValue::fromFundamental(value->BooleanValue());
+		return GScriptValue::fromPrimary(value->BooleanValue());
 	}
 
 	if(value->IsInt32()) {
-		return GScriptValue::fromFundamental(value->Int32Value());
+		return GScriptValue::fromPrimary(value->Int32Value());
 	}
 
 	if(value->IsNull()) {
@@ -384,7 +384,7 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 	}
 
 	if(value->IsNumber()) {
-		return GScriptValue::fromFundamental(value->NumberValue());
+		return GScriptValue::fromPrimary(value->NumberValue());
 	}
 
 	if(value->IsString()) {
@@ -393,7 +393,7 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 	}
 
 	if(value->IsUint32()) {
-		return GScriptValue::fromFundamental(value->Uint32Value());
+		return GScriptValue::fromPrimary(value->Uint32Value());
 	}
 
 	if(value->IsFunction() || value->IsObject()) {
@@ -768,8 +768,8 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 			result = Null(getV8Isolate());
 			break;
 
-		case GScriptValue::typeFundamental:
-			result = variantToV8(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr);
+		case GScriptValue::typePrimary:
+			result = variantToV8(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr);
 			break;
 
 		case GScriptValue::typeString:

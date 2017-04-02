@@ -976,14 +976,10 @@ bool doValueToScript(GLuaScriptObject * scriptObject, const GScriptValue & value
 			lua_pushnil(L);
 			break;
 
-		case GScriptValue::typeFundamental:
-			if(! variantToLua(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr)) {
+		case GScriptValue::typePrimary:
+			if(! variantToLua(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr)) {
 				raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 			}
-			break;
-
-		case GScriptValue::typeString:
-			lua_pushstring(L, value.toString().c_str());
 			break;
 
 		case GScriptValue::typeClass: {
@@ -1051,6 +1047,8 @@ bool doValueToScript(GLuaScriptObject * scriptObject, const GScriptValue & value
 				accessibleToScript<GLuaMethods>(scriptObject->getBindingContext(), accessible.get(), instance, false);
 				return true;
 			}
+
+			break;
 		}
 
 	}
@@ -1069,13 +1067,13 @@ GScriptValue doScriptToValue(const GContextPointer & context, int index, GGlueDa
 		return GScriptValue::fromNull();
 
 	case LUA_TNUMBER:
-		return GScriptValue::fromFundamental(lua_tonumber(L, index));
+		return GScriptValue::fromPrimary(lua_tonumber(L, index));
 
 	case LUA_TBOOLEAN:
-		return GScriptValue::fromFundamental(bool(lua_toboolean(L, index) != 0));
+		return GScriptValue::fromPrimary(bool(lua_toboolean(L, index) != 0));
 
 	case LUA_TSTRING:
-		return GScriptValue::fromAndCopyString(lua_tostring(L, index));
+		return GScriptValue::fromPrimary(createStringVariant(lua_tostring(L, index)));
 
 	case LUA_TUSERDATA:
 		return luaUserDataToScriptValue(context, index, outputGlueData);

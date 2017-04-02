@@ -91,7 +91,7 @@ struct IScriptObject : public IExtendObject
 
 	G_DEPRECATED(
 		virtual void G_API_CC bindFundamental(const char * name, const GVariantData * value),
-		"bindFundamental is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromFundamental(value)) instead."
+		"bindFundamental is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromPrimary(value)) instead."
 	) = 0;
 	G_DEPRECATED(
 		virtual void G_API_CC bindAccessible(const char * name, void * instance, IMetaAccessible * accessible),
@@ -99,7 +99,7 @@ struct IScriptObject : public IExtendObject
 	) = 0;
 	G_DEPRECATED(
 		virtual void G_API_CC bindString(const char * stringName, const char * s),
-		"bindString is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromString(s)) instead."
+		"bindString is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromPrimary(s)) instead."
 	) = 0;
 	G_DEPRECATED(
 		virtual void G_API_CC bindObject(const char * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership),
@@ -129,7 +129,7 @@ struct IScriptObject : public IExtendObject
 
 	G_DEPRECATED(
 		virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name),
-		"getFundamental is deprecated. Use scriptGetValue().toFundamental() instead."
+		"getFundamental is deprecated. Use scriptGetValue().toPrimary() instead."
 	) = 0;
 	G_DEPRECATED(
 		virtual char * G_API_CC getString(const char * stringName, IMemoryAllocator * allocator),

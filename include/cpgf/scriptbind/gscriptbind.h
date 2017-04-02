@@ -85,7 +85,7 @@ public:
 
 	G_DEPRECATED(
 		void bindFundamental(const char * name, const GVariant & value),
-		"bindFundamental is deprecated. Use setValue(name, GScriptValue::fromFundamental(value)) instead."
+		"bindFundamental is deprecated. Use setValue(name, GScriptValue::fromPrimary(value)) instead."
 	);
 	G_DEPRECATED(
 		void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible),
@@ -93,7 +93,7 @@ public:
 	);
 	G_DEPRECATED(
 		void bindString(const char * stringName, const char * s),
-		"bindString is deprecated. Use setValue(name, GScriptValue::fromString(s)) instead."
+		"bindString is deprecated. Use setValue(name, GScriptValue::fromPrimary(s)) instead."
 	);
 	G_DEPRECATED(
 		void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership),
@@ -123,7 +123,7 @@ public:
 
 	G_DEPRECATED(
 		GVariant getFundamental(const char * name),
-		"getFundamental is deprecated. Use getValue().toFundamental() instead."
+		"getFundamental is deprecated. Use getValue().toPrimary() instead."
 	);
 	G_DEPRECATED(
 		std::string getString(const char * stringName),

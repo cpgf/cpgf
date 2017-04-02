@@ -85,12 +85,12 @@ void doTestArrayGetValue(T * binding, TestScriptContext * context)
 	GScriptValue value;
 
 	value = scriptGetScriptArrayValue(scriptArray.get(), 0);
-	GCHECK(value.isFundamental());
-	GCHECK(fromVariant<int>(value.toFundamental()) == 99);
+	GCHECK(value.isPrimary());
+	GCHECK(fromVariant<int>(value.toPrimary()) == 99);
 	
 	value = scriptGetScriptArrayValue(scriptArray.get(), 1);
-	GCHECK(value.isString());
-	GCHECK(value.toString() == "abc");
+	GCHECK(value.isPrimary());
+	GCHECK(fromVariant<string>(value.toPrimary()) == "abc");
 }
 
 void testArrayGetValue(TestScriptContext * context)
@@ -120,10 +120,10 @@ void doTestArraySetValue(T * binding, TestScriptContext * context)
 	GScriptValue scriptArrayValue(scriptGetAsScriptArray(binding, "a"));
 	GScopedInterface<IScriptArray> scriptArray(scriptArrayValue.toScriptArray());
 
-	scriptSetScriptArrayValue(scriptArray.get(), 0, GScriptValue::fromFundamental(18));
+	scriptSetScriptArrayValue(scriptArray.get(), 0, GScriptValue::fromPrimary(18));
 	DOASSERT(doCreateScriptArrayIndex(context, "a", 0) + " == 18");
 
-	scriptSetScriptArrayValue(scriptArray.get(), 1, GScriptValue::fromString("abc"));
+	scriptSetScriptArrayValue(scriptArray.get(), 1, GScriptValue::fromPrimary("abc"));
 	DOASSERT(doCreateScriptArrayIndex(context, "a", 1) + " == \"abc\"");
 }
 
@@ -148,10 +148,10 @@ void doTestArrayCreateScriptArray(T * binding, TestScriptContext * context)
 	GScriptValue scriptArrayValue(scriptCreateScriptArray(binding, "a"));
 	GScopedInterface<IScriptArray> scriptArray(scriptArrayValue.toScriptArray());
 
-	scriptSetScriptArrayValue(scriptArray.get(), 0, GScriptValue::fromFundamental(18));
+	scriptSetScriptArrayValue(scriptArray.get(), 0, GScriptValue::fromPrimary(18));
 	DOASSERT(doCreateScriptArrayIndex(context, "a", 0) + " == 18");
 
-	scriptSetScriptArrayValue(scriptArray.get(), 1, GScriptValue::fromString("abc"));
+	scriptSetScriptArrayValue(scriptArray.get(), 1, GScriptValue::fromPrimary("abc"));
 	DOASSERT(doCreateScriptArrayIndex(context, "a", 1) + " == \"abc\"");
 }
 
@@ -191,16 +191,16 @@ void doTestArray2DScriptArray(T * binding, TestScriptContext * context)
 	GScopedInterface<IScriptArray> nestedScriptArray;
 
 	nestedScriptArray.reset(scriptGetAsScriptArray(scriptArray.get(), 0).toScriptArray());
-	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 0).toFundamental()) == 1);
-	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 1).toFundamental()) == 2);
-	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 2).toFundamental()) == 3);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 0).toPrimary()) == 1);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 1).toPrimary()) == 2);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 2).toPrimary()) == 3);
 
 	nestedScriptArray.reset(scriptGetAsScriptArray(scriptArray.get(), 1).toScriptArray());
-	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 0).toFundamental()) == 4);
-	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 1).toFundamental()) == 5);
-	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 2).toFundamental()) == 6);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 0).toPrimary()) == 4);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 1).toPrimary()) == 5);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 2).toPrimary()) == 6);
 
-	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(scriptArray.get(), 2).toFundamental()) == 7);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(scriptArray.get(), 2).toPrimary()) == 7);
 }
 
 void testArray2DScriptArray(TestScriptContext * context)

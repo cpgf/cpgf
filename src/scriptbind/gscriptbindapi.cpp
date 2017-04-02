@@ -299,7 +299,7 @@ void G_API_CC ImplScriptObject::bindFundamental(const char * name, const GVarian
 	ENTER_BINDING_API()
 
 	scriptSetValue(this->scriptObject, name,
-		GScriptValue::fromFundamental(createVariantFromData(*value)));
+		GScriptValue::fromPrimary(createVariantFromData(*value)));
 
 	LEAVE_BINDING_API()
 }
@@ -319,7 +319,7 @@ void G_API_CC ImplScriptObject::bindString(const char * stringName, const char *
 	ENTER_BINDING_API()
 
 	scriptSetValue(this->scriptObject, stringName,
-		GScriptValue::fromString(s));
+		GScriptValue::fromPrimary(s));
 
 	LEAVE_BINDING_API()
 }
@@ -386,7 +386,7 @@ void G_API_CC ImplScriptObject::getFundamental(GVariantData * outResult, const c
 {
 	ENTER_BINDING_API()
 
-	*outResult = this->scriptObject->getValue(name).toFundamental().takeData();
+	*outResult = this->scriptObject->getValue(name).toPrimary().takeData();
 
 	LEAVE_BINDING_API()
 }
@@ -395,7 +395,7 @@ char * G_API_CC ImplScriptObject::getString(const char * stringName, IMemoryAllo
 {
 	ENTER_BINDING_API()
 
-	std::string s = this->scriptObject->getValue(stringName).toString();
+	std::string s = fromVariant<std::string>(this->scriptObject->getValue(stringName).toPrimary());
 
 	void * cs = allocator->allocate(static_cast<uint32_t>(s.length() + 1));
 	memmove(cs, s.c_str(), s.length() + 1);

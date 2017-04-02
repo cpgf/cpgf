@@ -102,19 +102,9 @@ GScriptValue GScriptValue::fromNull()
 	return GScriptValue(typeNull, (void *)0);
 }
 
-GScriptValue GScriptValue::fromFundamental(const GVariant & fundamental)
+GScriptValue GScriptValue::fromPrimary(const GVariant & primary)
 {
-	return GScriptValue(typeFundamental, fundamental);
-}
-
-GScriptValue GScriptValue::fromString(const char * s)
-{
-	return GScriptValue(typeString, s);
-}
-
-GScriptValue GScriptValue::fromAndCopyString(const char * s)
-{
-	return GScriptValue(typeString, createStringVariant(s));
+	return GScriptValue(typePrimary, primary);
 }
 
 GScriptValue GScriptValue::fromClass(IMetaClass * metaClass)
@@ -201,23 +191,13 @@ void * GScriptValue::toNull() const
 	return nullptr;
 }
 
-GVariant GScriptValue::toFundamental() const
+GVariant GScriptValue::toPrimary() const
 {
-	if(this->isFundamental()) {
+	if(this->isPrimary()) {
 		return this->value;
 	}
 	else {
 		return GVariant();
-	}
-}
-
-std::string GScriptValue::toString() const
-{
-	if(this->isString()) {
-		return fromVariant<char *>(this->value);
-	}
-	else {
-		return "";
 	}
 }
 

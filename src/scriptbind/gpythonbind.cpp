@@ -1062,19 +1062,19 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 
 	if(PyNumber_Check(value)) {
 		if(PyBool_Check(value)) {
-			return GScriptValue::fromFundamental(bool(PyInt_AsLong(value) != 0));
+			return GScriptValue::fromPrimary(bool(PyInt_AsLong(value) != 0));
 		}
 
 		if(PyInt_Check(value)) {
-			return GScriptValue::fromFundamental(PyInt_AsLong(value));
+			return GScriptValue::fromPrimary(PyInt_AsLong(value));
 		}
 
 		if(PyLong_Check(value)) {
-			return GScriptValue::fromFundamental(PyLong_AsLong(value));
+			return GScriptValue::fromPrimary(PyLong_AsLong(value));
 		}
 
 		if(PyFloat_Check(value)) {
-			return GScriptValue::fromFundamental(PyFloat_AsDouble(value));
+			return GScriptValue::fromPrimary(PyFloat_AsDouble(value));
 		}
 
 	}
@@ -1625,8 +1625,8 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 			result = Py_None;
 			break;
 
-		case GScriptValue::typeFundamental:
-			result = variantToPython(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr);
+		case GScriptValue::typePrimary:
+			result = variantToPython(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr);
 			break;
 
 		case GScriptValue::typeString:

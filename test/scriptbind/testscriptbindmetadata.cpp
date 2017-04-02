@@ -121,7 +121,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 
 	bindClass(script, service, REG_NAME_BasicA, "BasicA");
 	
-	scriptSetValue(script, "testString", GScriptValue::fromString(testString));
+	scriptSetValue(script, "testString", GScriptValue::fromPrimary(testString));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(REG_NAME_TestObject));
 	TestObject * obj = new TestObject(testObjValue);
@@ -166,11 +166,11 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 {
 	bindBasicInfo(script, service);
 
-	scriptSetValue(script, "Magic1", GScriptValue::fromFundamental(Magic1));
-	scriptSetValue(script, "Magic2", GScriptValue::fromFundamental(Magic2));
-	scriptSetValue(script, "Magic3", GScriptValue::fromFundamental(Magic3));
+	scriptSetValue(script, "Magic1", GScriptValue::fromPrimary(Magic1));
+	scriptSetValue(script, "Magic2", GScriptValue::fromPrimary(Magic2));
+	scriptSetValue(script, "Magic3", GScriptValue::fromPrimary(Magic3));
 
-	scriptSetValue(script, "testInt", GScriptValue::fromFundamental(testInt));
+	scriptSetValue(script, "testInt", GScriptValue::fromPrimary(testInt));
 }
 
 
@@ -183,16 +183,16 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 	GVariant v;
 
 	v = Magic1;
-	scriptSetValue(script, "Magic1", GScriptValue::fromFundamental(v));
+	scriptSetValue(script, "Magic1", GScriptValue::fromPrimary(v));
 	
 	v = Magic2;
-	scriptSetValue(script, "Magic2", GScriptValue::fromFundamental(v));
+	scriptSetValue(script, "Magic2", GScriptValue::fromPrimary(v));
 	
 	v = Magic3;
-	scriptSetValue(script, "Magic3", GScriptValue::fromFundamental(v));
+	scriptSetValue(script, "Magic3", GScriptValue::fromPrimary(v));
 
 	v = testInt;
-	scriptSetValue(script, "testInt", GScriptValue::fromFundamental(v));
+	scriptSetValue(script, "testInt", GScriptValue::fromPrimary(v));
 }
 
 

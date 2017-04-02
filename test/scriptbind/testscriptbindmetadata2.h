@@ -189,7 +189,7 @@ public:
 	}
 	
 	int scriptObjectCallback(cpgf::IScriptObject * scriptObject) {
-		return cpgf::fromVariant<int>(cpgf::scriptGetValue(scriptObject, "myInt").toFundamental()) + 38;
+		return cpgf::fromVariant<int>(cpgf::scriptGetValue(scriptObject, "myInt").toPrimary()) + 38;
 	}
 
 	cpgf::GVariant getVariant(int cat) const {

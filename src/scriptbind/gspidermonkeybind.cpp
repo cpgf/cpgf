@@ -614,11 +614,11 @@ GScriptValue spiderToScriptValue(const GSpiderContextPointer & context, JsValue 
 	}
 
 	if(value.isBoolean()) {
-		return GScriptValue::fromFundamental(bool(value.toBoolean()));
+		return GScriptValue::fromPrimary(bool(value.toBoolean()));
 	}
 
 	if(value.isInt32()) {
-		return GScriptValue::fromFundamental(value.toInt32());
+		return GScriptValue::fromPrimary(value.toInt32());
 	}
 
 	if(value.isNull()) {
@@ -626,11 +626,11 @@ GScriptValue spiderToScriptValue(const GSpiderContextPointer & context, JsValue 
 	}
 
 	if(value.isNumber()) {
-		return GScriptValue::fromFundamental(value.toNumber());
+		return GScriptValue::fromPrimary(value.toNumber());
 	}
 
 	if(value.isDouble()) {
-		return GScriptValue::fromFundamental(value.toDouble());
+		return GScriptValue::fromPrimary(value.toDouble());
 	}
 
 	if(value.isString()) {
@@ -1109,8 +1109,8 @@ JsValue helperBindValue(const GSpiderContextPointer & context, JSObject * jsObje
 			result = JSVAL_NULL;
 			break;
 
-		case GScriptValue::typeFundamental:
-			result = variantToSpider(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr);
+		case GScriptValue::typePrimary:
+			result = variantToSpider(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr);
 			break;
 
 		case GScriptValue::typeString: {
