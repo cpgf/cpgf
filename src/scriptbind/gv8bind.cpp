@@ -3,6 +3,7 @@
 #include "cpgf/scriptbind/gv8runner.h"
 #include "cpgf/gstringmap.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gstringutil.h"
 
 #include "gbindcommon.h"
 #include "gbindapiimpl.h"
@@ -493,8 +494,8 @@ struct GV8Methods
 
 	static ResultType doWideStringToScript(const GContextPointer & /*context*/, const wchar_t * ws)
 	{
-		GScopedArray<char> s(wideStringToString(ws));
-		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.get());
+		std::string s(wideStringToString(ws));
+		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.c_str());
 	}
 
 	static bool isSuccessResult(const ResultType & result)
@@ -574,8 +575,8 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 
 	if(variantIsWideString(value)) {
 		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		GScopedArray<char> s(wideStringToString(ws));
-		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.get());
+		std::string s(wideStringToString(ws));
+		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.c_str());
 	}
 
 	return complexVariantToScript<GV8Methods>(context, value, type, flags, outputGlueData);

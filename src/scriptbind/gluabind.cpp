@@ -4,6 +4,7 @@
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gstringutil.h"
 
 #include "gbindcommon.h"
 #include "gbindapiimpl.h"
@@ -465,8 +466,8 @@ struct GLuaMethods
 
 	static ResultType doWideStringToScript(const GContextPointer & context, const wchar_t * ws)
 	{
-		GScopedArray<char> s(wideStringToString(ws));
-		lua_pushstring(getLuaState(context), s.get());
+		std::string s(wideStringToString(ws));
+		lua_pushstring(getLuaState(context), s.c_str());
 
 		return true;
 	}
@@ -711,8 +712,8 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 
 	if(variantIsWideString(value)) {
 		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		GScopedArray<char> s(wideStringToString(ws));
-		lua_pushstring(L, s.get());
+		std::string s(wideStringToString(ws));
+		lua_pushstring(L, s.c_str());
 		return true;
 	}
 

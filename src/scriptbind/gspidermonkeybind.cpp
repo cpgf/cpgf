@@ -1,6 +1,7 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gstringmap.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gstringutil.h"
 
 #include "gbindcommon.h"
 #include "gbindapiimpl.h"
@@ -480,8 +481,8 @@ struct GSpiderMethods
 
 	static ResultType doWideStringToScript(const GContextPointer & context, const wchar_t * ws)
 	{
-		GScopedArray<char> s(wideStringToString(ws));
-		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.get());
+		std::string s(wideStringToString(ws));
+		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.c_str());
 		return StringValue(jsString);
 	}
 
@@ -557,8 +558,8 @@ JsValue variantToSpider(const GContextPointer & context, const GVariant & data, 
 
 	if(variantIsWideString(value)) {
 		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		GScopedArray<char> s(wideStringToString(ws));
-		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.get());
+		std::string s(wideStringToString(ws));
+		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.c_str());
 		return StringValue(jsString);
 	}
 

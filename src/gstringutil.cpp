@@ -1,6 +1,8 @@
 #include "cpgf/gstringutil.h"
 
 #include <cstring>
+#include <locale>
+#include <codecvt>
 
 namespace cpgf {
 
@@ -55,6 +57,26 @@ size_t GCStringHash::operator () (const char * s) const
 		result *= HashParameter<sizeof(size_t)>::prime;
 	}
 	return result;
+}
+
+std::wstring stringToWideString(const std::string & s)
+{
+	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().from_bytes(s);
+}
+
+std::wstring stringToWideString(const char * s)
+{
+	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().from_bytes(s);
+}
+
+std::string wideStringToString(const std::wstring & ws)
+{
+	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().to_bytes(ws);
+}
+
+std::string wideStringToString(const wchar_t * ws)
+{
+	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().to_bytes(ws);
 }
 
 

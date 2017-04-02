@@ -378,8 +378,8 @@ bool implicitConvertForString(const ConvertRank & rank, GVariant * v, GVariant *
 			*holder = *v;
 			*v = GVariant();
 			const char * s = fromVariant<char *>(*holder);
-			GScopedArray<wchar_t> ws(stringToWideString(s));
-			*v = createWideStringVariant(ws.get());
+			std::wstring ws(stringToWideString(s));
+			*v = createWideStringVariant(ws.c_str());
 
 			return true;
 		}
@@ -388,8 +388,8 @@ bool implicitConvertForString(const ConvertRank & rank, GVariant * v, GVariant *
 			*holder = *v;
 			*v = GVariant();
 			const wchar_t * ws = fromVariant<wchar_t *>(*holder);
-			GScopedArray<char> s(wideStringToString(ws));
-			*v = createStringVariant(s.get());
+			std::string s(wideStringToString(ws));
+			*v = createStringVariant(s.c_str());
 
 			return true;
 		}
@@ -608,26 +608,6 @@ InvokeCallableResult doInvokeMethodList(
 	raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
 
 	return InvokeCallableResult();
-}
-
-wchar_t * stringToWideString(const char * s)
-{
-	size_t len = strlen(s);
-	GScopedArray<wchar_t> ws(new wchar_t[len + 1]);
-	std::fill(ws.get(), ws.get() + len + 1, 0);
-	mbstowcs(ws.get(), s, len);
-
-	return ws.take();
-}
-
-char * wideStringToString(const wchar_t * ws)
-{
-	size_t len = wcslen(ws);
-	GScopedArray<char> s(new char[len + 1]);
-	std::fill(s.get(), s.get() + len + 1, 0);
-	wcstombs(s.get(), ws, len);
-
-	return s.take();
 }
 
 struct GScriptValueBindApi : public IScriptValueBindApi

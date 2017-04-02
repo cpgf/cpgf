@@ -94,9 +94,6 @@ InvokeCallableResult doInvokeMethodList(
 	InvokeCallableParam * callableParam
 );
 
-wchar_t * stringToWideString(const char * s);
-char * wideStringToString(const wchar_t * ws);
-
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
