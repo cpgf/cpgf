@@ -780,12 +780,13 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			result = objectToV8(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
+			result = objectToV8(context, context->getClassData(metaClass), instance, flags, cv, nullptr);
 			break;
 		}
 

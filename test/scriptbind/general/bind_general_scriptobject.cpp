@@ -99,7 +99,7 @@ void testGetScriptObject(TestScriptContext * context)
 		v = GVariant();
 		v = scriptGetValue(newScriptObject.get(), "i").toPrimary();
 		GCHECK(fromVariant<int>(v) == 5);
-		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(NULL, NULL);
+		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(nullptr, nullptr, nullptr);
 	}
 	if(bindingApi != NULL) {
 		GScopedInterface<IScriptObject> existScriptObject(scriptCreateScriptObject(bindingApi, "existObj").toScriptObject());
@@ -108,7 +108,7 @@ void testGetScriptObject(TestScriptContext * context)
 		GScopedInterface<IScriptObject> newScriptObject(scriptCreateScriptObject(bindingApi, "scope").toScriptObject());
 		v = scriptGetValue(newScriptObject.get(), "i").toPrimary();
 		GCHECK(fromVariant<int>(v) == 5);
-		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(NULL, NULL);
+		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(nullptr, nullptr, nullptr);
 	}
 	
 	GCHECK(instance != NULL);

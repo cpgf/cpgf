@@ -1,5 +1,6 @@
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gglobal.h"
@@ -13,23 +14,23 @@ GScriptValue createScriptValueFromData(const GScriptValueData & data)
 	return GScriptValue(data);
 }
 
-GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueBindApi * bindApi)
-	: type(type), value(value), metaItem(metaItem), bindApi(bindApi)
+GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueObjectFlags * objectFlags)
+	: type(type), value(value), metaItem(metaItem), objectFlags(objectFlags)
 {
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem)
-	: type(type), value(value), metaItem(metaItem), bindApi()
+	: type(type), value(value), metaItem(metaItem), objectFlags()
 {
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value)
-	: type(type), value(value), metaItem(), bindApi()
+	: type(type), value(value), metaItem(), objectFlags()
 {
 }
 
 GScriptValue::GScriptValue()
-	: type(typeNull), value(), metaItem(), bindApi()
+	: type(typeNull), value(), metaItem(), objectFlags()
 {
 }
 
@@ -51,14 +52,14 @@ GScriptValue::GScriptValue(const GScriptValueData & data)
 	if(data.metaItem != nullptr) {
 		data.metaItem->releaseReference();
 	}
-	this->bindApi.reset(data.bindApi);
-	if(data.bindApi != nullptr) {
-		data.bindApi->releaseReference();
+	this->objectFlags.reset(data.objectFlags);
+	if(data.objectFlags != nullptr) {
+		data.objectFlags->releaseReference();
 	}
 }
 
 GScriptValue::GScriptValue(const GScriptValue & other)
-	: type(other.type), value(other.value), metaItem(other.metaItem), bindApi(other.bindApi)
+	: type(other.type), value(other.value), metaItem(other.metaItem), objectFlags(other.objectFlags)
 {
 }
 
@@ -68,7 +69,7 @@ GScriptValue & GScriptValue::operator = (const GScriptValue & other)
 		this->type = other.type;
 		this->value = other.value;
 		this->metaItem = other.metaItem;
-		this->bindApi = other.bindApi;
+		this->objectFlags = other.objectFlags;
 	}
 
 	return *this;
@@ -80,7 +81,7 @@ GScriptValueData GScriptValue::takeData()
 	data.type = this->type;
 	data.value = this->value.takeData();
 	data.metaItem = this->metaItem.take();
-	data.bindApi = this->bindApi.take();
+	data.objectFlags = this->objectFlags.take();
 	return data;
 }
 
@@ -93,7 +94,7 @@ GScriptValueData GScriptValue::getData() const
 	if(data.metaItem != nullptr) {
 		data.metaItem->addReference();
 	}
-	data.bindApi = this->bindApi.get();
+	data.objectFlags = this->objectFlags.get();
 	return data;
 }
 
@@ -112,38 +113,48 @@ GScriptValue GScriptValue::fromClass(IMetaClass * metaClass)
 	return GScriptValue(typeClass, metaClass);
 }
 
-GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueBindApi * bindApi)
+GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueObjectFlags * objectFlags)
 {
 	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
 	metaType.addPointer();
-	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass, bindApi);
+	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass, objectFlags);
 }
 
-struct GScriptValueDefaultBindApi : public IScriptValueBindApi
+struct GScriptValueDefaultBindApi : public IScriptValueObjectFlags
 {
 	G_INTERFACE_IMPL_OBJECT
+
 public:
-	GScriptValueDefaultBindApi(bool transferOwnership) : transferOwnership(transferOwnership) {}
+	GScriptValueDefaultBindApi(const bool transferOwnership, const GScriptInstanceCv cv)
+		:
+			transferOwnership(transferOwnership),
+			cv(cv)
+	{
+	}
 
 	virtual ~GScriptValueDefaultBindApi() {}
 
-	virtual void G_API_CC discardOwnership() {
+	virtual void G_API_CC discardOwnership() override {
 		transferOwnership = false;
 	}
 
-	virtual bool G_API_CC isOwnershipTransferred() {
+	virtual gapi_bool G_API_CC isOwnershipTransferred() override {
 		return transferOwnership;
 	}
 
+	virtual int32_t getObjectCv() override {
+		return (int32_t)this->cv;
+	}
 
 private:
 	bool transferOwnership;
+	GScriptInstanceCv cv;
 };
 
-GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership)
+GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, const bool transferOwnership, const GScriptInstanceCv cv)
 {
-	GScopedInterface<IScriptValueBindApi> bindApi(new GScriptValueDefaultBindApi(transferOwnership));
-	return GScriptValue::fromObject(instance, metaClass, bindApi.get());
+	GScopedInterface<IScriptValueObjectFlags> objectFlags(new GScriptValueDefaultBindApi(transferOwnership, cv));
+	return GScriptValue::fromObject(instance, metaClass, objectFlags.get());
 }
 
 GScriptValue GScriptValue::fromMethod(void * instance, IMetaMethod * method)
@@ -213,7 +224,7 @@ IMetaClass * GScriptValue::toClass() const
 	}
 }
 
-GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const
+GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership, GScriptInstanceCv * outCv) const
 {
 	if(this->isObject()) {
 		if(outMetaClass != nullptr) {
@@ -221,7 +232,10 @@ GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOw
 			this->metaItem->addReference();
 		}
 		if(outTransferOwnership != nullptr) {
-			*outTransferOwnership = bindApi ? bindApi->isOwnershipTransferred() : false;
+			*outTransferOwnership = this->objectFlags ? !! this->objectFlags->isOwnershipTransferred() : false;
+		}
+		if(outCv != nullptr) {
+			*outCv = this->objectFlags ? (GScriptInstanceCv)this->objectFlags->getObjectCv() : GScriptInstanceCv::sicvNone;
 		}
 		return this->value;
 	}
@@ -232,14 +246,17 @@ GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOw
 		if(outTransferOwnership != nullptr) {
 			*outTransferOwnership = false;
 		}
+		if(outCv != nullptr) {
+			*outCv = GScriptInstanceCv::sicvNone;
+		}
 
 		return GVariant();
 	}
 }
 
-void * GScriptValue::toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const
+void * GScriptValue::toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership, GScriptInstanceCv * outCv) const
 {
-	GVariant instance(this->toObject(outMetaClass, outTransferOwnership));
+	GVariant instance(this->toObject(outMetaClass, outTransferOwnership, outCv));
 	if(! instance.isEmpty()) {
 		return fromVariant<void *>(instance);
 	}
@@ -358,8 +375,8 @@ IScriptArray * GScriptValue::toScriptArray() const
 
 void GScriptValue::discardOwnership()
 {
-	if (bindApi) {
-		bindApi->discardOwnership();
+	if (objectFlags) {
+		objectFlags->discardOwnership();
 	}
 
 }
@@ -383,7 +400,7 @@ IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 {
 	if(value.isObject()) {
 		IMetaClass * metaClass;
-		value.toObject(&metaClass, nullptr);
+		value.toObject(&metaClass, nullptr, nullptr);
 		return metaClass;
 	}
 	else if(value.isClass()) {

@@ -329,7 +329,7 @@ void G_API_CC ImplScriptObject::bindObject(const char * objectName, void * insta
 	ENTER_BINDING_API()
 
 	scriptSetValue(this->scriptObject, objectName,
-		GScriptValue::fromObject(instance, type, !! transferOwnership));
+		GScriptValue::fromObject(instance, type, !! transferOwnership, GScriptInstanceCv::sicvNone));
 
 	LEAVE_BINDING_API()
 }
@@ -409,7 +409,7 @@ void * G_API_CC ImplScriptObject::getObject(const char * objectName)
 {
 	ENTER_BINDING_API()
 
-	return objectAddressFromVariant(this->scriptObject->getValue(objectName).toObject(nullptr, nullptr));
+	return objectAddressFromVariant(this->scriptObject->getValue(objectName).toObject(nullptr, nullptr, nullptr));
 
 	LEAVE_BINDING_API(return nullptr)
 }

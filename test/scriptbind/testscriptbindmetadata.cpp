@@ -125,7 +125,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(REG_NAME_TestObject));
 	TestObject * obj = new TestObject(testObjValue);
-	scriptSetValue(script, "testObj", GScriptValue::fromObject(obj, metaClass.get(), true));
+	scriptSetValue(script, "testObj", GScriptValue::fromObject(obj, metaClass.get(), true, GScriptInstanceCv::sicvNone));
 
 	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
 	GScopedInterface<IMetaClass> global(module->getGlobalMetaClass());

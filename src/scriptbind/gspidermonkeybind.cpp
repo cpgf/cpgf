@@ -1122,12 +1122,13 @@ JsValue helperBindValue(const GSpiderContextPointer & context, JSObject * jsObje
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			result = objectToSpider(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
+			result = objectToSpider(context, context->getClassData(metaClass), instance, flags, cv, nullptr);
 			break;
 		}
 

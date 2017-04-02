@@ -1649,12 +1649,13 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			result = objectToPython(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
+			result = objectToPython(context, context->getClassData(metaClass), instance, flags, cv, nullptr);
 			break;
 		}
 

@@ -22,11 +22,13 @@ struct IMetaTypedItem;
 struct IScriptObject;
 struct IScriptFunction;
 struct IScriptArray;
+enum class GScriptInstanceCv;
 
-struct IScriptValueBindApi : public IObject
+struct IScriptValueObjectFlags : public IObject
 {
 	virtual void G_API_CC discardOwnership() = 0;
-	virtual bool G_API_CC isOwnershipTransferred() = 0;
+	virtual gapi_bool G_API_CC isOwnershipTransferred() = 0;
+	virtual int32_t getObjectCv() = 0; // the result should be GScriptInstanceCv
 };
 
 #pragma pack(push, 1)
@@ -36,7 +38,7 @@ struct GScriptValueData
 	uint32_t type;
 	GVariantData value;
 	IMetaItem * metaItem;
-	IScriptValueBindApi * bindApi;
+	IScriptValueObjectFlags * objectFlags;
 };
 #pragma pack(pop)
 
@@ -58,7 +60,7 @@ public:
 	};
 
 private:
-	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueBindApi * bindApi);
+	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueObjectFlags * objectFlags);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
 	explicit GScriptValue(const GScriptValueData & data);
@@ -74,8 +76,8 @@ public:
 	// primary is boolean, integer, float point, string, wide string
 	static GScriptValue fromPrimary(const GVariant & primary);
 	static GScriptValue fromClass(IMetaClass * metaClass);
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueBindApi * bindApi); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, const bool transferOwnership, const GScriptInstanceCv cv); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueObjectFlags * bindApi); // instance can be a void * or a shadow object
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverloadedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
@@ -88,8 +90,8 @@ public:
 	void * toNull() const;
 	GVariant toPrimary() const;
 	IMetaClass * toClass() const;
-	GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
-	void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
+	GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership, GScriptInstanceCv * outCv) const;
+	void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership, GScriptInstanceCv * outCv) const;
 	IMetaMethod * toMethod(void ** outInstance) const;
 	IMetaList * toOverloadedMethods() const;
 	IMetaEnum * toEnum() const;
@@ -125,7 +127,7 @@ private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
-	GSharedInterface<IScriptValueBindApi> bindApi;
+	GSharedInterface<IScriptValueObjectFlags> objectFlags;
 
 private:
 	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);

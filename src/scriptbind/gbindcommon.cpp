@@ -610,22 +610,28 @@ InvokeCallableResult doInvokeMethodList(
 	return InvokeCallableResult();
 }
 
-struct GScriptValueBindApi : public IScriptValueBindApi
+struct GScriptValueBindApi : public IScriptValueObjectFlags
 {
 	G_INTERFACE_IMPL_OBJECT
 public:
-	GScriptValueBindApi(GObjectGlueDataPointer glueData) : glueData(glueData) {}
+	explicit GScriptValueBindApi(const GObjectGlueDataPointer & glueData)
+		: glueData(glueData)
+	{
+	}
 
 	virtual ~GScriptValueBindApi() {}
 
-	virtual void G_API_CC discardOwnership() {
-		glueData->setAllowGC(false);
+	virtual void G_API_CC discardOwnership() override {
+		this->glueData->setAllowGC(false);
 	}
 
-	virtual bool G_API_CC isOwnershipTransferred() {
-		return glueData->isAllowGC();
+	virtual gapi_bool G_API_CC isOwnershipTransferred() override {
+		return this->glueData->isAllowGC();
 	}
 
+	virtual int32_t getObjectCv() override {
+		return (int32_t)this->glueData->getCV();
+	}
 
 private:
 	GObjectGlueDataPointer glueData;
@@ -642,8 +648,8 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
-				GScopedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindApi(objectData));
-				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), bindApi.get());
+				GScopedInterface<IScriptValueObjectFlags> objectFlags(new GScriptValueBindApi(objectData));
+				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), objectFlags.get());
 			}
 
 			case gdtRaw: {

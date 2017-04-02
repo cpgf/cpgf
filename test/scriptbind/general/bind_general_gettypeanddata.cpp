@@ -227,10 +227,10 @@ void doTestGetObject(T * binding, TestScriptContext * context)
 	
 	void * instance = NULL;
 
-	instance = scriptGetValue(binding, "f").toObjectAddress(NULL, NULL);
+	instance = scriptGetValue(binding, "f").toObjectAddress(nullptr, nullptr, nullptr);
 	GCHECK(instance == NULL);
 		
-	instance = scriptGetValue(binding, "obj").toObjectAddress(NULL, NULL);
+	instance = scriptGetValue(binding, "obj").toObjectAddress(nullptr, nullptr, nullptr);
 	GCHECK(instance != NULL);
 	GCHECK(static_cast<TestObject *>(instance)->value == 99);
 }

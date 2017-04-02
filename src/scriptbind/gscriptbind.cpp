@@ -72,7 +72,7 @@ void GScriptObject::bindString(const char * stringName, const char * s)
 
 void GScriptObject::bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership)
 {
-	this->setValue(objectName, GScriptValue::fromObject(instance, type, transferOwnership));
+	this->setValue(objectName, GScriptValue::fromObject(instance, type, transferOwnership, GScriptInstanceCv::sicvNone));
 }
 
 void GScriptObject::bindRaw(const char * name, const GVariant & value)
@@ -117,7 +117,7 @@ std::string GScriptObject::getString(const char * stringName)
 
 void * GScriptObject::getObject(const char * objectName)
 {
-	return this->getValue(objectName).toObjectAddress(nullptr, nullptr);
+	return this->getValue(objectName).toObjectAddress(nullptr, nullptr, nullptr);
 }
 
 GVariant GScriptObject::getRaw(const char * name)

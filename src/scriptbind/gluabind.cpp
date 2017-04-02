@@ -994,12 +994,13 @@ bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptO
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 			
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			objectToLua(context, context->getClassData(metaClass), instance, flags, GScriptInstanceCv::sicvNone, nullptr);
+			objectToLua(context, context->getClassData(metaClass), instance, flags, cv, nullptr);
 			break;
 		}
 
