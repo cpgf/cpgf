@@ -405,7 +405,7 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 }
 
 Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData,
-						 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+						 const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
 
@@ -466,7 +466,7 @@ struct GV8Methods
 	typedef Handle<Value> ResultType;
 
 	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+		const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 	{
 		return objectToV8(context, classData, instance, flags, cv, outputGlueData);
 	}

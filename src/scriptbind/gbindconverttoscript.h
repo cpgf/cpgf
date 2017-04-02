@@ -325,7 +325,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(config, isInstance, data.get())) {
-					return accessibleToScript<Methods>(context, data.get(), instance, getGlueDataCV(glueData) == opcvConst);
+					return accessibleToScript<Methods>(context, data.get(), instance, getGlueDataCV(glueData) == GScriptInstanceCv::sicvConst);
 				}
 			}
 			   break;

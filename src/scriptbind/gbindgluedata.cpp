@@ -177,8 +177,13 @@ GScriptDataHolder * GObjectInstance::requireDataHolder() const
 }
 
 
-GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GVariant & instance,
-	const GBindValueFlags & flags, ObjectPointerCV cv)
+GObjectGlueData::GObjectGlueData(
+		const GContextPointer & context,
+		const GClassGlueDataPointer & classGlueData,
+		const GVariant & instance,
+		const GBindValueFlags & flags,
+		const GScriptInstanceCv cv
+	)
 	: super(gdtObject, context), classGlueData(classGlueData), flags(flags), cv(cv)
 {
 	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(instance));
@@ -189,8 +194,13 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 	objectInstance.reset(new GObjectInstance(context, instance, this->getClassData(), objectLifeManager.get(), this->flags.has(bvfAllowGC)));
 }
 
-GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GObjectInstancePointer & objectInstance,
-	const GBindValueFlags & flags, ObjectPointerCV cv)
+GObjectGlueData::GObjectGlueData(
+		const GContextPointer & context,
+		const GClassGlueDataPointer & classGlueData,
+		const GObjectInstancePointer & objectInstance,
+		const GBindValueFlags & flags,
+		const GScriptInstanceCv cv
+	)
 	: super(gdtObject, context), classGlueData(classGlueData), flags(flags), cv(cv), objectInstance(objectInstance)
 {
 }

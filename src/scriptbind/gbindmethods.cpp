@@ -6,43 +6,43 @@ namespace cpgf {
 
 namespace bind_internal {
 
-ObjectPointerCV metaTypeToCV(const GMetaType & type)
+GScriptInstanceCv metaTypeToCV(const GMetaType & type)
 {
 	if(type.isPointer()) {
 		if(type.isPointerToConst()) {
-			return opcvConst;
+			return GScriptInstanceCv::sicvConst;
 		}
 		else if(type.isPointerToVolatile()) {
-			return opcvVolatile;
+			return GScriptInstanceCv::sicvVolatile;
 		}
 		else if(type.isPointerToConstVolatile()) {
-			return opcvConstVolatile;
+			return GScriptInstanceCv::sicvConstVolatile;
 		}
 	}
 	else if(type.isReference()) {
 		if(type.isReferenceToConst()) {
-			return opcvConst;
+			return GScriptInstanceCv::sicvConst;
 		}
 		else if(type.isReferenceToVolatile()) {
-			return opcvVolatile;
+			return GScriptInstanceCv::sicvVolatile;
 		}
 		else if(type.isReferenceToConstVolatile()) {
-			return opcvConstVolatile;
+			return GScriptInstanceCv::sicvConstVolatile;
 		}
 	}
 	else {
 		if(type.isConst()) {
-			return opcvConst;
+			return GScriptInstanceCv::sicvConst;
 		}
 		else if(type.isVolatile()) {
-			return opcvVolatile;
+			return GScriptInstanceCv::sicvVolatile;
 		}
 		else if(type.isConstVolatile()) {
-			return opcvConstVolatile;
+			return GScriptInstanceCv::sicvConstVolatile;
 		}
 	}
 
-	return opcvNone;
+	return GScriptInstanceCv::sicvNone;
 }
 
 bool shouldRemoveReference(const GMetaType & type)
@@ -90,7 +90,7 @@ GVariant getAccessibleValueAndType(
 	return value;
 }
 
-ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData)
+GScriptInstanceCv getGlueDataCV(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
@@ -98,7 +98,7 @@ ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData)
 		}
 	}
 
-	return opcvNone;
+	return GScriptInstanceCv::sicvNone;
 }
 
 GVariant getGlueDataInstance(const GGlueDataPointer & glueData)

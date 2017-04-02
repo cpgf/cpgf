@@ -20,13 +20,13 @@ inline void * getInstanceHash(const GVariant & instance)
 
 struct GScriptObjectCacheKey {
 	GScriptObjectCacheKey();
-	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv);
+	GScriptObjectCacheKey(void * key, const char * className, const GScriptInstanceCv cv);
 
 	bool operator < (const GScriptObjectCacheKey & other) const;
 
 	void * key;
 	const char * className;
-	ObjectPointerCV cv;
+	GScriptInstanceCv cv;
 };
 
 class GScriptObjectCacheData {
@@ -44,7 +44,7 @@ public:
 	T * findScriptObject(
 			const GVariant & instance,
 			const GClassGlueDataPointer & classData,
-			const ObjectPointerCV cv
+			const GScriptInstanceCv cv
 		)
 	{
 		GScriptObjectCacheData * result = this->doFindScriptObject(instance, classData, cv);
@@ -57,7 +57,7 @@ public:
 	void addScriptObject(
 		const GVariant & instance,
 		const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv,
+		const GScriptInstanceCv cv,
 		GScriptObjectCacheData * scriptObject
 	);
 	void freeScriptObject(GGlueDataWrapper * dataWrapper);
@@ -67,7 +67,7 @@ private:
 	GScriptObjectCacheData * doFindScriptObject(
 		const GVariant & instance,
 		const GClassGlueDataPointer & classData,
-		const ObjectPointerCV cv
+		const GScriptInstanceCv cv
 	);
 
 private:

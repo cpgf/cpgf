@@ -6,11 +6,11 @@ namespace cpgf {
 namespace bind_internal {
 
 GScriptObjectCacheKey::GScriptObjectCacheKey()
-	: key(nullptr), className(nullptr), cv(opcvNone)
+	: key(nullptr), className(nullptr), cv(GScriptInstanceCv::sicvNone)
 {
 }
 
-GScriptObjectCacheKey::GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv)
+GScriptObjectCacheKey::GScriptObjectCacheKey(void * key, const char * className, const GScriptInstanceCv cv)
 	: key(key), className(className), cv(cv)
 {
 }
@@ -42,7 +42,7 @@ bool GScriptObjectCacheKey::operator < (const GScriptObjectCacheKey & other) con
 void GScriptObjectCache::addScriptObject(
 	const GVariant & instance,
 	const GClassGlueDataPointer & classData,
-	ObjectPointerCV cv,
+	const GScriptInstanceCv cv,
 	GScriptObjectCacheData * scriptObject
 )
 {
@@ -77,7 +77,7 @@ void GScriptObjectCache::clear()
 GScriptObjectCacheData * GScriptObjectCache::doFindScriptObject(
 		const GVariant & instance,
 		const GClassGlueDataPointer & classData,
-		const ObjectPointerCV cv
+		const GScriptInstanceCv cv
 	)
 {
 	GScriptObjectCacheKey key(

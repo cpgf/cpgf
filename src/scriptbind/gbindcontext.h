@@ -79,13 +79,13 @@ public:
 		const GClassGlueDataPointer & classData,
 		const GVariant & instance,
 		const GBindValueFlags & flags,
-		ObjectPointerCV cv
+		const GScriptInstanceCv cv
 	);
 	GObjectGlueDataPointer newOrReuseObjectGlueData(
 		const GClassGlueDataPointer & classData,
 		const GVariant & instance,
 		const GBindValueFlags & flags,
-		ObjectPointerCV cv
+		const GScriptInstanceCv cv
 	);
 
 	GMethodGlueDataPointer newMethodGlueData(

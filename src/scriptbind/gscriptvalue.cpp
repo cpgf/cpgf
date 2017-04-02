@@ -215,13 +215,6 @@ IMetaClass * GScriptValue::toClass() const
 
 GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const
 {
-	if(outMetaClass != nullptr) {
-		*outMetaClass = nullptr;
-	}
-	if(outTransferOwnership != nullptr) {
-		*outTransferOwnership = false;
-	}
-
 	if(this->isObject()) {
 		if(outMetaClass != nullptr) {
 			*outMetaClass = gdynamic_cast<IMetaClass *>(this->metaItem.get());
@@ -233,6 +226,13 @@ GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOw
 		return this->value;
 	}
 	else {
+		if(outMetaClass != nullptr) {
+			*outMetaClass = nullptr;
+		}
+		if(outTransferOwnership != nullptr) {
+			*outTransferOwnership = false;
+		}
+
 		return GVariant();
 	}
 }

@@ -16,7 +16,7 @@ public:
 	GSharedInterface<IMetaCallable> callable;
 };
 
-ObjectPointerCV metaTypeToCV(const GMetaType & type);
+GScriptInstanceCv metaTypeToCV(const GMetaType & type);
 bool shouldRemoveReference(const GMetaType & type);
 
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);
@@ -28,7 +28,7 @@ GVariant getAccessibleValueAndType(
 	bool instanceIsConst
 );
 
-ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
+GScriptInstanceCv getGlueDataCV(const GGlueDataPointer & glueData);
 GVariant getGlueDataInstance(const GGlueDataPointer & glueData);
 void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);

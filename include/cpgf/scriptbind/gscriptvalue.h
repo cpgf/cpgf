@@ -120,6 +120,7 @@ public:
 	GScriptValueData getData() const;
 
 	void discardOwnership();
+
 private:
 	Type type;
 	GVariant value;

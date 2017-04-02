@@ -78,7 +78,7 @@ void GScriptContext::bindExternalObjectToClass(void * address, IMetaClass * meta
 			classData,
 			createObjectVariantFromPointer(address),
 			GBindValueFlags(),
-			opcvNone
+			GScriptInstanceCv::sicvNone
 		)
 	);
 }
@@ -138,8 +138,12 @@ GObjectInstancePointer GBindingContext::findObjectInstance(const GVariant & inst
 	return this->classPool->findObjectData(instance);
 }
 
-GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
-	const GBindValueFlags & flags, ObjectPointerCV cv)
+GObjectGlueDataPointer GBindingContext::newObjectGlueData(
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const GBindValueFlags & flags,
+		const GScriptInstanceCv cv
+	)
 {
 	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, flags, cv));
 	data->initialize();
@@ -147,8 +151,12 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPo
 	return data;
 }
 
-GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
-	const GBindValueFlags & flags, ObjectPointerCV cv)
+GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const GBindValueFlags & flags,
+		const GScriptInstanceCv cv
+	)
 {
 	GObjectInstancePointer objectInstance(this->classPool->findObjectData(instance));
 

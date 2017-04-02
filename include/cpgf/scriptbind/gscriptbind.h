@@ -21,6 +21,15 @@ namespace cpgf {
 struct IScriptLibraryLoader;
 struct IScriptUserConverter;
 
+enum class GScriptInstanceCv {
+	sicvNone,
+	sicvConst,
+	sicvVolatile,
+	sicvConstVolatile,
+
+	sicvCount
+};
+
 struct IScriptContext : public IObject
 {
 	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter) = 0;

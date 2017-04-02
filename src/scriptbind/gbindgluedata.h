@@ -216,14 +216,14 @@ private:
 		const GClassGlueDataPointer & classGlueData,
 		const GVariant & instance,
 		const GBindValueFlags & flags,
-		ObjectPointerCV cv
+		const GScriptInstanceCv cv
 	);
 	GObjectGlueData(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classGlueData,
 		const GObjectInstancePointer & objectInstance,
 		const GBindValueFlags & flags,
-		ObjectPointerCV cv
+		const GScriptInstanceCv cv
 	);
 
 public:
@@ -254,7 +254,7 @@ public:
 		this->objectInstance->setAllowGC(allow);
 	}
 
-	ObjectPointerCV getCV() const {
+	GScriptInstanceCv getCV() const {
 		return this->cv;
 	}
 
@@ -285,7 +285,7 @@ private:
 private:
 	GClassGlueDataPointer classGlueData;
 	GBindValueFlags flags;
-	ObjectPointerCV cv;
+	GScriptInstanceCv cv;
 	GObjectInstancePointer objectInstance;
 	GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits;
 

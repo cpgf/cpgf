@@ -1106,8 +1106,14 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 	return GScriptValue();
 }
 
-PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData,
-						  const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+PyObject * objectToPython(
+		const GContextPointer & context,
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const GBindValueFlags & flags,
+		const GScriptInstanceCv cv,
+		GGlueDataPointer * outputGlueData
+	)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
 
@@ -1180,8 +1186,14 @@ struct GPythonMethods
 {
 	typedef PyObject * ResultType;
 
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+	static ResultType doObjectToScript(
+			const GContextPointer & context,
+			const GClassGlueDataPointer & classData,
+			const GVariant & instance,
+			const GBindValueFlags & flags,
+			const GScriptInstanceCv cv,
+			GGlueDataPointer * outputGlueData
+		)
 	{
 		return objectToPython(context, classData, instance, flags, cv, outputGlueData);
 	}

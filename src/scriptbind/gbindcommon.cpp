@@ -89,40 +89,40 @@ InvokeCallableParam::~InvokeCallableParam()
 // Global function implementations
 //*********************************************
 
-ObjectPointerCV getCallableConstness(IMetaCallable * callable)
+GScriptInstanceCv getCallableConstness(IMetaCallable * callable)
 {
 	if(! callable->isExplicitThis()) {
 		// normal function
 		GMetaType methodType = metaGetItemType(callable);
 		if(methodType.isConstFunction()) {
-			return opcvConst;
+			return GScriptInstanceCv::sicvConst;
 		}
 
 		if(methodType.isVolatileFunction()) {
-			return opcvVolatile;
+			return GScriptInstanceCv::sicvVolatile;
 		}
 
 		if(methodType.isConstVolatileFunction()) {
-			return opcvConstVolatile;
+			return GScriptInstanceCv::sicvConstVolatile;
 		}
 	}
 	else {
 		// "explicit this" function
 		GMetaType selfType = metaGetParamType(callable, abstractParameterIndexBase);
 		if(selfType.isPointerToConst() || selfType.isReferenceToConst()) {
-			return opcvConst;
+			return GScriptInstanceCv::sicvConst;
 		}
 
 		if(selfType.isPointerToVolatile() || selfType.isReferenceToVolatile()) {
-			return opcvVolatile;
+			return GScriptInstanceCv::sicvVolatile;
 		}
 
 		if(selfType.isPointerToConstVolatile() || selfType.isReferenceToConstVolatile()) {
-			return opcvConstVolatile;
+			return GScriptInstanceCv::sicvConstVolatile;
 		}
 	}
 
-	return opcvNone;
+	return GScriptInstanceCv::sicvNone;
 }
 
 
@@ -320,13 +320,13 @@ int rankCallable(
 
 	int rank = 1;
 
-	ObjectPointerCV cv = getGlueDataCV(objectData);
-	ObjectPointerCV methodCV = getCallableConstness(callable);
+	const GScriptInstanceCv cv = getGlueDataCV(objectData);
+	const GScriptInstanceCv methodCV = getCallableConstness(callable);
 	if(cv == methodCV) {
 		rank += ValueMatchRank_Equal;
 	}
 	else {
-		if(cv != opcvNone) {
+		if(cv != GScriptInstanceCv::sicvNone) {
 			return -1;
 		}
 		rank += ValueMatchRank_Convert;
@@ -746,7 +746,7 @@ bool setValueOnNamedMember(
 		const GGlueDataPointer & valueGlueData
 	)
 {
-	if(getGlueDataCV(instanceGlueData) == opcvConst) {
+	if(getGlueDataCV(instanceGlueData) == GScriptInstanceCv::sicvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return false;

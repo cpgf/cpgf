@@ -46,15 +46,6 @@ public:
 
 namespace bind_internal {
 
-enum ObjectPointerCV {
-	opcvNone,
-	opcvConst,
-	opcvVolatile,
-	opcvConstVolatile,
-
-	opcvCount
-};
-
 class GBindingContext;
 
 typedef GSharedPointer<GBindingContext> GContextPointer;

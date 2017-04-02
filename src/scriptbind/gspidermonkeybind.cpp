@@ -311,7 +311,7 @@ JsValue helperBindClass(const GSpiderContextPointer & context, JSObject * owner,
 JsValue helperBindMethodList(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList);
 JSFunction * createJsFunction(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList);
 JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData,
-				 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData);
+				 const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData);
 JsValue variantToSpider(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 JsValue rawToSpider(const GSpiderContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData);
 JSObject * createEnumBinding(const GSpiderContextPointer & context, IMetaEnum * metaEnum);
@@ -452,7 +452,7 @@ struct GSpiderMethods
 	typedef JsValue ResultType;
 
 	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+		const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 	{
 		return objectToSpider(sharedStaticCast<GSpiderBindingContext>(context), classData, instance, flags, cv, outputGlueData);
 	}
@@ -727,7 +727,7 @@ JSFunction * createJsFunction(const GSpiderContextPointer & context, const GClas
 }
 
 JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData,
-				 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+				 const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
 
