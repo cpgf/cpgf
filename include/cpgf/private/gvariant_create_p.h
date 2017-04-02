@@ -43,6 +43,12 @@ struct GVariantCreatingType
 	>::type U;
 	
 	typedef typename GVariantEnumSelector<U, std::is_enum<U>::value>::Result Result;
+
+	typedef typename std::conditional<
+		std::is_array<typename std::remove_reference<T>::type>::value,
+		const U,
+		const U &
+	>::type ValueResult;
 };
 
 template <typename T>
@@ -379,7 +385,7 @@ void doVariantDeduceAndSet(
 		std::is_pointer<U>::value,
 		std::is_lvalue_reference<U>::value,
 		std::is_rvalue_reference<U>::value
-	>::template deduceAndSet(data, (const U &)value);
+	>::template deduceAndSet(data, (const U &)(typename GVariantCreatingType<T>::ValueResult)value);
 
 	constexpr uint16_t pointers = cpgf::PointerDimension<U>::Result;
 	vtSetPointers(data->typeData, pointers);
