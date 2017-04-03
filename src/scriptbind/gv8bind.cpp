@@ -781,7 +781,7 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 			IMetaClass * metaClass;
 			bool transferOwnership;
 			GScriptInstanceCv cv;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
+			const GVariant instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 
 			GBindValueFlags flags;

@@ -236,7 +236,7 @@ void helperBindMethodList(const GContextPointer & context, const GObjectGlueData
 void helperBindMethodList(const GContextPointer & context, IMetaList * methodList);
 
 typedef GCallback<GLuaGlobalAccessor * ()> GlobalAccessorGetter;
-bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptObject, const GScriptValue & value, const char * name = nullptr);
+bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptObject, const GScriptValue & value, GGlueDataPointer * outputGlueData, const char * name = nullptr);
 
 void initObjectMetaTable(lua_State * L);
 void setMetaTableGC(lua_State * L);
@@ -521,9 +521,9 @@ struct GLuaMethods
 		return true;
 	}
 
-	static ResultType doScriptValueToScript(const GContextPointer & context, const GScriptValue & scriptValue)
+	static ResultType doScriptValueToScript(const GContextPointer & context, const GScriptValue & scriptValue, GGlueDataPointer * outputGlueData)
 	{
-		return doValueToScript(context, nullptr, scriptValue, nullptr);
+		return doValueToScript(context, nullptr, scriptValue, outputGlueData);
 	}
 
 };
@@ -970,7 +970,7 @@ void helperBindMethodList(const GContextPointer & context, IMetaList * methodLis
 	helperBindMethodList(context, GObjectGlueDataPointer(), methodData);
 }
 
-bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptObject, const GScriptValue & value, const char * name)
+bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptObject, const GScriptValue & value, GGlueDataPointer * outputGlueData, const char * name)
 {
 	lua_State * L = getLuaState(context);
 
@@ -980,7 +980,7 @@ bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptO
 			break;
 
 		case GScriptValue::typePrimary:
-			if(! variantToLua(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr)) {
+			if(! variantToLua(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), outputGlueData)) {
 				raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 			}
 			break;
@@ -995,12 +995,12 @@ bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptO
 			IMetaClass * metaClass;
 			bool transferOwnership;
 			GScriptInstanceCv cv;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
+			const GVariant instance = value.toObject(&metaClass, &transferOwnership, &cv);
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 			
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			objectToLua(context, context->getClassData(metaClass), instance, flags, cv, nullptr);
+			objectToLua(context, context->getClassData(metaClass), instance, flags, cv, outputGlueData);
 			break;
 		}
 
@@ -1416,7 +1416,7 @@ void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
 	else {
 		lua_State * L = getLuaState(this->getBindingContext());
 		getRefObject(L, this->ref);
-		bool shouldSet = doValueToScript(this->getBindingContext(), this->scriptObject, value);
+		bool shouldSet = doValueToScript(this->getBindingContext(), this->scriptObject, value, nullptr);
 		if(shouldSet) {
 			lua_rawseti(L, -2, (int)(index + 1));
 		}
@@ -1511,7 +1511,7 @@ void GLuaScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
 	GLuaScopeGuard scopeGuard(this);
 
-	bool shouldSet = doValueToScript(this->getBindingContext(), this, value, name);
+	bool shouldSet = doValueToScript(this->getBindingContext(), this, value, nullptr, name);
 	if(shouldSet) {	
 		scopeGuard.set(name);
 	}

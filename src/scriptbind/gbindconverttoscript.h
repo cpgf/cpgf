@@ -25,29 +25,29 @@ typename Methods::ResultType complexVariantToScript(
 		if(typedItem) {
 			GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-			return Methods::doObjectToScript(context, context->getOrNewClassData(value, gdynamic_cast<IMetaClass *>(typedItem.get())),
-				value, flags, metaTypeToCV(type), outputGlueData);
+			return Methods::doScriptValueToScript(context, GScriptValue::fromObject(value, gdynamic_cast<IMetaClass *>(typedItem.get()), flags.has(bvfAllowGC), metaTypeToCV(type)), outputGlueData);
 		}
 		else {
 			if(vtIsInterface(vt)) {
 				IObject * obj = fromVariant<IObject *>(value);
 				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
 					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
-					return Methods::doClassToScript(context, metaClass);
+					return Methods::doScriptValueToScript(context, GScriptValue::fromClass(metaClass), outputGlueData);
 				}
 			}
 		}
 
+		// TODO: is this block really reached?
 		if(shouldRemoveReference(type)) {
 			GMetaType newType(type);
 			newType.removeReference();
 
-			return Methods::doVariantToScript(context, createTypedVariant(value, newType), flags, outputGlueData);
+			return Methods::doScriptValueToScript(context, GScriptValue::fromPrimary(createTypedVariant(value, newType)), outputGlueData);
 		}
 	}
 
 	if(flags.has(bvfAllowRaw)) {
-		return Methods::doRawToScript(context, value, outputGlueData);
+		return Methods::doScriptValueToScript(context, GScriptValue::fromRaw(value), outputGlueData);
 	}
 
 	return Methods::defaultValue();
@@ -68,7 +68,7 @@ typename Methods::ResultType converterToScript(
 		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 		if(s != nullptr) {
-			typename Methods::ResultType result = Methods::doStringToScript(context, s);
+			typename Methods::ResultType result = Methods::doScriptValueToScript(context, GScriptValue::fromPrimary(s), nullptr);
 
 			if(needFree) {
 				allocator->free((void *)s);
@@ -85,7 +85,7 @@ typename Methods::ResultType converterToScript(
 		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 		if(ws != nullptr) {
-			typename Methods::ResultType result = Methods::doWideStringToScript(context, ws);
+			typename Methods::ResultType result = Methods::doScriptValueToScript(context, GScriptValue::fromPrimary(ws), nullptr);
 
 			if(needFree) {
 				allocator->free((void *)ws);
@@ -118,10 +118,10 @@ typename Methods::ResultType sharedPointerTraitsToScript(
 	typename Methods::ResultType result;
 	GGlueDataPointer glueData;
 
-	result = Methods::doVariantToScript(context, createTypedVariant(value, realType), newFlags, &glueData);
+	result = Methods::doScriptValueToScript(context,  GScriptValue::fromPrimary(createTypedVariant(value, realType)), &glueData);
 	if(! Methods::isSuccessResult(result)) {
 		glueData.reset();
-		result = Methods::doRawToScript(context, value, &glueData);
+		result = Methods::doScriptValueToScript(context, GScriptValue::fromRaw(value), &glueData);
 	}
 	if(Methods::isSuccessResult(result) && glueData) {
 		switch(glueData->getType()) {
@@ -165,7 +165,7 @@ typename Methods::ResultType extendVariantToScript(
 	}
 
 	if(! Methods::isSuccessResult(result)) {
-		result = Methods::doRawToScript(context, value, nullptr);
+		result = Methods::doScriptValueToScript(context, GScriptValue::fromRaw(value), nullptr);
 	}
 
 	if(! Methods::isSuccessResult(result)) {
