@@ -21,6 +21,11 @@ namespace cpgf {
 
 namespace bind_internal {
 
+/*
+A glue data is used as the "user data" in the underlying script engine.
+When a value is passed from script to C++, cpgf uses the glue data internally.
+*/
+
 class GObjectGlueData;
 
 typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
@@ -452,7 +457,7 @@ private:
 typedef GSharedPointer<GObjectAndMethodGlueData> GObjectAndMethodGlueDataPointer;
 
 
-// Only used by Lua binding
+// Used by Lua and Python binding
 class GOperatorGlueData : public GGlueData
 {
 private:
