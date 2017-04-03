@@ -475,7 +475,7 @@ private:
 			this->base->virtuals->destroy(this->base);
 
 			if(this->base != (void *)this->buffer) {
-				delete reinterpret_cast<char *>(this->base);
+				delete[] reinterpret_cast<char *>(this->base);
 			}
 
 			this->base = nullptr;

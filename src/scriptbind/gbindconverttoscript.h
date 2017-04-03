@@ -14,7 +14,6 @@ typename Methods::ResultType complexVariantToScript(
 	const GContextPointer & context,
 	const GVariant & value,
 	const GMetaType & type,
-	const GBindValueFlags & flags,
 	GGlueDataPointer * outputGlueData
 )
 {
@@ -25,7 +24,7 @@ typename Methods::ResultType complexVariantToScript(
 		if(typedItem) {
 			GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-			return Methods::doScriptValueToScript(context, GScriptValue::fromObject(value, gdynamic_cast<IMetaClass *>(typedItem.get()), flags.has(bvfAllowGC), metaTypeToCV(type)), outputGlueData);
+			return Methods::doScriptValueToScript(context, GScriptValue::fromObject(value, gdynamic_cast<IMetaClass *>(typedItem.get()), false, metaTypeToCV(type)), outputGlueData);
 		}
 		else {
 			if(vtIsInterface(vt)) {
@@ -44,10 +43,6 @@ typename Methods::ResultType complexVariantToScript(
 
 			return Methods::doScriptValueToScript(context, GScriptValue::fromPrimary(createTypedVariant(value, newType)), outputGlueData);
 		}
-	}
-
-	if(flags.has(bvfAllowRaw)) {
-		return Methods::doScriptValueToScript(context, GScriptValue::fromRaw(value), outputGlueData);
 	}
 
 	return Methods::defaultValue();
@@ -111,9 +106,6 @@ typename Methods::ResultType sharedPointerTraitsToScript(
 	sharedPointerTraits->getMetaType(&typeData);
 	GMetaType realType(typeData);
 	realType.addPointer();
-
-	GBindValueFlags newFlags = flags;
-	newFlags.set(bvfAllowRaw);
 
 	typename Methods::ResultType result;
 	GGlueDataPointer glueData;
@@ -263,7 +255,7 @@ typename Methods::ResultType accessibleToScript(
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
 
-	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), GBindValueFlags(), nullptr);
+	typename Methods::ResultType result = Methods::doScriptValueToScript(context, GScriptValue::fromPrimary(createTypedVariant(value, type)), nullptr);
 
 	if(! Methods::isSuccessResult(result)) {
 		result = extendVariantToScript<Methods>(context,
@@ -337,21 +329,22 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 			case mmitEnum:
 				if(! isInstance || config.allowAccessEnumTypeViaInstance()) {
-					return Methods::doEnumToScript(classData, mapItem, name);
+					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
+					return Methods::doScriptValueToScript(context, GScriptValue::fromEnum(metaEnum.get()), nullptr);
 				}
 				break;
 
 			case mmitEnumValue:
 				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw), nullptr);
+					return Methods::doScriptValueToScript(context, GScriptValue::fromPrimary(metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex()))), nullptr);
 				}
 				break;
 
 			case mmitClass:
 				if(! isInstance || config.allowAccessClassViaInstance()) {
 					GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-					return Methods::doClassToScript(context, innerMetaClass.get());
+					return Methods::doScriptValueToScript(context, GScriptValue::fromClass(innerMetaClass.get()), nullptr);
 				}
 				break;
 

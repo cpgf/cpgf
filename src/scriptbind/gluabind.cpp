@@ -244,7 +244,7 @@ void setMetaTableCall(lua_State * L, void * userData);
 void setMetaTableSignature(lua_State * L);
 bool isValidMetaTable(lua_State * L, int index);
 
-bool variantToLua(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
+bool variantToLua(const GContextPointer & context, const GVariant & data, GGlueDataPointer * outputGlueData);
 GScriptValue doScriptToValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData);
 
 void error(lua_State * L, const char * message);
@@ -445,7 +445,7 @@ struct GLuaMethods
 			GGlueDataPointer * outputGlueData
 		)
 	{
-		return variantToLua(context, value, flags, outputGlueData);
+		return variantToLua(context, value, outputGlueData);
 	}
 	
 	static ResultType doRawToScript(
@@ -676,7 +676,7 @@ int GLuaGlobalAccessor::doPreviousNewIndex(const char * name)
 }
 
 
-bool variantToLua(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
+bool variantToLua(const GContextPointer & context, const GVariant & data, GGlueDataPointer * outputGlueData)
 {
 	lua_State * L = getLuaState(context);
 
@@ -721,7 +721,7 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 		return true;
 	}
 
-	return complexVariantToScript<GLuaMethods >(context, value, type, flags, outputGlueData);
+	return complexVariantToScript<GLuaMethods >(context, value, type, outputGlueData);
 }
 
 void loadCallableParam(const GContextPointer & context, InvokeCallableParam * callableParam, int startIndex)
@@ -980,10 +980,7 @@ bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptO
 			break;
 
 		case GScriptValue::typePrimary:
-			if(! variantToLua(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), outputGlueData)) {
-				raiseCoreException(Error_ScriptBinding_CantBindFundamental);
-			}
-			break;
+			return variantToLua(context, value.toPrimary(), outputGlueData);
 
 		case GScriptValue::typeClass: {
 			GScopedInterface<IMetaClass> metaClass(value.toClass());
@@ -1308,7 +1305,7 @@ GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVaria
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(context, *params[i], GBindValueFlags(bvfAllowRaw), nullptr)) {
+			if(!variantToLua(context, *params[i], nullptr)) {
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
