@@ -390,7 +390,7 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 
 	if(value->IsString()) {
 		String::Utf8Value s(value);
-		return GScriptValue::fromAndCopyString(*s);
+		return GScriptValue::fromPrimary(createStringVariant(*s));
 	}
 
 	if(value->IsUint32()) {

@@ -1,4 +1,6 @@
 #if defined(_MSC_VER)
+#define _CRT_SECURE_NO_WARNINGS
+
 #pragma warning(push)
 #pragma warning(disable:4127) // warning C4127: conditional expression is constant
 #endif
@@ -15,6 +17,7 @@
 
 #include "gbindcommon.h"
 #include "gbindapiimpl.h"
+#include "gbindobjectcache.h"
 #include "../gstaticuninitializerorders.h"
 
 #include <stdexcept>
@@ -274,6 +277,8 @@ PyObject * callbackStaticObjectDescriptorGet(PyObject * self, PyObject * obj, Py
 int callbackStaticObjectDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
 
 PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
+
+PyObject * helperBindValue(const GContextPointer & context, const GScriptValue & value);
 
 PyTypeObject functionType = {
 	PyVarObject_HEAD_INIT(nullptr, 0)
@@ -1080,7 +1085,7 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 
 	}
 	else if(PyString_Check(value)) {
-		return GScriptValue::fromAndCopyString(PyString_AsString(value));
+		return GScriptValue::fromPrimary(createStringVariant(PyString_AsString(value)));
 	}
 	else {
 		GPythonNative * object = tryCastFromPython(value);
@@ -1254,6 +1259,12 @@ struct GPythonMethods
 		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 		return createPythonObject(context->newEnumGlueData(metaEnum.get()));
 	}
+
+	static ResultType doScriptValueToScript(const GContextPointer & context, const GScriptValue & scriptValue, const ScriptValueToScriptData & data)
+	{
+		return helperBindValue(context, scriptValue);
+	}
+
 };
 
 PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
@@ -1287,7 +1298,7 @@ PyObject * variantToPython(const GContextPointer & context, const GVariant & dat
 		return PyString_FromString(stringFromVariant(value).c_str());
 	}
 
-	return complexVariantToScript<GPythonMethods>(context, value, type, flags, outputGlueData);
+	return complexVariantToScript<GPythonMethods>(context, value, type, outputGlueData);
 }
 
 PyObject * methodResultToPython(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * result)
@@ -1346,7 +1357,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != nullptr) {
-		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone));
+		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), GScriptInstanceCv::sicvNone));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1630,10 +1641,6 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 
 		case GScriptValue::typePrimary:
 			result = variantToPython(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr);
-			break;
-
-		case GScriptValue::typeString:
-			result = PyString_FromString(value.toString().c_str());
 			break;
 
 		case GScriptValue::typeClass: {
