@@ -5,6 +5,7 @@
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptconfig.h"
+#include "cpgf/scriptbind/gscriptuserconverter.h"
 
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gsharedinterface.h"

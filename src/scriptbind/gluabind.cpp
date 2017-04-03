@@ -425,59 +425,6 @@ struct GLuaMethods
 {
 	typedef bool ResultType;
 
-	static ResultType doObjectToScript(
-			const GContextPointer & context,
-			const GClassGlueDataPointer & classData,
-			const GVariant & instance,
-			const GBindValueFlags & flags,
-			const GScriptInstanceCv cv,
-			GGlueDataPointer * outputGlueData
-		)
-	{
-		objectToLua(context, classData, instance, flags, cv, outputGlueData);
-		return true;
-	}
-
-	static ResultType doVariantToScript(
-			const GContextPointer & context,
-			const GVariant & value,
-			const GBindValueFlags & flags,
-			GGlueDataPointer * outputGlueData
-		)
-	{
-		return variantToLua(context, value, outputGlueData);
-	}
-	
-	static ResultType doRawToScript(
-			const GContextPointer & context,
-			const GVariant & value,
-			GGlueDataPointer * outputGlueData
-		)
-	{
-		return rawToLua(context, value, outputGlueData);
-	}
-
-	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
-	{
-		helperBindClass(context, metaClass);
-		return true;
-	}
-
-	static ResultType doStringToScript(const GContextPointer & context, const char * s)
-	{
-		lua_pushstring(getLuaState(context), s);
-
-		return true;
-	}
-
-	static ResultType doWideStringToScript(const GContextPointer & context, const wchar_t * ws)
-	{
-		std::string s(wideStringToString(ws));
-		lua_pushstring(getLuaState(context), s.c_str());
-
-		return true;
-	}
-
 	static bool isSuccessResult(const ResultType & result)
 	{
 		return result;
@@ -486,39 +433,6 @@ struct GLuaMethods
 	static ResultType defaultValue()
 	{
 		return ResultType();
-	}
-
-	static ResultType doMethodsToScript(
-			const GClassGlueDataPointer & classData,
-			GMetaMapItem * mapItem,
-			IMetaClass * metaClass,
-			IMetaClass * derived,
-			const GObjectGlueDataPointer & objectData
-		)
-	{
-		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
-		GContextPointer context = classData->getBindingContext();
-		if(data == nullptr) {
-			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
-
-			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-			GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get());
-			data = new GMapItemMethodData(glueData);
-			mapItem->setUserData(data);
-		}
-		helperBindMethodList(context, objectData, data->getMethodData());
-		return true;
-	}
-	
-	static ResultType doEnumToScript(
-			const GClassGlueDataPointer & classData,
-			GMetaMapItem * mapItem,
-			const char * /*enumName*/
-		)
-	{
-		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-		helperBindEnum(classData->getBindingContext(), metaEnum.get());
-		return true;
 	}
 
 	static ResultType doScriptValueToScript(const GContextPointer & context, const GScriptValue & scriptValue, const ScriptValueToScriptData & data)
@@ -532,7 +446,7 @@ int GlobalAccessor_index(lua_State * L)
 {
 	ENTER_LUA()
 
-		GLuaGlobalAccessor * accessor = static_cast<GLuaGlobalAccessor *>(lua_touserdata(L, lua_upvalueindex(1)));
+	GLuaGlobalAccessor * accessor = static_cast<GLuaGlobalAccessor *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	return accessor->doIndex();
 
@@ -543,7 +457,7 @@ int GlobalAccessor_newindex(lua_State * L)
 {
 	ENTER_LUA()
 
-		GLuaGlobalAccessor * accessor = static_cast<GLuaGlobalAccessor *>(lua_touserdata(L, lua_upvalueindex(1)));
+	GLuaGlobalAccessor * accessor = static_cast<GLuaGlobalAccessor *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	return accessor->doNewIndex();
 
@@ -1017,8 +931,13 @@ bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptO
 		}
 
 		case GScriptValue::typeOverloadedMethods: {
-			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
-			helperBindMethodList(context, methodList.get());
+			if(data.methodData) {
+				helperBindMethodList(context, data.objectData, data.methodData);
+			}
+			else {
+				GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
+				helperBindMethodList(context, methodList.get());
+			}
 			break;
 		}
 
