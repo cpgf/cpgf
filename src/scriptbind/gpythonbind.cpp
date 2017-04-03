@@ -132,8 +132,8 @@ private:
 	typedef GBindingContext super;
 
 public:
-	GPythonBindingContext(IMetaService * service, const GScriptConfig & config)
-		: super(service, config)
+	explicit GPythonBindingContext(IMetaService * service)
+		: super(service)
 	{
 	}
 };
@@ -183,7 +183,7 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
+	GPythonScriptObject(IMetaService * service, PyObject * object);
 	virtual ~GPythonScriptObject();
 
 	virtual GScriptObject * doCreateScriptObject(const char * name);
@@ -1098,7 +1098,7 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 			return GScriptValue::fromScriptFunction(func.get());
 		}
 
-		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GPythonScriptObject(context->getService(), value, context->getConfig()), true));
+		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GPythonScriptObject(context->getService(), value), true));
 
 		return GScriptValue::fromScriptObject(scriptObject.get());
 	}
@@ -1137,17 +1137,13 @@ PyObject * objectToPython(
 
 PyObject * rawToPython(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 {
-	if(context->getConfig().allowAccessRawData()) {
-		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		if(outputGlueData != nullptr) {
-			*outputGlueData = rawData;
-		}
-		PyObject * rawObject = createPythonObject(rawData);
-
-		return rawObject;
+	GRawGlueDataPointer rawData(context->newRawGlueData(value));
+	if(outputGlueData != nullptr) {
+		*outputGlueData = rawData;
 	}
+	PyObject * rawObject = createPythonObject(rawData);
 
-	return nullptr;
+	return rawObject;
 }
 
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass)
@@ -1898,8 +1894,8 @@ GScriptValue GPythonScriptArray::createScriptArray(size_t index)
 	return GScriptValue();
 }
 
-GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
-	: super(GContextPointer(new GPythonBindingContext(service, config)), config), object(object)
+GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object)
+	: super(GContextPointer(new GPythonBindingContext(service))), object(object)
 {
 }
 
@@ -2048,14 +2044,14 @@ GScriptValue GPythonScriptObject::createScriptArray(const char * name)
 } // unamed namespace
 
 
-GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
+GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object)
 {
-	return new GPythonScriptObject(service, object, config);
+	return new GPythonScriptObject(service, object);
 }
 
-IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object, const GScriptConfig & config)
+IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object)
 {
-	return new ImplScriptObject(new GPythonScriptObject(service, object, config), true);
+	return new ImplScriptObject(new GPythonScriptObject(service, object), true);
 }
 
 

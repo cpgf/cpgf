@@ -25,33 +25,6 @@
 
 namespace cpgf {
 
-class ImplScriptConfig : public IScriptConfig
-{
-public:
-	ImplScriptConfig();
-	explicit ImplScriptConfig(GScriptConfig config);
-	virtual ~ImplScriptConfig();
-
-protected:
-	G_INTERFACE_IMPL_OBJECT
-
-	virtual void G_API_CC setAccessStaticMethodViaInstance(gapi_bool set);
-	virtual gapi_bool G_API_CC allowAccessStaticMethodViaInstance();
-
-	virtual void G_API_CC setAccessEnumTypeViaInstance(gapi_bool set);
-	virtual gapi_bool G_API_CC allowAccessEnumTypeViaInstance();
-
-	virtual void G_API_CC setAccessEnumValueViaInstance(gapi_bool set);
-	virtual gapi_bool G_API_CC allowAccessEnumValueViaInstance();
-
-	virtual void G_API_CC setAccessClassViaInstance(gapi_bool set);
-	virtual gapi_bool G_API_CC allowAccessClassViaInstance();
-
-private:
-	GScriptConfig config;
-};
-
-
 class ImplScriptFunction : public IScriptFunction
 {
 public:
@@ -110,7 +83,6 @@ protected:
 
 	virtual IScriptContext * G_API_CC getContext();
 
-	virtual IScriptConfig * G_API_CC getConfig();
 	virtual IScriptObject * G_API_CC getOwner();
 	virtual gapi_bool G_API_CC isGlobal();
 

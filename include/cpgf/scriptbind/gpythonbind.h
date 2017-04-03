@@ -10,9 +10,8 @@
 
 namespace cpgf {
 
-GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
-IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object, const GScriptConfig & config);
-
+GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object);
+IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object);
 
 template <typename T>
 struct GPythonScopedPointerDeleter

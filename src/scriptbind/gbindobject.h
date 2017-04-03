@@ -57,7 +57,7 @@ private:
 	typedef GScriptObject super;
 
 public:
-	GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config);
+	explicit GScriptObjectBase(const GContextPointer & context);
 	GScriptObjectBase(const GScriptObjectBase & other);
 	virtual ~GScriptObjectBase();
 

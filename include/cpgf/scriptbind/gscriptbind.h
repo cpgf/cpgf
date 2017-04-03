@@ -4,7 +4,6 @@
 
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/scriptbind/gscriptvalue.h"
-#include "cpgf/scriptbind/gscriptconfig.h"
 #include "cpgf/scriptbind/gscriptuserconverter.h"
 
 #include "cpgf/gmetaapiutil.h"
@@ -44,13 +43,11 @@ struct IScriptContext : public IObject
 class GScriptObject
 {
 protected:
-	explicit GScriptObject(const GScriptConfig & config);
+	GScriptObject();
 	GScriptObject(const GScriptObject & other);
 
 public:
 	virtual ~GScriptObject();
-
-	const GScriptConfig & getConfig() const;
 
 	GScriptObject * getOwner() const;
 
@@ -187,7 +184,6 @@ private:
 	GScriptObject & operator = (const GScriptObject &);
 
 private:
-	GScriptConfig config;
 	GScriptObject * owner;
 	std::string name;
 	std::vector<GSharedInterface<IObject> > objectHolder;

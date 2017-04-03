@@ -312,7 +312,6 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		return Methods::defaultValue();
 	}
 
-	const GScriptConfig & config = classData->getBindingContext()->getConfig();
 	GContextPointer context = classData->getBindingContext();
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(glueData));
@@ -342,9 +341,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(config, isInstance, data.get())) {
-					return accessibleToScript<Methods>(context, data.get(), instance, getGlueDataCV(glueData) == GScriptInstanceCv::sicvConst);
-				}
+				return accessibleToScript<Methods>(context, data.get(), instance, getGlueDataCV(glueData) == GScriptInstanceCv::sicvConst);
 			}
 			   break;
 
@@ -364,30 +361,24 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 				return Methods::doScriptValueToScript(context, GScriptValue::fromOverloadedMethods(data->getMethodData()->getMethodList()), ScriptValueToScriptData(objectData, data->getMethodData()));
 			}
 
-			case mmitEnum:
-				if(! isInstance || config.allowAccessEnumTypeViaInstance()) {
-					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doScriptValueToScript(context, GScriptValue::fromEnum(metaEnum.get()), ScriptValueToScriptData());
-				}
-				break;
+			case mmitEnum: {
+				GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
+				return Methods::doScriptValueToScript(context, GScriptValue::fromEnum(metaEnum.get()), ScriptValueToScriptData());
+			}
 
-			case mmitEnumValue:
-				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
-					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doScriptValueToScript(
-						context,
-						GScriptValue::fromPrimary(metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex()))),
-						ScriptValueToScriptData()
-					);
-				}
-				break;
+			case mmitEnumValue: {
+				GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
+				return Methods::doScriptValueToScript(
+					context,
+					GScriptValue::fromPrimary(metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex()))),
+					ScriptValueToScriptData()
+				);
+			}
 
-			case mmitClass:
-				if(! isInstance || config.allowAccessClassViaInstance()) {
-					GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-					return Methods::doScriptValueToScript(context, GScriptValue::fromClass(innerMetaClass.get()), ScriptValueToScriptData());
-				}
-				break;
+			case mmitClass: {
+				GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
+				return Methods::doScriptValueToScript(context, GScriptValue::fromClass(innerMetaClass.get()), ScriptValueToScriptData());
+			}
 
 			default:
 				break;

@@ -155,24 +155,6 @@ IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer
 	return nullptr;
 }
 
-bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible)
-{
-	if(isInstance) {
-		if(! config.allowAccessStaticDataViaInstance()) {
-			if(accessible->isStatic()) {
-				return false;
-			}
-		}
-	}
-	else {
-		if(! accessible->isStatic()) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
 
 } //namespace bind_internal
 

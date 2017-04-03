@@ -99,9 +99,9 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+	GLuaScriptObject(IMetaService * service, lua_State * L);
 	GLuaScriptObject(const GLuaScriptObject & other);
-	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex);
+	GLuaScriptObject(IMetaService * service, lua_State * L, int objectIndex);
 	virtual ~GLuaScriptObject();
 
 	virtual bool isGlobal() const;
@@ -156,8 +156,8 @@ private:
 	typedef GBindingContext super;
 
 public:
-	GLuaBindingContext(IMetaService * service, const GScriptConfig & config, lua_State * luaState)
-		: super(service, config), luaState(luaState)
+	GLuaBindingContext(IMetaService * service, lua_State * luaState)
+		: super(service), luaState(luaState)
 	{
 	}
 
@@ -397,28 +397,24 @@ GScriptValue luaUserDataToScriptValue(const GContextPointer & context, int index
 
 bool rawToLua(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 {
-	if(context->getConfig().allowAccessRawData()) {
-		lua_State * L = getLuaState(context);
+	lua_State * L = getLuaState(context);
 
-		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GRawGlueData>());
-		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		newGlueDataWrapper(userData, rawData);
+	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GRawGlueData>());
+	GRawGlueDataPointer rawData(context->newRawGlueData(value));
+	newGlueDataWrapper(userData, rawData);
 
-		if(outputGlueData != nullptr) {
-			*outputGlueData = rawData;
-		}
-
-		lua_newtable(L);
-
-		setMetaTableSignature(L);
-		setMetaTableGC(L);
-
-		lua_setmetatable(L, -2);
-
-		return true;
+	if(outputGlueData != nullptr) {
+		*outputGlueData = rawData;
 	}
 
-	return false;
+	lua_newtable(L);
+
+	setMetaTableSignature(L);
+	setMetaTableGC(L);
+
+	lua_setmetatable(L, -2);
+
+	return true;
 }
 
 struct GLuaMethods
@@ -958,7 +954,7 @@ bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptO
 			GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
 
 			if(scriptObject != nullptr && name != nullptr) {
-				// Bind the accessible to name, then the script can access by name.
+				// Bind the accessible to name, then the script can access it by name.
 				scriptObject->getGlobalAccessor()->bindAccessible(name, instance, accessible.get());
 				return false;
 			}
@@ -1026,7 +1022,7 @@ GScriptValue doScriptToValue(const GContextPointer & context, int index, GGlueDa
 		break;
 
 	case LUA_TTABLE: {
-		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GLuaScriptObject(context->getService(), L, context->getConfig(), index), true));
+		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GLuaScriptObject(context->getService(), L, index), true));
 		return GScriptValue::fromScriptObject(scriptObject.get());
 	}
 
@@ -1371,13 +1367,13 @@ GScriptValue GLuaScriptArray::createScriptArray(size_t index)
 	return GScriptValue::fromScriptArray(scriptArray.get());
 }	
 
-GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
-	: super(GContextPointer(new GLuaBindingContext(service, config, L)), config), luaState(L), ref(LUA_NOREF)
+GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L)
+	: super(GContextPointer(new GLuaBindingContext(service, L))), luaState(L), ref(LUA_NOREF)
 {
 }
 
-GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex)
-	: super(GContextPointer(new GLuaBindingContext(service, config, L)), config), luaState(L), ref(LUA_NOREF)
+GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, int objectIndex)
+	: super(GContextPointer(new GLuaBindingContext(service, L))), luaState(L), ref(LUA_NOREF)
 {
 	this->ref = refLua(this->luaState, objectIndex);
 }
@@ -1570,14 +1566,14 @@ GScriptValue GLuaScriptObject::createScriptArray(const char * name)
 } // unnamed namespace
 
 
-GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
+GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L)
 {
-	return new GLuaScriptObject(service, L, config);
+	return new GLuaScriptObject(service, L);
 }
 
-IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config)
+IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L)
 {
-	return new ImplScriptObject(new GLuaScriptObject(service, L, config), true);
+	return new ImplScriptObject(new GLuaScriptObject(service, L), true);
 }
 
 

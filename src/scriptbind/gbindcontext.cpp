@@ -83,8 +83,8 @@ void GScriptContext::bindExternalObjectToClass(void * address, IMetaClass * meta
 	);
 }
 
-GBindingContext::GBindingContext(IMetaService * service, const GScriptConfig & config)
-	: service(service), config(config), scriptContext(new GScriptContext(this))
+GBindingContext::GBindingContext(IMetaService * service)
+	: service(service), scriptContext(new GScriptContext(this))
 {
 	this->classPool.reset(new GClassPool(this));
 }

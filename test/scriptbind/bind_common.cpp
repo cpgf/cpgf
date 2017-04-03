@@ -130,14 +130,14 @@ public:
 			this->luaStateLib = luaL_newstate();
 			luaL_openlibs(this->luaStateLib);
 
-			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateLib));
 		}
 
 		if(api == tsaApi) {
 			this->luaStateApi = luaL_newstate();
 			luaL_openlibs(this->luaStateApi);
 
-			this->setBinding(cpgf::createLuaScriptInterface(this->getService(), this->luaStateApi, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createLuaScriptInterface(this->getService(), this->luaStateApi));
 		}
 	}
 
@@ -247,11 +247,11 @@ public:
 		Local<Object> global = ctx->Global();
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, GScriptConfig()));
+			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global));
 		}
 
 		if(api == tsaApi) {
-			this->setBinding(cpgf::createV8ScriptInterface(this->getService(), global, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createV8ScriptInterface(this->getService(), global));
 		}
 	}
 
@@ -311,11 +311,11 @@ public:
 		Py_XINCREF(this->mainDict);
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->moduleMain));
 		}
 
 		if(api == tsaApi) {
-			this->setBinding(cpgf::createPythonScriptInterface(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createPythonScriptInterface(this->getService(), this->moduleMain));
 		}
 	}
 
@@ -493,13 +493,13 @@ public:
 		spiderMonkeyEnv->resetContext();
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, GScriptConfig()));
+			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal));
 
 			this->nullObjects();
 		}
 
 		if(api == tsaApi) {
-			this->setBinding(cpgf::createSpiderMonkeyScriptInterface(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createSpiderMonkeyScriptInterface(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal));
 
 			this->nullObjects();
 		}

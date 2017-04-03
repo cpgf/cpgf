@@ -11,22 +11,6 @@ struct IScriptLibraryLoader;
 struct GScriptValueData;
 struct IScriptContext;
 
-struct IScriptConfig : public IObject
-{
-	virtual void G_API_CC setAccessStaticMethodViaInstance(gapi_bool set) = 0;
-	virtual gapi_bool G_API_CC allowAccessStaticMethodViaInstance() = 0;
-
-	virtual void G_API_CC setAccessEnumTypeViaInstance(gapi_bool set) = 0;
-	virtual gapi_bool G_API_CC allowAccessEnumTypeViaInstance() = 0;
-
-	virtual void G_API_CC setAccessEnumValueViaInstance(gapi_bool set) = 0;
-	virtual gapi_bool G_API_CC allowAccessEnumValueViaInstance() = 0;
-
-	virtual void G_API_CC setAccessClassViaInstance(gapi_bool set) = 0;
-	virtual gapi_bool G_API_CC allowAccessClassViaInstance() = 0;
-};
-
-
 struct IScriptFunction : public IExtendObject
 {
 public:
@@ -57,7 +41,6 @@ struct IScriptObject : public IExtendObject
 {
 	virtual IScriptContext * G_API_CC getContext() = 0;
 
-	virtual IScriptConfig * G_API_CC getConfig() = 0;
 	virtual IScriptObject * G_API_CC getOwner() = 0;
 	virtual gapi_bool G_API_CC isGlobal() = 0;
 

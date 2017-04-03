@@ -8,13 +8,13 @@
 namespace cpgf {
 
 
-GScriptObject::GScriptObject(const GScriptConfig & config)
-	: config(config), owner(nullptr)
+GScriptObject::GScriptObject()
+	: owner(nullptr)
 {
 }
 
 GScriptObject::GScriptObject(const GScriptObject & other)
-	: config(other.config), owner(nullptr)
+	: owner(nullptr)
 {
 }
 
@@ -152,11 +152,6 @@ bool GScriptObject::valueIsNull(const char * name)
 void GScriptObject::nullifyValue(const char * name)
 {
 	this->setValue(name, GScriptValue::fromNull());
-}
-
-const GScriptConfig & GScriptObject::getConfig() const
-{
-	return this->config;
 }
 
 GScriptObject * GScriptObject::getOwner() const

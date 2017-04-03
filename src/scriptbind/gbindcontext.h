@@ -53,15 +53,11 @@ private:
 class GBindingContext : public GShareFromThis<GBindingContext>
 {
 public:
-	GBindingContext(IMetaService * service, const GScriptConfig & config);
+	explicit GBindingContext(IMetaService * service);
 	virtual ~GBindingContext();
 
 	IMetaService * getService() const {
 		return this->service.get();
-	}
-
-	const GScriptConfig & getConfig() const {
-		return this->config;
 	}
 
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
@@ -118,7 +114,6 @@ private:
 
 private:
 	GSharedInterface<IMetaService> service;
-	GScriptConfig config;
 	GScopedPointer<GClassPool> classPool;
 
 	GScopedPointer<GScriptCoreService> scriptCoreService;

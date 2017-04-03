@@ -203,8 +203,8 @@ private:
 	typedef GBindingContext super;
 
 public:
-	GSpiderBindingContext(IMetaService * service, const GScriptConfig & config, JSContext * jsContext, JSObject  * jsObject)
-		: super(service, config), jsContext(jsContext), jsObject(jsObject)
+	GSpiderBindingContext(IMetaService * service, JSContext * jsContext, JSObject  * jsObject)
+		: super(service), jsContext(jsContext), jsObject(jsObject)
 	{
 	}
 
@@ -273,7 +273,7 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GSpiderMonkeyScriptObject(IMetaService * service, const GScriptConfig & config, JSContext *jsContext, JSObject  * jsObject);
+	GSpiderMonkeyScriptObject(IMetaService * service, JSContext *jsContext, JSObject  * jsObject);
 	GSpiderMonkeyScriptObject(const GSpiderMonkeyScriptObject & other, JSContext *jsContext, JSObject  * jsObject);
 	virtual ~GSpiderMonkeyScriptObject();
 
@@ -590,7 +590,7 @@ GScriptValue spiderUserDataToScriptValue(const GSpiderContextPointer & context, 
 				return GScriptValue::fromScriptFunction(func.get());
 			}
 			else {
-				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GSpiderMonkeyScriptObject(context->getService(), context->getConfig(), context->getJsContext(), object), true));
+				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GSpiderMonkeyScriptObject(context->getService(), context->getJsContext(), object), true));
 
 				return GScriptValue::fromScriptObject(scriptObject.get());
 			}
@@ -1433,8 +1433,8 @@ GScriptValue GSpiderScriptArray::createScriptArray(size_t index)
 	return value;
 }
 
-GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(IMetaService * service, const GScriptConfig & config, JSContext * jsContext, JSObject  * jsObject)
-	: super(GContextPointer(new GSpiderBindingContext(service, config, jsContext, getOrCreateGlobalJsObject(jsContext, jsObject))), config), jsContext(jsContext)
+GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject)
+	: super(GContextPointer(new GSpiderBindingContext(service, jsContext, getOrCreateGlobalJsObject(jsContext, jsObject)))), jsContext(jsContext)
 {
 	this->jsObject.reset(jsContext, sharedStaticCast<GSpiderBindingContext>(this->getBindingContext())->getJsGlobalObject());
 }
@@ -1617,14 +1617,14 @@ JSObject * createSpiderMonkeyGlobaObject(JSContext * jsContext)
 	return getOrCreateGlobalJsObject(jsContext, nullptr);
 }
 
-GScriptObject * createSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject, const GScriptConfig & config)
+GScriptObject * createSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject)
 {
-	return new GSpiderMonkeyScriptObject(service, config, jsContext, jsObject);
+	return new GSpiderMonkeyScriptObject(service, jsContext, jsObject);
 }
 
-IScriptObject * createSpiderMonkeyScriptInterface(IMetaService * service, JSContext *jsContext, JSObject  * jsObject, const GScriptConfig & config)
+IScriptObject * createSpiderMonkeyScriptInterface(IMetaService * service, JSContext *jsContext, JSObject  * jsObject)
 {
-	return new ImplScriptObject(new GSpiderMonkeyScriptObject(service, config, jsContext, jsObject), true);
+	return new ImplScriptObject(new GSpiderMonkeyScriptObject(service, jsContext, jsObject), true);
 }
 
 

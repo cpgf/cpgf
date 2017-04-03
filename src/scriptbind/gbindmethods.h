@@ -34,8 +34,6 @@ void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData);
 
-bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
-
 
 } //namespace bind_internal
 

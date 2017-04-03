@@ -69,8 +69,8 @@ private:
 	typedef GBindingContext super;
 
 public:
-	GV8BindingContext(IMetaService * service, const GScriptConfig & config)
-		: super(service, config)
+	explicit GV8BindingContext(IMetaService * service)
+		: super(service)
 	{
 	}
 
@@ -139,7 +139,7 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config);
+	GV8ScriptObject(IMetaService * service, Local<Object> object);
 	virtual ~GV8ScriptObject();
 
 	virtual GScriptObject * doCreateScriptObject(const char * name);
@@ -355,7 +355,7 @@ GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Cont
 			}
 			else {
 				GScopedInterface<IScriptObject> scriptObject(
-					new ImplScriptObject(new GV8ScriptObject(context->getService(), obj, context->getConfig()), true)
+					new ImplScriptObject(new GV8ScriptObject(context->getService(), obj), true)
 				);
 
 				return GScriptValue::fromScriptObject(scriptObject.get());
@@ -441,24 +441,20 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 
 Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 {
-	if(context->getConfig().allowAccessRawData()) {
-		Local<Object> object = sharedStaticCast<GV8BindingContext>(context)->getRawObject();
-		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, getV8DataWrapperPool());
+	Local<Object> object = sharedStaticCast<GV8BindingContext>(context)->getRawObject();
+	GRawGlueDataPointer rawData(context->newRawGlueData(value));
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, getV8DataWrapperPool());
 
-		if(outputGlueData != nullptr) {
-			*outputGlueData = rawData;
-		}
-
-		object->SetAlignedPointerInInternalField(0, dataWrapper);
-		setObjectSignature(&object);
-
-		PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), object, dataWrapper);
-
-		return self->createLocal();
+	if(outputGlueData != nullptr) {
+		*outputGlueData = rawData;
 	}
 
-	return Handle<Value>();
+	object->SetAlignedPointerInInternalField(0, dataWrapper);
+	setObjectSignature(&object);
+
+	PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), object, dataWrapper);
+
+	return self->createLocal();
 }
 
 struct GV8Methods
@@ -1289,8 +1285,8 @@ GScriptValue GV8ScriptArray::createScriptArray(size_t index)
 	return v8CreateScriptArray(this->getBindingContext(), (uint32_t)index, localObject);
 }
 
-GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
-	: super(GContextPointer(new GV8BindingContext(service, config)), config), object(getV8Isolate(), object)
+GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object)
+	: super(GContextPointer(new GV8BindingContext(service))), object(getV8Isolate(), object)
 {
 }
 
@@ -1462,14 +1458,14 @@ GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)
 } // unnamed namespace
 
 
-GScriptObject * createV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
+GScriptObject * createV8ScriptObject(IMetaService * service, Local<Object> object)
 {
-	return new GV8ScriptObject(service, object, config);
+	return new GV8ScriptObject(service, object);
 }
 
-IScriptObject * createV8ScriptInterface(IMetaService * service, Local<Object> object, const GScriptConfig & config)
+IScriptObject * createV8ScriptInterface(IMetaService * service, Local<Object> object)
 {
-	return new ImplScriptObject(new GV8ScriptObject(service, object, config), true);
+	return new ImplScriptObject(new GV8ScriptObject(service, object), true);
 }
 
 void clearV8DataPool()

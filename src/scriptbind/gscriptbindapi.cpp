@@ -12,59 +12,6 @@ GScriptValue createScriptValueFromData(const GScriptValueData & data);
 // This function is defined in gvariant.cpp, for internal use.
 GVariant createVariantFromData(const GVariantData & data);
 
-ImplScriptConfig::ImplScriptConfig()
-{
-}
-
-ImplScriptConfig::ImplScriptConfig(GScriptConfig config) : config(config)
-{
-}
-
-ImplScriptConfig::~ImplScriptConfig()
-{
-}
-
-void G_API_CC ImplScriptConfig::setAccessStaticMethodViaInstance(gapi_bool set)
-{
-	this->config.setAccessStaticMethodViaInstance(set != 0);
-}
-
-gapi_bool G_API_CC ImplScriptConfig::allowAccessStaticMethodViaInstance()
-{
-	return this->config.allowAccessStaticMethodViaInstance();
-}
-
-void G_API_CC ImplScriptConfig::setAccessEnumTypeViaInstance(gapi_bool set)
-{
-	this->config.setAccessEnumTypeViaInstance(set != 0);
-}
-
-gapi_bool G_API_CC ImplScriptConfig::allowAccessEnumTypeViaInstance()
-{
-	return this->config.allowAccessEnumTypeViaInstance();
-}
-
-void G_API_CC ImplScriptConfig::setAccessEnumValueViaInstance(gapi_bool set)
-{
-	this->config.setAccessEnumValueViaInstance(set != 0);
-}
-
-gapi_bool G_API_CC ImplScriptConfig::allowAccessEnumValueViaInstance()
-{
-	return this->config.allowAccessEnumValueViaInstance();
-}
-
-void G_API_CC ImplScriptConfig::setAccessClassViaInstance(gapi_bool set)
-{
-	this->config.setAccessClassViaInstance(set != 0);
-}
-
-gapi_bool G_API_CC ImplScriptConfig::allowAccessClassViaInstance()
-{
-	return this->config.allowAccessClassViaInstance();
-}
-
-
 ImplScriptFunction::ImplScriptFunction(GScriptFunction * scriptFunction, bool freeFunction)
 	: scriptFunction(scriptFunction), freeFunction(freeFunction)
 {
@@ -218,11 +165,6 @@ IScriptContext * G_API_CC ImplScriptObject::getContext()
 	return this->scriptObject->getContext();
 
 	LEAVE_BINDING_API(return nullptr)
-}
-
-IScriptConfig * G_API_CC ImplScriptObject::getConfig()
-{
-	return new ImplScriptConfig(this->scriptObject->getConfig());
 }
 
 IScriptObject * G_API_CC ImplScriptObject::getOwner()

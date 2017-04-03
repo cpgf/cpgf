@@ -770,7 +770,6 @@ bool setValueOnNamedMember(
 		classData = sharedStaticCast<GClassGlueData>(instanceGlueData);
 	}
 
-	const GScriptConfig & config = classData->getBindingContext()->getConfig();
 	GContextPointer context = classData->getBindingContext();
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(instanceGlueData));
@@ -797,10 +796,8 @@ bool setValueOnNamedMember(
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(config, isInstance, data.get())) {
-					doSetValueOnAccessible(context, data.get(), instanceGlueData, value.getValue(), valueGlueData);
-					return true;
-				}
+				doSetValueOnAccessible(context, data.get(), instanceGlueData, value.getValue(), valueGlueData);
+				return true;
 			}
 			   break;
 

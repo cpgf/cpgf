@@ -76,7 +76,7 @@ GSpiderMonkeyScriptRunnerImplement::GSpiderMonkeyScriptRunnerImplement(IMetaServ
 	JS_InitStandardClasses(this->jsContext, this->jsGlobal);
 
 	GScopedInterface<IMetaService> metaService(this->getService());
-	GScopedInterface<IScriptObject> scriptObject(createSpiderMonkeyScriptInterface(metaService.get(), this->jsContext, this->jsGlobal, GScriptConfig()));
+	GScopedInterface<IScriptObject> scriptObject(createSpiderMonkeyScriptInterface(metaService.get(), this->jsContext, this->jsGlobal));
 	this->setScripeObject(scriptObject.get());
 }
 

@@ -8,8 +8,8 @@ namespace cpgf {
 
 namespace bind_internal {
 
-GScriptObjectBase::GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config)
-	: super(config), context(context)
+GScriptObjectBase::GScriptObjectBase(const GContextPointer & context)
+	: super(), context(context)
 {
 }
 
