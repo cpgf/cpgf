@@ -14,23 +14,43 @@ GScriptValue createScriptValueFromData(const GScriptValueData & data)
 	return GScriptValue(data);
 }
 
-GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueObjectFlags * objectFlags)
-	: type(type), value(value), metaItem(metaItem), objectFlags(objectFlags)
+GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, const bool transferOwnership, const GScriptInstanceCv cv)
+	:
+		type(type),
+		value(value),
+		metaItem(metaItem),
+		transferOwnership(transferOwnership),
+		cv(cv)
 {
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem)
-	: type(type), value(value), metaItem(metaItem), objectFlags()
+	:
+		type(type),
+		value(value),
+		metaItem(metaItem),
+		transferOwnership(false),
+		cv(GScriptInstanceCv::sicvNone)
 {
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value)
-	: type(type), value(value), metaItem(), objectFlags()
+	:
+		type(type),
+		value(value),
+		metaItem(),
+		transferOwnership(false),
+		cv(GScriptInstanceCv::sicvNone)
 {
 }
 
 GScriptValue::GScriptValue()
-	: type(typeNull), value(), metaItem(), objectFlags()
+	:
+		type(typeNull),
+		value(),
+		metaItem(),
+		transferOwnership(false),
+		cv(GScriptInstanceCv::sicvNone)
 {
 }
 
@@ -38,28 +58,28 @@ GScriptValue::GScriptValue()
 GVariant createVariantFromData(const GVariantData & data);
 
 GScriptValue::GScriptValue(const GScriptValueData & data)
+	:
+		type((GScriptValue::Type)(data.type)),
+		value(),
+		metaItem(data.metaItem),
+		transferOwnership(!! data.transferOwnership),
+		cv((GScriptInstanceCv)data.cv)
 {
-	this->type = (GScriptValue::Type)(data.type);
-
-//	this->value = createVariantFromData(data.value);
-	// must release it since GVariant(data.value) retains the data
-//	releaseVariantData(&this->value.refData());
-	
 	this->value = 0;
 	this->value.refData() = data.value;
 	
-	this->metaItem.reset(data.metaItem);
 	if(data.metaItem != nullptr) {
 		data.metaItem->releaseReference();
-	}
-	this->objectFlags.reset(data.objectFlags);
-	if(data.objectFlags != nullptr) {
-		data.objectFlags->releaseReference();
 	}
 }
 
 GScriptValue::GScriptValue(const GScriptValue & other)
-	: type(other.type), value(other.value), metaItem(other.metaItem), objectFlags(other.objectFlags)
+	:
+		type(other.type),
+		value(other.value),
+		metaItem(other.metaItem),
+		transferOwnership(other.transferOwnership),
+		cv(other.cv)
 {
 }
 
@@ -69,7 +89,8 @@ GScriptValue & GScriptValue::operator = (const GScriptValue & other)
 		this->type = other.type;
 		this->value = other.value;
 		this->metaItem = other.metaItem;
-		this->objectFlags = other.objectFlags;
+		this->transferOwnership = other.transferOwnership;
+		this->cv = other.cv;
 	}
 
 	return *this;
@@ -78,10 +99,13 @@ GScriptValue & GScriptValue::operator = (const GScriptValue & other)
 GScriptValueData GScriptValue::takeData()
 {
 	GScriptValueData data;
+
 	data.type = this->type;
 	data.value = this->value.takeData();
 	data.metaItem = this->metaItem.take();
-	data.objectFlags = this->objectFlags.take();
+	data.transferOwnership = this->transferOwnership;
+	data.cv = (uint8_t)this->cv;
+
 	return data;
 }
 
@@ -94,7 +118,9 @@ GScriptValueData GScriptValue::getData() const
 	if(data.metaItem != nullptr) {
 		data.metaItem->addReference();
 	}
-	data.objectFlags = this->objectFlags.get();
+	data.transferOwnership = this->transferOwnership;
+	data.cv = (uint8_t)this->cv;
+
 	return data;
 }
 
@@ -113,48 +139,11 @@ GScriptValue GScriptValue::fromClass(IMetaClass * metaClass)
 	return GScriptValue(typeClass, metaClass);
 }
 
-GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueObjectFlags * objectFlags)
+GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, const bool transferOwnership, const GScriptInstanceCv cv)
 {
 	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
 	metaType.addPointer();
-	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass, objectFlags);
-}
-
-struct GScriptValueDefaultBindApi : public IScriptValueObjectFlags
-{
-	G_INTERFACE_IMPL_OBJECT
-
-public:
-	GScriptValueDefaultBindApi(const bool transferOwnership, const GScriptInstanceCv cv)
-		:
-			transferOwnership(transferOwnership),
-			cv(cv)
-	{
-	}
-
-	virtual ~GScriptValueDefaultBindApi() {}
-
-	virtual void G_API_CC discardOwnership() override {
-		transferOwnership = false;
-	}
-
-	virtual gapi_bool G_API_CC isOwnershipTransferred() override {
-		return transferOwnership;
-	}
-
-	virtual int32_t getObjectCv() override {
-		return (int32_t)this->cv;
-	}
-
-private:
-	bool transferOwnership;
-	GScriptInstanceCv cv;
-};
-
-GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, const bool transferOwnership, const GScriptInstanceCv cv)
-{
-	GScopedInterface<IScriptValueObjectFlags> objectFlags(new GScriptValueDefaultBindApi(transferOwnership, cv));
-	return GScriptValue::fromObject(instance, metaClass, objectFlags.get());
+	return GScriptValue(GScriptValue::typeObject, createTypedVariant(instance, metaType), metaClass, transferOwnership, cv);
 }
 
 GScriptValue GScriptValue::fromMethod(void * instance, IMetaMethod * method)
@@ -232,10 +221,10 @@ GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOw
 			this->metaItem->addReference();
 		}
 		if(outTransferOwnership != nullptr) {
-			*outTransferOwnership = this->objectFlags ? !! this->objectFlags->isOwnershipTransferred() : false;
+			*outTransferOwnership = this->transferOwnership;
 		}
 		if(outCv != nullptr) {
-			*outCv = this->objectFlags ? (GScriptInstanceCv)this->objectFlags->getObjectCv() : GScriptInstanceCv::sicvNone;
+			*outCv = this->cv;
 		}
 		return this->value;
 	}
@@ -372,15 +361,6 @@ IScriptArray * GScriptValue::toScriptArray() const
 		return nullptr;
 	}
 }
-
-void GScriptValue::discardOwnership()
-{
-	if (objectFlags) {
-		objectFlags->discardOwnership();
-	}
-
-}
-
 
 
 GScriptValueDataScopedGuard::GScriptValueDataScopedGuard(const GScriptValueData & data)

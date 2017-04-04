@@ -24,21 +24,16 @@ struct IScriptFunction;
 struct IScriptArray;
 enum class GScriptInstanceCv;
 
-struct IScriptValueObjectFlags : public IObject
-{
-	virtual void G_API_CC discardOwnership() = 0;
-	virtual gapi_bool G_API_CC isOwnershipTransferred() = 0;
-	virtual int32_t getObjectCv() = 0; // the result should be GScriptInstanceCv
-};
-
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GScriptValueData
 {
-	uint32_t type;
+	uint8_t type;
+	uint8_t transferOwnership; // boolean
+	uint8_t cv; // GScriptInstanceCv
+	uint8_t padding;
 	GVariantData value;
 	IMetaItem * metaItem;
-	IScriptValueObjectFlags * objectFlags;
 };
 #pragma pack(pop)
 
@@ -60,7 +55,7 @@ public:
 	};
 
 private:
-	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueObjectFlags * objectFlags);
+	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, const bool transferOwnership, const GScriptInstanceCv cv);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
 	explicit GScriptValue(const GScriptValueData & data);
@@ -76,8 +71,7 @@ public:
 	// primary is boolean, integer, float point, string, wide string
 	static GScriptValue fromPrimary(const GVariant & primary);
 	static GScriptValue fromClass(IMetaClass * metaClass);
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, const bool transferOwnership, const GScriptInstanceCv cv); // instance can be a void * or a shadow object
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueObjectFlags * bindApi); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, const bool transferOwnership, const GScriptInstanceCv cv);
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverloadedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
@@ -121,13 +115,12 @@ public:
 	// The result must be passed to another GScriptValue or GScriptValueDataScopedGuard to avoid memory leak
 	GScriptValueData getData() const;
 
-	void discardOwnership();
-
 private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
-	GSharedInterface<IScriptValueObjectFlags> objectFlags;
+	bool transferOwnership;
+	GScriptInstanceCv cv;
 
 private:
 	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);

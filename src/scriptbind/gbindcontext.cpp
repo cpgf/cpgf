@@ -65,7 +65,7 @@ void GScriptContext::setAllowGC(const GVariantData * instance, gapi_bool allowGC
 {
 	GObjectInstancePointer object = bindingContext->findObjectInstance(createVariantFromData(*instance));
 	if (object) {
-		object->setAllowGC(allowGC);
+		object->setAllowGC(!! allowGC);
 	} else {
 		raiseCoreException(Error_ScriptBinding_CantFindObject);
 	}

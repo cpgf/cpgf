@@ -17,7 +17,7 @@ void doTestGlobal(T * binding, TestScriptContext * context)
 	dataApi->x = 10;
 	dataApi->name = "abc";
 
-	scriptSetValue(binding, "data", GScriptValue::fromObject(dataLib.get(), metaClass.get(), false));
+	scriptSetValue(binding, "data", GScriptValue::fromObject(dataLib.get(), metaClass.get(), false, GScriptInstanceCv::sicvNone));
 
 	QASSERT(data.x == 10)
 	QASSERT(data.name == "abc")
