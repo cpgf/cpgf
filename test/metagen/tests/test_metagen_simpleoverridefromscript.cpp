@@ -154,8 +154,10 @@ void doTestSimpleOverrideFromScript_discardOwnership(T * /* binding */, TestScri
 	QDO(DerivedClass.createHelperData = createHelperData)
 	
 	QVARNEWOBJ(a, DerivedClass(0))
-// This causes test failure, just comment it out for now, will check later.
-//	QDO(a.consumeHelperData())
+
+	// This line tests the overrided createHelperData in SimpleOverrideWrapper
+	// the line will crash if the result value from doesn't discard ownership.
+	QDO(a.consumeHelperData())
 
 	// there is no explicit assertion as it has to be done at a layer above this test, e.g. valgrind
 	// checking the double-free

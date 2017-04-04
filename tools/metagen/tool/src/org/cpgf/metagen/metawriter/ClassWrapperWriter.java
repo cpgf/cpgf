@@ -97,7 +97,8 @@ public class ClassWrapperWriter {
 		if(cppMethod.hasResult()) {
 			if (cppMethod.getDiscardResultOwnership()) {
 				codeWriter.writeLine("cpgf::GScriptValue ret = " + invoke + ";");
-				codeWriter.writeLine("ret.discardOwnership();");
+				codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptContext> scriptContext(this->getScriptContext());");
+				codeWriter.writeLine("scriptContext->setAllowGC(&ret.getValue().refData(), false);");
 				invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(ret.getValue())";
 			} else {
 				invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ".getValue())";

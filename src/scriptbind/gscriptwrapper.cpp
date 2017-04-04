@@ -1,5 +1,6 @@
 #include "cpgf/scriptbind/gscriptwrapper.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gapiutil.h"
 
@@ -8,7 +9,13 @@ namespace cpgf {
 
 
 GScriptWrapper::GScriptWrapper()
-	: scriptDataStorage(nullptr)
+	:
+		scriptDataStorage(),
+		scriptContext()
+{
+}
+
+GScriptWrapper::~GScriptWrapper()
 {
 }
 
@@ -22,11 +29,18 @@ IScriptFunction * GScriptWrapper::getScriptFunction(const char * name) const
 	}
 }
 
-void GScriptWrapper::setScriptDataStorage(IScriptDataStorage * scriptDataStorage)
+void GScriptWrapper::initializeScriptWrapper(IScriptDataStorage * scriptDataStorage, IScriptContext * scriptContext)
 {
 	this->scriptDataStorage.reset(scriptDataStorage);
+	this->scriptContext.reset(scriptContext);
 }
 
+IScriptContext * GScriptWrapper::getScriptContext() const
+{
+	IScriptContext * context = this->scriptContext.get();
+	context->addReference();
+	return context;
+}
 
 namespace scriptbind_internal {
 
@@ -41,8 +55,8 @@ public:
 	virtual ~GMetaScriptWrapper() {
 	}
 
-	virtual void G_API_CC setScriptDataStorage(void * instance, IScriptDataStorage * scriptDataStorage) {
-		static_cast<GScriptWrapper *>(this->caster(instance))->setScriptDataStorage(scriptDataStorage);
+	virtual void G_API_CC initializeScriptWrapper(void * instance, IScriptDataStorage * scriptDataStorage, IScriptContext * scriptContext) {
+		static_cast<GScriptWrapper *>(this->caster(instance))->initializeScriptWrapper(scriptDataStorage, scriptContext);
 	}
 
 private:

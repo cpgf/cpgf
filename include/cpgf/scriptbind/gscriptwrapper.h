@@ -21,13 +21,18 @@ class GScriptWrapper
 {
 public:
 	GScriptWrapper();
+	~GScriptWrapper();
 
 	IScriptFunction * getScriptFunction(const char * name) const;
 
-	void setScriptDataStorage(IScriptDataStorage * scriptDataStorage);
+	void initializeScriptWrapper(IScriptDataStorage * scriptDataStorage, IScriptContext * scriptContext);
+
+	// The caller must call releaseReference on the result
+	IScriptContext * getScriptContext() const;
 
 private:
 	GSharedInterface<IScriptDataStorage> scriptDataStorage;
+	GSharedInterface<IScriptContext> scriptContext;
 };
 
 class GScriptWrapperReentryGuard

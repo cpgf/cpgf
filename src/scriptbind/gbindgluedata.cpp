@@ -216,7 +216,7 @@ void GObjectGlueData::initialize()
 		if(! this->objectInstance->dataStorage) {
 			this->objectInstance->dataStorage.reset(new GScriptDataStorage(GObjectGlueDataPointer(this->shareFromThis())));
 		}
-		scriptWrapper->setScriptDataStorage(this->getInstanceAddress(), this->objectInstance->dataStorage.get());
+		scriptWrapper->initializeScriptWrapper(this->getInstanceAddress(), this->objectInstance->dataStorage.get(), this->getBindingContext()->borrowScriptContext());
 	}
 }
 
