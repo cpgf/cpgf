@@ -876,7 +876,7 @@ void helperBindMethodList(const GContextPointer & context, const GObjectGlueData
 
 void helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
 {
-	GMethodGlueDataPointer methodData = context->newMethodGlueData(GClassGlueDataPointer(), methodList);
+	GMethodGlueDataPointer methodData = context->newMethodGlueData(methodList);
 	helperBindMethodList(context, GObjectGlueDataPointer(), methodData);
 }
 

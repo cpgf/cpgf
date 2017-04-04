@@ -305,15 +305,11 @@ private:
 	typedef GGlueData super;
 
 private:
-	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList)
-		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList) {
+	GMethodGlueData(const GContextPointer & context, IMetaList * methodList)
+		: super(gdtMethod, context), methodList(methodList) {
 	}
 
 public:
-	GClassGlueDataPointer getClassData() const {
-		return this->classGlueData.get();
-	}
-
 	IMetaList * getMethodList() const {
 		return this->methodList.get();
 	}
@@ -321,7 +317,6 @@ public:
 	std::string getName() const;
 
 private:
-	GWeakClassGlueDataPointer classGlueData;
 	GSharedInterface<IMetaList> methodList;
 
 private:

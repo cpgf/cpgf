@@ -84,10 +84,7 @@ public:
 		const GScriptInstanceCv cv
 	);
 
-	GMethodGlueDataPointer newMethodGlueData(
-		const GClassGlueDataPointer & classData,
-		IMetaList * methodList
-	);
+	GMethodGlueDataPointer newMethodGlueData(IMetaList * methodList);
 
 	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
 

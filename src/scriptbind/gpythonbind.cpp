@@ -1245,7 +1245,7 @@ struct GPythonMethods
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
 			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-			data = new GMapItemMethodData(context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get()));
+			data = new GMapItemMethodData(context->newMethodGlueData(metaList.get()));
 
 			mapItem->setUserData(data);
 		}
@@ -1610,7 +1610,7 @@ void setObjectSignature(PyObject * obj)
 
 PyObject * helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
 {
-	GMethodGlueDataPointer data = context->newMethodGlueData(GClassGlueDataPointer(), methodList);
+	GMethodGlueDataPointer data = context->newMethodGlueData(methodList);
 	GObjectAndMethodGlueDataPointer methodData = context->newObjectAndMethodGlueData(GObjectGlueDataPointer(), data);
 	return createPythonObject(methodData);
 }

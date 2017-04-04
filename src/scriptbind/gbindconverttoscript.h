@@ -353,7 +353,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-					GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get());
+					GMethodGlueDataPointer glueData = context->newMethodGlueData(metaList.get());
 					data = new GMapItemMethodData(glueData);
 					mapItem->setUserData(data);
 				}

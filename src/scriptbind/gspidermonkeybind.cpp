@@ -505,7 +505,7 @@ struct GSpiderMethods
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
 			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-			GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get());
+			GMethodGlueDataPointer glueData = context->newMethodGlueData(metaList.get());
 			data = new GMapItemMethodData(glueData);
 			mapItem->setUserData(data);
 		}
@@ -714,7 +714,7 @@ JsValue helperBindMethodList(const GSpiderContextPointer & context, const GClass
 
 JSFunction * createJsFunction(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList)
 {
-	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, context->getGlueDataWrapperPool());
 
 	JSContext * jsContext = context->getJsContext();

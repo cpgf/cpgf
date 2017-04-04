@@ -642,7 +642,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
 	const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
 	Handle<FunctionTemplate> classTemplate)
 {
-	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
 	PersistentObjectWrapper<External> *data = new PersistentObjectWrapper<External>(getV8Isolate(), External::New(getV8Isolate(), dataWrapper), dataWrapper);
