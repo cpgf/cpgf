@@ -163,8 +163,6 @@ public:
 	);
 	~GObjectInstance();
 
-	void setDataStorage(IScriptDataStorage * dataStorage);
-
 	void * getInstanceAddress() const;
 
 	bool isAllowGC() const {
@@ -420,7 +418,7 @@ private:
 typedef GSharedPointer<GRawGlueData> GRawGlueDataPointer;
 
 
-// Only used by Lua binding
+// Used by Lua and Python binding
 class GObjectAndMethodGlueData : public GGlueData
 {
 private:

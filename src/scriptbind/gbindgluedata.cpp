@@ -127,8 +127,20 @@ GClassGlueData::~GClassGlueData()
 }
 
 
-GObjectInstance::GObjectInstance(const GContextPointer & context, const GVariant & instance, const GClassGlueDataPointer & classData, IMetaObjectLifeManager * objectLifeManager, bool allowGC)
-	: context(context), instance(instance), classData(classData), objectLifeManager(objectLifeManager), allowGC(allowGC), isSharedPointer(false)
+GObjectInstance::GObjectInstance(
+		const GContextPointer & context,
+		const GVariant & instance,
+		const GClassGlueDataPointer & classData,
+		IMetaObjectLifeManager * objectLifeManager,
+		bool allowGC
+	)
+	:
+		context(context),
+		instance(instance),
+		classData(classData),
+		objectLifeManager(objectLifeManager),
+		allowGC(allowGC),
+		isSharedPointer(false)
 {
 	objectLifeManager->retainObject(this->getInstanceAddress());
 }
@@ -145,11 +157,6 @@ GObjectInstance::~GObjectInstance()
 	if(! this->context.expired()) {
 		this->getBindingContext()->getClassPool()->objectDestroyed(this);
 	}
-}
-
-void GObjectInstance::setDataStorage(IScriptDataStorage * dataStorage)
-{
-	this->dataStorage.reset(dataStorage);
 }
 
 void * GObjectInstance::getInstanceAddress() const
@@ -184,7 +191,11 @@ GObjectGlueData::GObjectGlueData(
 		const GBindValueFlags & flags,
 		const GScriptInstanceCv cv
 	)
-	: super(gdtObject, context), classGlueData(classGlueData), flags(flags), cv(cv)
+	:
+		super(gdtObject, context),
+		classGlueData(classGlueData),
+		flags(flags),
+		cv(cv)
 {
 	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(instance));
 
@@ -201,7 +212,12 @@ GObjectGlueData::GObjectGlueData(
 		const GBindValueFlags & flags,
 		const GScriptInstanceCv cv
 	)
-	: super(gdtObject, context), classGlueData(classGlueData), flags(flags), cv(cv), objectInstance(objectInstance)
+	:
+		super(gdtObject, context),
+		classGlueData(classGlueData),
+		flags(flags),
+		cv(cv),
+		objectInstance(objectInstance)
 {
 }
 

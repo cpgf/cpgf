@@ -47,7 +47,7 @@ void GScriptObjectCache::addScriptObject(
 )
 {
 	GScriptObjectCacheKey key(
-		getInstanceHash(instance),
+		objectAddressFromVariant(instance),
 		classData->getMetaClass()->getQualifiedName(),
 		cv
 	);
@@ -61,7 +61,7 @@ void GScriptObjectCache::freeScriptObject(GGlueDataWrapper * dataWrapper)
 		return;
 	}
 	GScriptObjectCacheKey entry(
-		getInstanceHash(instance),
+		objectAddressFromVariant(instance),
 		getGlueDataMetaClass(dataWrapper->getData())->getQualifiedName(),
 		getGlueDataCV(dataWrapper->getData())
 	);
@@ -81,7 +81,7 @@ GScriptObjectCacheData * GScriptObjectCache::doFindScriptObject(
 	)
 {
 	GScriptObjectCacheKey key(
-		getInstanceHash(instance),
+		objectAddressFromVariant(instance),
 		classData->getMetaClass()->getQualifiedName(),
 		cv
 	);

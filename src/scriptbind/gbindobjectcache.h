@@ -13,11 +13,6 @@ namespace cpgf {
 
 namespace bind_internal {
 
-inline void * getInstanceHash(const GVariant & instance)
-{
-	return objectAddressFromVariant(instance);
-}
-
 struct GScriptObjectCacheKey {
 	GScriptObjectCacheKey();
 	GScriptObjectCacheKey(void * key, const char * className, const GScriptInstanceCv cv);

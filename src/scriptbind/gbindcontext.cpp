@@ -225,7 +225,7 @@ GClassPool::GClassPool(GBindingContext * context)
 
 void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 {
-	void * instance = getInstanceHash(objectData->getInstance());
+	void * instance = objectAddressFromVariant(objectData->getInstance());
 	if(this->instanceMap.find(instance) == instanceMap.end()) {
 		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 	}
@@ -234,19 +234,19 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 void GClassPool::objectDestroyed(const GObjectInstance * objectData)
 {
 	if(isLibraryLive()) {
-		void * instance = getInstanceHash(objectData->getInstance());
+		void * instance = objectAddressFromVariant(objectData->getInstance());
 		this->instanceMap.erase(instance);
 	}
 }
 
 GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
 {
-	InstanceMapType::iterator it = this->instanceMap.find(getInstanceHash(instance));
+	InstanceMapType::iterator it = this->instanceMap.find(objectAddressFromVariant(instance));
 	if(it != instanceMap.end() && it->second) {
 		GObjectInstancePointer data(it->second.get());
 		return data;
 	}
-/* no need this check because objectAddressFromVariant == getInstanceHash
+/* no need this check because objectAddressFromVariant == objectAddressFromVariant
 	it = this->instanceMap.find(objectAddressFromVariant(instance));
 	if(it != instanceMap.end() && it->second) {
 		GObjectInstancePointer data(it->second.get());
@@ -316,7 +316,7 @@ size_t GClassPool::getFreeSlot(ClassMapListType * classDataList, size_t startSlo
 
 GClassGlueDataPointer GClassPool::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
 {
-	InstanceMapType::iterator instanceIterator = this->instanceMap.find(getInstanceHash(instance));
+	InstanceMapType::iterator instanceIterator = this->instanceMap.find(objectAddressFromVariant(instance));
 	if(instanceIterator != this->instanceMap.end()) {
 		if(instanceIterator->second.expired()) {
 			this->instanceMap.erase(instanceIterator);
