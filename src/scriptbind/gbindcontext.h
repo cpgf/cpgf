@@ -37,7 +37,7 @@ protected:
 	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter) override;
 	virtual uint32_t G_API_CC getScriptUserConverterCount() override;
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index) override;
-	virtual void G_API_CC setAllowGC(const GVariantData * instance, bool allowGC) override;
+	virtual void G_API_CC setAllowGC(const GVariantData * instance, gapi_bool allowGC) override;
 	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass) override;
 
 private:

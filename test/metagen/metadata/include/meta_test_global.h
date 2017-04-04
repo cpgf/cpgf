@@ -32,8 +32,8 @@ void buildMetaClass_Global_global(D _d)
     _d.CPGF_MD_TEMPLATE _method("getStdWideString", (std::wstring (*) (const wchar_t *))&getStdWideString);
     _d.CPGF_MD_TEMPLATE _method("checkGlobalRaw", (bool (*) (const void ***))&checkGlobalRaw);
     _d.CPGF_MD_TEMPLATE _enum<GlobalEnum>("GlobalEnum")
-        ._element("globalEnumA", globalEnumA)
-        ._element("globalEnumB", globalEnumB)
+        ._element("globalEnumA", GlobalEnum::globalEnumA)
+        ._element("globalEnumB", GlobalEnum::globalEnumB)
     ;
 }
 

@@ -33,7 +33,7 @@ void buildMetaClass_MetagenOperatorConstness(D _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
     _d.CPGF_MD_TEMPLATE _field("value", &D::ClassType::value);
     _d.CPGF_MD_TEMPLATE _method("constSelf", &D::ClassType::constSelf);
-    _d.CPGF_MD_TEMPLATE _method("constSelfRef", &D::ClassType::constSelfRef, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
+    _d.CPGF_MD_TEMPLATE _method("constSelfRef", &D::ClassType::constSelfRef);
     _d.CPGF_MD_TEMPLATE _operator<MetagenOperatorConstness (*)(cpgf::GMetaSelf, int)>(mopHolder + mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAdd", (MetagenOperatorConstness (*) (MetagenOperatorConstness *, int))&opErAToRWrapper_MetagenOperatorConstness__opAdd, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<MetagenOperatorConstness (*)(const cpgf::GMetaSelf &, int)>(mopHolder - mopHolder);

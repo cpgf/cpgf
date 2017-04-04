@@ -61,7 +61,7 @@ GScriptContext::ScriptUserConverterListType::iterator GScriptContext::findConver
 	return scriptUserConverterList->end();
 }
 
-void GScriptContext::setAllowGC(const GVariantData * instance, bool allowGC)
+void GScriptContext::setAllowGC(const GVariantData * instance, gapi_bool allowGC)
 {
 	GObjectInstancePointer object = bindingContext->findObjectInstance(createVariantFromData(*instance));
 	if (object) {

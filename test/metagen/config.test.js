@@ -22,7 +22,10 @@ var config = {
 	sourceHeaderCode : "" +
 		"#include \"../../../testmetatraits.h\"\n"
 	,
-	sourceHeaderReplacer : [ "!.*test/metagen/include!i", "../../include" ],
+	sourceHeaderReplacer : [
+		"!.*test/metagen/include!i", "../../include",
+		"!^include!", "../../include",
+	],
 	metaHeaderPath : "../include/",
 
 	classTraits : [

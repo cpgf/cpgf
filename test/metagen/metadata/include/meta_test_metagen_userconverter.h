@@ -21,7 +21,7 @@ void buildMetaClass_Global_metagen_userconverter(D _d)
     (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("testUserConverterGetDoubleValue", (int (*) (const TestUserConverterData &))&testUserConverterGetDoubleValue, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("testUserConverterGetDoubleValue", (int (*) (const TestUserConverterData &))&testUserConverterGetDoubleValue);
 }
 
 
