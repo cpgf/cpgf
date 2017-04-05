@@ -23,8 +23,7 @@ GScriptValue doCreateScriptValueFromVariant(
 		else {
 			if(vtIsInterface(vt)) {
 				IObject * obj = fromVariant<IObject *>(value);
-				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
-					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
+				if(IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj)) {
 					return GScriptValue::fromClass(metaClass);
 				}
 			}

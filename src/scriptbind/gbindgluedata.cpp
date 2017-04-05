@@ -1,6 +1,8 @@
 #include "gbindgluedata.h"
 #include "gbindcommon.h"
 
+#include "cpgf/gmemorypool.h"
+
 #include <vector>
 
 namespace cpgf {
@@ -74,6 +76,21 @@ IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
 	return nullptr;
 }
 
+
+void * GGlueData::operator new (const std::size_t size)
+{
+	return cpgf::GMemoryPool::getInstance()->allocate(size);
+}
+
+void * GGlueData::operator new (const std::size_t /*size*/, void * ptr)
+{
+	return ptr;
+}
+
+void GGlueData::operator delete(void * p, size_t size)
+{
+	cpgf::GMemoryPool::getInstance()->free(p, size);
+}
 
 GGlueData::GGlueData(GGlueDataType type, const GContextPointer & context)
 	: type(type), context(GWeakContextPointer(context))

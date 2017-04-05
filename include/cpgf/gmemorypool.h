@@ -38,7 +38,7 @@ public:
 		return this->availableCount > 0;
 	}
 	
-	bool isFree() const {
+	bool isIdle() const {
 		return this->availableCount == this->blockCount;
 	}
 	

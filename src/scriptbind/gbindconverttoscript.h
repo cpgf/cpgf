@@ -31,22 +31,27 @@ GScriptValue doCreateScriptValueFromVariant(
 struct ScriptValueToScriptData
 {
 	ScriptValueToScriptData()
-		: outputGlueData(nullptr)
+		:
+			outputGlueData(nullptr),
+			objectData()
 	{}
 
 	explicit ScriptValueToScriptData(GGlueDataPointer * outputGlueData)
-		: outputGlueData(outputGlueData)
+		:
+			outputGlueData(outputGlueData),
+			objectData()
 	{}
 
-	ScriptValueToScriptData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
-		: outputGlueData(nullptr), objectData(objectData), methodData(methodData)
+	explicit ScriptValueToScriptData(const GObjectGlueDataPointer & objectData)
+		:
+			outputGlueData(nullptr),
+			objectData(objectData)
 	{}
 
 	mutable GGlueDataPointer * outputGlueData;
 
 	// used to bind method list
 	GObjectGlueDataPointer objectData;
-	GMethodGlueDataPointer methodData;
 };
 
 template <typename Methods>
@@ -327,28 +332,33 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		switch(mapItem->getType()) {
 			case mmitField:
 			case mmitProperty: {
+				GObjectGlueDataPointer castedObjectData;
+				if(instance != nullptr && objectData) {
+					castedObjectData = context->newOrReuseObjectGlueData(context->getClassData(metaClass.get()), instance, GBindValueFlags(), objectData->getCV());
+				}
+
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				return accessibleToScript<Methods>(context, data.get(), instance, getGlueDataCV(glueData) == GScriptInstanceCv::sicvConst);
+				
+				return Methods::doScriptValueToScript(
+					context,
+					GScriptValue::fromAccessible(instance, data.get()),
+					ScriptValueToScriptData(castedObjectData)
+				);
 			}
 			   break;
 
 			case mmitMethod:
 			case mmitMethodList: {
-				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
-				GContextPointer context = classData->getBindingContext();
-				if(data == nullptr) {
-					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
-
-					GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-					GMethodGlueDataPointer glueData = context->newMethodGlueData(metaList.get());
-					data = new GMapItemMethodData(glueData);
-					mapItem->setUserData(data);
+				GObjectGlueDataPointer castedObjectData;
+				if(instance != nullptr && objectData) {
+					castedObjectData = context->newOrReuseObjectGlueData(context->getClassData(metaClass.get()), instance, GBindValueFlags(), objectData->getCV());
 				}
-				
+
+				GScopedInterface<IMetaList> methodList(getMethodListFromMapItem(mapItem, instance));
 				return Methods::doScriptValueToScript(
 					context,
-					GScriptValue::fromOverloadedMethods(data->getMethodData()->getMethodList()),
-					ScriptValueToScriptData(objectData, data->getMethodData())
+					GScriptValue::fromOverloadedMethods(methodList.get()),
+					ScriptValueToScriptData(castedObjectData)
 				);
 			}
 

@@ -99,6 +99,10 @@ private:
 class GGlueData : public GNoncopyable
 {
 public:
+	void * operator new (const std::size_t size);
+	void * operator new (const std::size_t size, void * ptr);
+	void operator delete(void * p, size_t size);
+
 	GGlueData(GGlueDataType type, const GContextPointer & context);
 	virtual ~GGlueData();
 

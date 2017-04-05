@@ -242,17 +242,12 @@ void GClassPool::objectDestroyed(const GObjectInstance * objectData)
 GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
 {
 	InstanceMapType::iterator it = this->instanceMap.find(objectAddressFromVariant(instance));
+
 	if(it != instanceMap.end() && it->second) {
 		GObjectInstancePointer data(it->second.get());
 		return data;
 	}
-/* no need this check because objectAddressFromVariant == objectAddressFromVariant
-	it = this->instanceMap.find(objectAddressFromVariant(instance));
-	if(it != instanceMap.end() && it->second) {
-		GObjectInstancePointer data(it->second.get());
-		return data;
-	}
-*/
+
 	return GObjectInstancePointer();
 }
 

@@ -134,12 +134,19 @@ void GMemorySizedPool::free(void * p)
 	
 	assert(chunk != nullptr);
 
-	if(chunk != nullptr && chunk->isFree() && chunk != this->availableChunk) {
+	if(chunk != nullptr && chunk->isIdle()
+	) {
 		// If chunk is free and the back() is not, swap chunk to back(),
 		// If chunk is free and the back() is free too, free back() and swap chunk to back();
+		// Finally we will have up to only one free chunk and the free chunk is at the back().
+
+		if(chunk == this->availableChunk
+			|| this->availableChunk == &this->chunkList.back()) {
+			this->availableChunk = nullptr;
+		}
 
 		if(chunk != &this->chunkList.back()) {
-			if(this->chunkList.back().isFree()) {
+			if(this->chunkList.back().isIdle()) {
 				this->chunkList.pop_back();
 			}
 		}
@@ -148,7 +155,9 @@ void GMemorySizedPool::free(void * p)
 			std::swap(*chunk, this->chunkList.back());
 		}
 
-//		this->availableChunk = &this->chunkList.back();
+		if(this->availableChunk == nullptr) {
+			this->availableChunk = &this->chunkList.back();
+		}
 	}
 }
 

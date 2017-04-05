@@ -244,7 +244,7 @@ void setMetaTableCall(lua_State * L, void * userData);
 void setMetaTableSignature(lua_State * L);
 bool isValidMetaTable(lua_State * L, int index);
 
-bool variantToLua(const GContextPointer & context, const GVariant & data, GGlueDataPointer * outputGlueData);
+bool variantToLua(const GContextPointer & context, const GVariant & data);
 GScriptValue doScriptToValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData);
 
 void error(lua_State * L, const char * message);
@@ -586,7 +586,7 @@ int GLuaGlobalAccessor::doPreviousNewIndex(const char * name)
 }
 
 
-bool variantToLua(const GContextPointer & context, const GVariant & data, GGlueDataPointer * outputGlueData)
+bool variantToLua(const GContextPointer & context, const GVariant & data)
 {
 	lua_State * L = getLuaState(context);
 
@@ -896,7 +896,7 @@ bool doValueToScript(
 			break;
 
 		case GScriptValue::typePrimary:
-			return variantToLua(context, value.toPrimary(), data.outputGlueData);
+			return variantToLua(context, value.toPrimary());
 
 		case GScriptValue::typeClass: {
 			GScopedInterface<IMetaClass> metaClass(value.toClass());
@@ -933,13 +933,9 @@ bool doValueToScript(
 		}
 
 		case GScriptValue::typeOverloadedMethods: {
-			if(data.methodData) {
-				helperBindMethodList(context, data.objectData, data.methodData);
-			}
-			else {
-				GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
-				helperBindMethodList(context, methodList.get());
-			}
+			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
+			GMethodGlueDataPointer methodData = context->newMethodGlueData(methodList.get());
+			helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}
 
@@ -959,6 +955,13 @@ bool doValueToScript(
 			void * instance;
 			GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
 
+			bool instanceIsConst = false;
+
+			if(data.objectData) {
+				instance = data.objectData->getInstanceAddress();
+				instanceIsConst = (data.objectData->getCV() == GScriptInstanceCv::sicvConst);
+			}
+
 			if(scriptObject != nullptr && name != nullptr) {
 				// Bind the accessible to name, then the script can access it by name.
 				scriptObject->getGlobalAccessor()->bindAccessible(name, instance, accessible.get());
@@ -966,7 +969,7 @@ bool doValueToScript(
 			}
 			else {
 				// Bind the accessible value to script.
-				accessibleToScript<GLuaMethods>(context, accessible.get(), instance, false);
+				accessibleToScript<GLuaMethods>(context, accessible.get(), instance, instanceIsConst);
 				return true;
 			}
 
