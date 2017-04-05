@@ -5,6 +5,7 @@
 #include "cpgf/gsharedptr.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gstringutil.h"
+#include "cpgf/scriptbind/gscriptvalue.h"
 
 #include <map>
 #include <unordered_map>
@@ -59,12 +60,19 @@ public:
 	GUserData * getUserData() const {
 		return this->userData.get();
 	}
+	
+	const GScriptValue & getScriptValue() const {
+		return this->scriptValue;
+	}
 
 private:
 	GSharedInterface<IObject> item;
 	GMetaMapItemType type;
 	size_t enumIndex;
 	mutable GScopedPointer<GUserData> userData;
+	
+public:
+	GScriptValue scriptValue;
 };
 
 inline void swap(GMetaMapItem & a, GMetaMapItem & b)
@@ -78,7 +86,7 @@ public:
 	typedef std::unordered_map<const char *, GMetaMapItem, GCStringHash, GCStringEqual> MapType;
 
 public:
-	GMetaMapClass(IMetaClass * metaClass);
+	GMetaMapClass(IMetaClass * metaClass, void * instance = nullptr);
 	~GMetaMapClass();
 
 	GMetaMapItem * findItem(const char * name);
@@ -96,7 +104,7 @@ public:
 	}
 
 private:
-	void buildMap(IMetaClass * metaClass);
+	void buildMap(IMetaClass * metaClass, void * instance);
 
 private:
 	MapType itemMap;

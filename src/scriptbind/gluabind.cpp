@@ -924,11 +924,17 @@ bool doValueToScript(
 			if(method->isStatic()) {
 				instance = nullptr;
 			}
+			else {
+				if(data.objectData) {
+					instance = data.objectData->getInstanceAddress();
+				}
+			}
 
 			GScopedInterface<IMetaList> methodList(createMetaList());
 			methodList->add(method.get(), instance);
 
-			helperBindMethodList(context, methodList.get());
+			GMethodGlueDataPointer methodData = context->newMethodGlueData(methodList.get());
+			helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}
 

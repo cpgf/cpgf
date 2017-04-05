@@ -152,7 +152,7 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 {
 	GScopedInterface<IObject> metaObject;
 
-	GMetaMapClass mapClass(metaClass);
+	GMetaMapClass mapClass(metaClass, instance);
 
 	GScopedInterface<IScriptObject> namespaceHolder;
 	if(namespaceName != nullptr && *namespaceName) {
@@ -164,48 +164,8 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 	for(GMetaMapClass::MapType::const_iterator it = mapData->begin(); it != mapData->end(); ++it) {
 		const char * name = it->first;
 		const GMetaMapItem * item = &it->second;
-		metaObject.reset(item->getItem());
 
-		switch(item->getType()) {
-			case mmitMethod:
-				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
-					GScriptValue::fromMethod(instance, gdynamic_cast<IMetaMethod *>(metaObject.get())));
-				break;
-
-			case mmitMethodList: {
-				IMetaList * metaList = gdynamic_cast<IMetaList *>(metaObject.get());
-				GScopedInterface<IMetaList> newMetaList(createMetaList());
-				for(uint32_t i = 0; i < metaList->getCount(); ++i) {
-					GScopedInterface<IMetaItem> metaItem(metaList->getAt(i));
-					newMetaList->add(metaItem.get(), instance);
-				}
-				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
-					GScriptValue::fromOverloadedMethods(newMetaList.get()));
-			}
-				break;
-
-			case mmitProperty:
-			case mmitField:
-				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
-					GScriptValue::fromAccessible(instance, gdynamic_cast<IMetaAccessible *>(metaObject.get())));
-				break;
-
-			case mmitEnum:
-				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
-					GScriptValue::fromEnum(gdynamic_cast<IMetaEnum *>(metaObject.get())));
-				break;
-
-			case mmitEnumValue:
-				break;
-
-			case mmitClass:
-				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
-					GScriptValue::fromClass(gdynamic_cast<IMetaClass *>(metaObject.get())));
-				break;
-
-			default:
-				break;
-		}
+		scriptSetValue(scriptObject, normalizeReflectName(name).c_str(), item->getScriptValue());
 	}
 
 }

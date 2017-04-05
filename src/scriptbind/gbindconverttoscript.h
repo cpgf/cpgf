@@ -329,61 +329,16 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			continue;
 		}
 
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty: {
-				GObjectGlueDataPointer castedObjectData;
-				if(instance != nullptr && objectData) {
-					castedObjectData = context->newOrReuseObjectGlueData(context->getClassData(metaClass.get()), instance, GBindValueFlags(), objectData->getCV());
-				}
-
-				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				
-				return Methods::doScriptValueToScript(
-					context,
-					GScriptValue::fromAccessible(instance, data.get()),
-					ScriptValueToScriptData(castedObjectData)
-				);
-			}
-			   break;
-
-			case mmitMethod:
-			case mmitMethodList: {
-				GObjectGlueDataPointer castedObjectData;
-				if(instance != nullptr && objectData) {
-					castedObjectData = context->newOrReuseObjectGlueData(context->getClassData(metaClass.get()), instance, GBindValueFlags(), objectData->getCV());
-				}
-
-				GScopedInterface<IMetaList> methodList(getMethodListFromMapItem(mapItem, instance));
-				return Methods::doScriptValueToScript(
-					context,
-					GScriptValue::fromOverloadedMethods(methodList.get()),
-					ScriptValueToScriptData(castedObjectData)
-				);
-			}
-
-			case mmitEnum: {
-				GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-				return Methods::doScriptValueToScript(context, GScriptValue::fromEnum(metaEnum.get()), ScriptValueToScriptData());
-			}
-
-			case mmitEnumValue: {
-				GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-				return Methods::doScriptValueToScript(
-					context,
-					GScriptValue::fromPrimary(metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex()))),
-					ScriptValueToScriptData()
-				);
-			}
-
-			case mmitClass: {
-				GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-				return Methods::doScriptValueToScript(context, GScriptValue::fromClass(innerMetaClass.get()), ScriptValueToScriptData());
-			}
-
-			default:
-				break;
+		GObjectGlueDataPointer castedObjectData;
+		if(instance != nullptr && objectData) {
+			castedObjectData = context->newOrReuseObjectGlueData(context->getClassData(metaClass.get()), instance, GBindValueFlags(), objectData->getCV());
 		}
+
+		return Methods::doScriptValueToScript(
+			context,
+			mapItem->getScriptValue(),
+			ScriptValueToScriptData(castedObjectData)
+		);
 	}
 
 	return Methods::defaultValue();
