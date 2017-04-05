@@ -300,7 +300,6 @@ typename Methods::ResultType accessibleToScript(
 template <typename Methods>
 typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueData, const char * name)
 {
-	bool isInstance = (glueData->getType() == gdtObject);
 	GClassGlueDataPointer classData;
 	GObjectGlueDataPointer objectData;
 	if(glueData->getType() == gdtObject) {
