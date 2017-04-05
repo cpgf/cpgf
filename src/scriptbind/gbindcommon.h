@@ -113,8 +113,6 @@ InvokeCallableResult doInvokeOperator(
 	InvokeCallableParam * callableParam
 );
 
-IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
-
 std::string getMethodNameFromMethodList(IMetaList * methodList);
 
 struct ConvertRankBuffer

@@ -14,17 +14,6 @@ namespace cpgf {
 
 namespace bind_internal {
 
-enum GMetaMapItemType {
-	mmitMethod = 0,
-	mmitMethodList = 1,
-	mmitProperty = 2,
-	mmitField = 3,
-	mmitEnum = 4,
-	mmitEnumValue = 5,
-	mmitClass = 6,
-	mmitNone = 100,
-};
-
 class GUserData
 {
 public:
@@ -36,22 +25,13 @@ class GMetaMapItem
 {
 public:
 	GMetaMapItem();
-	GMetaMapItem(IMetaItem * item, GMetaMapItemType type);
-	GMetaMapItem(size_t enumIndex, IMetaEnum * item);
-	explicit GMetaMapItem(IMetaList * metaList);
+	explicit GMetaMapItem(const GScriptValue & scriptValue);
 	GMetaMapItem(const GMetaMapItem & other);
 	~GMetaMapItem();
 
 	GMetaMapItem & operator = (GMetaMapItem other);
 
 	void swap(GMetaMapItem & other);
-
-	GMetaMapItemType getType() const;
-	IObject * getItem() const;
-
-	size_t getEnumIndex() const {
-		return this->enumIndex;
-	}
 
 	void setUserData(GUserData * userData) const {
 		this->userData.reset(userData);
@@ -66,13 +46,8 @@ public:
 	}
 
 private:
-	GSharedInterface<IObject> item;
-	GMetaMapItemType type;
-	size_t enumIndex;
-	mutable GScopedPointer<GUserData> userData;
-	
-public:
 	GScriptValue scriptValue;
+	mutable GScopedPointer<GUserData> userData;
 };
 
 inline void swap(GMetaMapItem & a, GMetaMapItem & b)

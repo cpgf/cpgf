@@ -825,24 +825,6 @@ InvokeCallableResult doInvokeOperator(
 	return InvokeCallableResult();
 }
 
-IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance)
-{
-	if(mapItem->getType() == mmitMethod) {
-		GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
-		IMetaList * methodList = createMetaList();
-		methodList->add(method.get(), instance);
-		return methodList;
-	}
-	else {
-		if(mapItem->getType() == mmitMethodList) {
-			IMetaList * newMethodList = gdynamic_cast<IMetaList *>(mapItem->getItem());
-			return newMethodList;
-		}
-	}
-
-	return nullptr;
-}
-
 std::string getMethodNameFromMethodList(IMetaList * methodList)
 {
 	if(methodList->getCount() > 0) {

@@ -1,6 +1,7 @@
 #include "gbindmetamap.h"
 #include "gbindgluedata.h"
 
+#include "cpgf/gstringutil.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gglobal.h"
 
@@ -9,27 +10,17 @@ namespace cpgf {
 namespace bind_internal {
 
 GMetaMapItem::GMetaMapItem()
-	: item(nullptr), type(mmitNone), enumIndex(0)
+	: scriptValue(), userData()
 {
 }
 
-GMetaMapItem::GMetaMapItem(IMetaItem * item, GMetaMapItemType type)
-	: item(item), type(type), enumIndex(0)
-{
-}
-
-GMetaMapItem::GMetaMapItem(size_t enumIndex, IMetaEnum * item)
-	: item(item), type(mmitEnumValue), enumIndex(enumIndex)
-{
-}
-
-GMetaMapItem::GMetaMapItem(IMetaList * metaList)
-	: item(metaList), type(mmitMethodList), enumIndex(0)
+GMetaMapItem::GMetaMapItem(const GScriptValue & scriptValue)
+	: scriptValue(scriptValue), userData()
 {
 }
 
 GMetaMapItem::GMetaMapItem(const GMetaMapItem & other)
-	: item(other.item), type(other.type), enumIndex(other.enumIndex)
+	: scriptValue(other.scriptValue)
 {
 }
 
@@ -48,25 +39,7 @@ void GMetaMapItem::swap(GMetaMapItem & other)
 {
 	using std::swap;
 
-	swap(this->item, other.item);
-	swap(this->type, other.type);
-	swap(this->enumIndex, other.enumIndex);
-}
-
-GMetaMapItemType GMetaMapItem::getType() const
-{
-	return this->type;
-}
-
-IObject * GMetaMapItem::getItem() const
-{
-	if(! this->item) {
-		return nullptr;
-	}
-
-	this->item->addReference();
-
-	return this->item.get();
+	swap(this->scriptValue, other.scriptValue);
 }
 
 
@@ -105,25 +78,19 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass, void * instance)
 	for(i = 0; i < count; ++i) {
 		GScopedInterface<IMetaClass> innerClass(metaClass->getClassAt(i));
 		const char * name = innerClass->getName();
-		this->itemMap[name] = GMetaMapItem(innerClass.get(), mmitClass);
-
-		this->itemMap[name].scriptValue = GScriptValue::fromClass(innerClass.get());
+		this->itemMap[name] = GMetaMapItem(GScriptValue::fromClass(innerClass.get()));
 	}
 
 	count = metaClass->getEnumCount();
 	for(i = 0; i < count; ++i) {
 		GScopedInterface<IMetaEnum> metaEnum(metaClass->getEnumAt(i));
 		const char * name = metaEnum->getName();
-		this->itemMap[name] = GMetaMapItem(metaEnum.get(), mmitEnum);
-
-		this->itemMap[name].scriptValue = GScriptValue::fromEnum(metaEnum.get());
+		this->itemMap[name] = GMetaMapItem(GScriptValue::fromEnum(metaEnum.get()));
 
 		uint32_t keyCount = metaEnum->getCount();
 		for(uint32_t k = 0; k < keyCount; ++k) {
 			const char * keyName = metaEnum->getKey(k);
-			this->itemMap[keyName] = GMetaMapItem(k, metaEnum.get());
-
-			this->itemMap[keyName].scriptValue = GScriptValue::fromPrimary(metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(k)));
+			this->itemMap[keyName] = GMetaMapItem(GScriptValue::fromPrimary(metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(k))));
 		}
 	}
 
@@ -131,47 +98,37 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass, void * instance)
 	for(i = 0; i < count; ++i) {
 		GScopedInterface<IMetaField> field(metaClass->getFieldAt(i));
 		const char * name = field->getName();
-		this->itemMap[name] = GMetaMapItem(field.get(), mmitField);
-
-		this->itemMap[name].scriptValue = GScriptValue::fromAccessible(instance, field.get());
+		this->itemMap[name] = GMetaMapItem(GScriptValue::fromAccessible(instance, field.get()));
 	}
 
 	count = metaClass->getPropertyCount();
 	for(i = 0; i < count; ++i) {
 		GScopedInterface<IMetaProperty> prop(metaClass->getPropertyAt(i));
 		const char * name = prop->getName();
-		this->itemMap[name] = GMetaMapItem(prop.get(), mmitProperty);
-
-		this->itemMap[name].scriptValue = GScriptValue::fromAccessible(instance, prop.get());
+		this->itemMap[name] = GMetaMapItem(GScriptValue::fromAccessible(instance, prop.get()));
 	}
 
+	std::map<const char *, std::vector<GSharedInterface<IMetaMethod> >, GCStringCompare> methodMap;
 	count = metaClass->getMethodCount();
 	for(i = 0; i < count; ++i) {
 		GScopedInterface<IMetaMethod> method(metaClass->getMethodAt(i));
 		const char * name = method->getName();
-		MapType::iterator it = this->itemMap.find(name);
-		if(it == this->itemMap.end()) {
-			this->itemMap[name] = GMetaMapItem(method.get(), mmitMethod);
 
-			this->itemMap[name].scriptValue = GScriptValue::fromMethod(instance, method.get());
+		methodMap[name].emplace_back(method.get());
+	}
+	
+	for(auto methodPair : methodMap) {
+		const char * name = methodPair.first;
+
+		if(methodPair.second.size() == 1) {
+			this->itemMap[name] = GMetaMapItem(GScriptValue::fromMethod(instance, methodPair.second.front().get()));
 		}
 		else {
-			GMetaMapItem & item = it->second;
-			if(item.getType() == mmitMethod) {
-				GScopedInterface<IMetaList> metaList(createMetaList());
-				GScopedInterface<IMetaItem> metaItem(gdynamic_cast<IMetaItem *>(item.getItem()));
-				metaList->add(metaItem.get(), instance);
-				metaList->add(method.get(), instance);
-				this->itemMap[name] = GMetaMapItem(metaList.get());
-
-				this->itemMap[name].scriptValue = GScriptValue::fromOverloadedMethods(metaList.get());
+			GScopedInterface<IMetaList> metaList(createMetaList());
+			for(auto i : methodPair.second) {
+				metaList->add(i.get(), instance);
 			}
-			else {
-				GASSERT(item.getType() == mmitMethodList);
-
-				GScopedInterface<IMetaList> metaList(gdynamic_cast<IMetaList *>(item.getItem()));
-				metaList->add(method.get(), instance);
-			}
+			this->itemMap[name] = GMetaMapItem(GScriptValue::fromOverloadedMethods(metaList.get()));
 		}
 	}
 }

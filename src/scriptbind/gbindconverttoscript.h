@@ -14,7 +14,6 @@ extern int Error_ScriptBinding_FailVariantToScript;
 namespace bind_internal {
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
-IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
 GScriptValue doCreateScriptValueFromVariant(
 	const GContextPointer & context,
