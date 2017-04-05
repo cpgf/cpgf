@@ -4,7 +4,12 @@ namespace cpgf {
 
 namespace bind_internal {
 
-GScriptValue doCreateScriptValueFromVariant(const GContextPointer & context, const GVariant & value, const GMetaType & type, const bool transferOwnership)
+GScriptValue doCreateScriptValueFromVariant(
+		const GContextPointer & context,
+		const GVariant & value,
+		const GMetaType & type,
+		const bool transferOwnership
+	)
 {
 	const GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 
@@ -27,6 +32,20 @@ GScriptValue doCreateScriptValueFromVariant(const GContextPointer & context, con
 	}
 
 	return GScriptValue::fromPrimary(value);
+}
+
+GScriptValue doCreateScriptValueFromVariant(
+		const GContextPointer & context,
+		const GVariant & value,
+		const bool transferOwnership
+	)
+{
+	return doCreateScriptValueFromVariant(
+		context,
+		getVariantRealValue(value),
+		getVariantRealMetaType(value),
+		transferOwnership
+	);
 }
 
 

@@ -9,7 +9,6 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gclassutil.h"
-#include "cpgf/gdeprecated.h"
 
 #include <string>
 #include <algorithm>

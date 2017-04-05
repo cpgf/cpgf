@@ -16,6 +16,18 @@ namespace bind_internal {
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
+GScriptValue doCreateScriptValueFromVariant(
+	const GContextPointer & context,
+	const GVariant & value,
+	const GMetaType & type,
+	const bool transferOwnership
+);
+GScriptValue doCreateScriptValueFromVariant(
+	const GContextPointer & context,
+	const GVariant & value,
+	const bool transferOwnership
+);
+
 struct ScriptValueToScriptData
 {
 	ScriptValueToScriptData()
@@ -215,8 +227,6 @@ private:
 	GScopedInterface<IMetaObjectLifeManager> objectLifeManager;
 	void * instance;
 };
-
-GScriptValue doCreateScriptValueFromVariant(const GContextPointer & context, const GVariant & value, const GMetaType & type, const bool transferOwnership);
 
 template <typename Methods>
 typename Methods::ResultType methodResultToScript(

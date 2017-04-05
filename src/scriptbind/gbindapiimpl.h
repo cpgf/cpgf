@@ -89,29 +89,6 @@ protected:
 	virtual void G_API_CC getValue(GScriptValueData * outResult, const char * name);
 	virtual void G_API_CC setValue(const char * name, const GScriptValueData * value);
 
-	virtual uint32_t G_API_CC getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
-
-	virtual void G_API_CC bindClass(const char * name, IMetaClass * metaClass);
-	virtual void G_API_CC bindEnum(const char * name, IMetaEnum * metaEnum);
-
-	virtual void G_API_CC bindFundamental(const char * name, const GVariantData * value);
-	virtual void G_API_CC bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
-	virtual void G_API_CC bindString(const char * stringName, const char * s);
-	virtual void G_API_CC bindObject(const char * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership);
-	virtual void G_API_CC bindRaw(const char * name, const GVariantData * value);
-	virtual void G_API_CC bindMethod(const char * name, void * instance, IMetaMethod * method);
-	virtual void G_API_CC bindMethodList(const char * name, IMetaList * methodList);
-
-	virtual IMetaClass * G_API_CC getClass(const char * className);
-	virtual IMetaEnum * G_API_CC getEnum(const char * enumName);
-
-	virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name);
-	virtual char * G_API_CC getString(const char * stringName, IMemoryAllocator * allocator);
-	virtual void * G_API_CC getObject(const char * objectName);
-	virtual void G_API_CC getRaw(GVariantData * outResult, const char * name);
-	virtual IMetaMethod * G_API_CC getMethod(const char * methodName, void ** outInstance);
-	virtual IMetaList * G_API_CC getMethodList(const char * methodName);
-
 	virtual void G_API_CC createScriptObject(GScriptValueData * outResult, const char * name);
 
 	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name);
@@ -120,8 +97,6 @@ protected:
 	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
 
 	virtual void G_API_CC assignValue(const char * fromName, const char * toName);
-	virtual gapi_bool G_API_CC valueIsNull(const char * name);
-	virtual void G_API_CC nullifyValue(const char * name);
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 	virtual void G_API_CC holdObject(IObject * object);

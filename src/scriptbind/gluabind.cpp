@@ -880,7 +880,13 @@ void helperBindMethodList(const GContextPointer & context, IMetaList * methodLis
 	helperBindMethodList(context, GObjectGlueDataPointer(), methodData);
 }
 
-bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptObject, const GScriptValue & value, const ScriptValueToScriptData & data, const char * name)
+bool doValueToScript(
+		const GContextPointer & context,
+		GLuaScriptObject * scriptObject,
+		const GScriptValue & value,
+		const ScriptValueToScriptData & data,
+		const char * name
+	)
 {
 	lua_State * L = getLuaState(context);
 
@@ -1220,7 +1226,8 @@ GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVaria
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(context, *params[i], nullptr)) {
+//			if(!variantToLua(context, *params[i], nullptr)) {
+			if(! doValueToScript(context, nullptr, doCreateScriptValueFromVariant(context, *params[i], false), ScriptValueToScriptData(), nullptr)) {
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
