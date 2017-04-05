@@ -631,7 +631,7 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, GGlueD
 		return true;
 	}
 
-	return complexVariantToScript<GLuaMethods >(context, value, type, outputGlueData);
+	return false;
 }
 
 void loadCallableParam(const GContextPointer & context, InvokeCallableParam * callableParam, int startIndex)
@@ -1226,8 +1226,15 @@ GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVaria
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-//			if(!variantToLua(context, *params[i], nullptr)) {
-			if(! doValueToScript(context, nullptr, doCreateScriptValueFromVariant(context, *params[i], false), ScriptValueToScriptData(), nullptr)) {
+			if(! doValueToScript(
+					context,
+					nullptr,
+					doCreateScriptValueFromVariant(context, *params[i], false),
+					ScriptValueToScriptData(),
+					nullptr
+				)
+			)
+			{
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}

@@ -50,42 +50,6 @@ struct ScriptValueToScriptData
 };
 
 template <typename Methods>
-typename Methods::ResultType complexVariantToScript(
-	const GContextPointer & context,
-	const GVariant & value,
-	const GMetaType & type,
-	GGlueDataPointer * outputGlueData
-)
-{
-	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
-
-	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
-		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
-		if(typedItem) {
-			GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-
-			return Methods::doScriptValueToScript(
-				context,
-				GScriptValue::fromObject(value, gdynamic_cast<IMetaClass *>(typedItem.get()), false, metaTypeToCV(type)),
-				ScriptValueToScriptData(outputGlueData)
-			);
-		}
-		else {
-			if(vtIsInterface(vt)) {
-				IObject * obj = fromVariant<IObject *>(value);
-				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
-					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
-					return Methods::doScriptValueToScript(context, GScriptValue::fromClass(metaClass), ScriptValueToScriptData(outputGlueData));
-				}
-			}
-		}
-
-	}
-
-	return Methods::defaultValue();
-}
-
-template <typename Methods>
 typename Methods::ResultType converterToScript(
 	const GContextPointer & context,
 	const GVariant & value,
@@ -145,11 +109,17 @@ typename Methods::ResultType sharedPointerTraitsToScript(
 	typename Methods::ResultType result;
 	GGlueDataPointer glueData;
 
-	result = Methods::doScriptValueToScript(context,  GScriptValue::fromPrimary(createTypedVariant(value, realType)), ScriptValueToScriptData(&glueData));
+	result = Methods::doScriptValueToScript(
+		context,
+		doCreateScriptValueFromVariant(context, value, realType, false),
+		ScriptValueToScriptData(&glueData)
+	);
+
 	if(! Methods::isSuccessResult(result)) {
 		glueData.reset();
 		result = Methods::doScriptValueToScript(context, GScriptValue::fromRaw(value), ScriptValueToScriptData(&glueData));
 	}
+
 	if(Methods::isSuccessResult(result) && glueData) {
 		switch(glueData->getType()) {
 			case gdtObject:
@@ -293,7 +263,11 @@ typename Methods::ResultType accessibleToScript(
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
 
-	typename Methods::ResultType result = Methods::doScriptValueToScript(context, GScriptValue::fromPrimary(createTypedVariant(value, type)), ScriptValueToScriptData());
+	typename Methods::ResultType result = Methods::doScriptValueToScript(
+		context,
+		doCreateScriptValueFromVariant(context, value, type, false),
+		ScriptValueToScriptData()
+	);
 
 	if(! Methods::isSuccessResult(result)) {
 		result = extendVariantToScript<Methods>(
@@ -371,7 +345,11 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 					mapItem->setUserData(data);
 				}
 				
-				return Methods::doScriptValueToScript(context, GScriptValue::fromOverloadedMethods(data->getMethodData()->getMethodList()), ScriptValueToScriptData(objectData, data->getMethodData()));
+				return Methods::doScriptValueToScript(
+					context,
+					GScriptValue::fromOverloadedMethods(data->getMethodData()->getMethodList()),
+					ScriptValueToScriptData(objectData, data->getMethodData())
+				);
 			}
 
 			case mmitEnum: {
