@@ -9,12 +9,18 @@ namespace cpgf {
 
 
 GScriptObject::GScriptObject()
-	: owner(nullptr)
+	:
+		owner(nullptr),
+		name(),
+		objectHolder()
 {
 }
 
-GScriptObject::GScriptObject(const GScriptObject & other)
-	: owner(nullptr)
+GScriptObject::GScriptObject(const GScriptObject & /*other*/)
+	:
+		owner(nullptr),
+		name(),
+		objectHolder()
 {
 }
 

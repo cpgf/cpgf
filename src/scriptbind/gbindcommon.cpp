@@ -730,7 +730,6 @@ bool setValueOnNamedMember(
 		return false;
 	}
 
-	bool isInstance = (instanceGlueData->getType() == gdtObject);
 	GClassGlueDataPointer classData;
 	GObjectGlueDataPointer objectData;
 	if(instanceGlueData->getType() == gdtObject) {

@@ -4,6 +4,7 @@
 #include "gbindmethods.h"
 #include "gbindcontext.h"
 
+#include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gglobal.h"
 
 namespace cpgf {
@@ -11,6 +12,9 @@ namespace cpgf {
 extern int Error_ScriptBinding_FailVariantToScript;
 
 namespace bind_internal {
+
+IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
+IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
 struct ScriptValueToScriptData
 {
@@ -23,7 +27,7 @@ struct ScriptValueToScriptData
 	{}
 
 	ScriptValueToScriptData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
-		: outputGlueData(outputGlueData), objectData(objectData), methodData(methodData)
+		: outputGlueData(nullptr), objectData(objectData), methodData(methodData)
 	{}
 
 	mutable GGlueDataPointer * outputGlueData;

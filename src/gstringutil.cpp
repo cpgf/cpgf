@@ -59,14 +59,19 @@ size_t GCStringHash::operator () (const char * s) const
 	return result;
 }
 
+// Now we temporarily uses the native method to convert string to wide string
+// rather than wstring_convert because there is a bug in GCC previous 5.4
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79511
 std::wstring stringToWideString(const std::string & s)
 {
-	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().from_bytes(s);
+	return std::wstring(std::begin(s), std::end(s));
+//	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().from_bytes(s);
 }
 
 std::wstring stringToWideString(const char * s)
 {
-	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().from_bytes(s);
+	return std::wstring(s, s + strlen(s));
+//	return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>().from_bytes(s);
 }
 
 std::string wideStringToString(const std::wstring & ws)

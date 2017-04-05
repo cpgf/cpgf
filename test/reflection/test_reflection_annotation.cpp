@@ -17,26 +17,6 @@ using namespace cpgf;
 
 namespace Test_Annotation { namespace {
 
-std::wstring stringToWString(const std::string & s)
-{
-    std::wstring temp(s.length(),L' ');
-
-    std::copy(s.begin(), s.end(), temp.begin());
-
-    return temp;
-}
-
-/*
-std::string wstringToString(const std::wstring & s)
-{
-    std::string temp(s.length(), ' ');
-
-    std::copy(s.begin(), s.end(), temp.begin());
-
-    return temp;
-}
-*/
-
 class TestData
 {
 public:
