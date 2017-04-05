@@ -762,30 +762,29 @@ bool setValueOnNamedMember(
 		if(mapItem == nullptr) {
 			continue;
 		}
-
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty: {
-				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				doSetValueOnAccessible(context, data.get(), instanceGlueData, value.getValue(), valueGlueData);
-				return true;
-			}
-			   break;
-
-			case mmitMethod:
-			case mmitMethodList:
-				setValueToScriptDataHolder(instanceGlueData, name, value);
-				return true;
-
-			case mmitEnum:
-			case mmitEnumValue:
-			case mmitClass:
-				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-				return false;
-
-			default:
-				return false;
+		
+		const GScriptValue & scriptValue = mapItem->getScriptValue();
+		switch(scriptValue.getType()) {
+		case GScriptValue::typeAccessible: {
+			void * tempInstance;
+			GScopedInterface<IMetaAccessible> data(scriptValue.toAccessible(&tempInstance));
+			doSetValueOnAccessible(context, data.get(), instanceGlueData, value.getValue(), valueGlueData);
+			return true;
 		}
+			break;
+
+		case GScriptValue::typeEnum:
+		case GScriptValue::typePrimary: {
+			raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
+			return false;
+		}
+			break;
+		
+		default:
+			break;
+		}
+		
+		break;
 	}
 
 	// We always set the value to data holder even the meta data is not found.
