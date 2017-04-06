@@ -31,6 +31,9 @@ public:
 	ImplScriptFunction(GScriptFunction * scriptFunction, bool freeFunction);
 	virtual ~ImplScriptFunction();
 
+	// for internal use!
+	GScriptFunction * getUnderlying() const { return this->scriptFunction; }
+
 protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
@@ -54,6 +57,9 @@ public:
 	ImplScriptArray(GScriptArray * scriptArray, bool freeArray);
 	virtual ~ImplScriptArray();
 
+	// for internal use!
+	GScriptArray * getUnderlying() const { return this->scriptArray; }
+
 protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
@@ -65,6 +71,7 @@ protected:
 	virtual gapi_bool G_API_CC maybeIsScriptArray(uint32_t index);
 	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, uint32_t index);
 	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, uint32_t index);
+
 private:
 	GScriptArray * scriptArray;
 	bool freeArray;
@@ -76,6 +83,9 @@ class ImplScriptObject : public IScriptObject
 public:
 	ImplScriptObject(GScriptObject * scriptObject, bool freeObject);
 	virtual ~ImplScriptObject();
+
+	// for internal use!
+	GScriptObject * getUnderlying() const { return this->scriptObject; }
 
 protected:
 	G_INTERFACE_IMPL_OBJECT

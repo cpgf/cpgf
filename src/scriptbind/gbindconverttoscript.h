@@ -298,12 +298,12 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		GASSERT(glueData->getType() == gdtClass);
 		classData = sharedStaticCast<GClassGlueData>(glueData);
 	}
+	
+	GContextPointer context = classData->getBindingContext();
 
 	if(! classData->getMetaClass()) {
 		return Methods::defaultValue();
 	}
-
-	GContextPointer context = classData->getBindingContext();
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(glueData));
 
@@ -338,6 +338,24 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			mapItem->getScriptValue(),
 			ScriptValueToScriptData(castedObjectData)
 		);
+	}
+
+	GScriptDataHolder * dataHolder = nullptr;
+	if(objectData) {
+		dataHolder = objectData->getDataHolder();
+	}
+	if(dataHolder == nullptr && classData) {
+		dataHolder = classData->getDataHolder();
+	}
+	if(dataHolder != nullptr) {
+		const GScriptValue * scriptValue = dataHolder->findValue(name);
+		if(scriptValue != nullptr) {
+			return Methods::doScriptValueToScript(
+				context,
+				*scriptValue,
+				ScriptValueToScriptData(objectData)
+			);
+		}
 	}
 
 	return Methods::defaultValue();

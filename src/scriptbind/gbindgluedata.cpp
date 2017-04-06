@@ -25,14 +25,21 @@ IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * na
 	}
 
 	GObjectGlueDataPointer obj(this->object);
-	IScriptFunction * func = nullptr;
+	const GScriptValue * value = nullptr;
 	if(obj->getDataHolder() != nullptr) {
-		func = obj->getDataHolder()->getScriptFunction(name);
+		value = obj->getDataHolder()->findValue(name);
 	}
-	if(func == nullptr && obj->getClassData()->getDataHolder() != nullptr) {
-		func = obj->getClassData()->getDataHolder()->getScriptFunction(name);
+	if(value == nullptr && obj->getClassData()->getDataHolder() != nullptr) {
+		value = obj->getClassData()->getDataHolder()->findValue(name);
 	}
-	return func;
+	
+	if(value != nullptr) {
+		if(value->getType() == GScriptValue::typeScriptFunction) {
+			return value->toScriptFunction();
+		}
+	}
+	
+	return nullptr;
 }
 
 void GScriptDataHolder::requireDataMap()
@@ -59,18 +66,12 @@ void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & v
 	}
 }
 
-IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
+const GScriptValue * GScriptDataHolder::findValue(const char * name) const
 {
 	if(this->dataMap) {
 		MapType::iterator it = this->dataMap->find(name);
 		if(it != this->dataMap->end()) {
-			if(it->second.getType() == GScriptValue::typeScriptFunction) {
-				IScriptFunction * func = dynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second.getValue()));
-				if(func != nullptr) {
-					func->addReference();
-				}
-				return func;
-			}
+			return &it->second;
 		}
 	}
 	return nullptr;

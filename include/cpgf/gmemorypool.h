@@ -51,7 +51,7 @@ private:
 	size_t blockCount;
 	size_t alignedBlockSize;
 	size_t chunkSize;
-	std::unique_ptr<unsigned char> buffer;
+	std::unique_ptr<unsigned char []> buffer;
 	unsigned char * data;
 	IndexType availableIndex;
 	size_t availableCount;

@@ -86,7 +86,7 @@ private:
 
 public:
 	void setScriptValue(const char * name, const GScriptValue & value);
-	IScriptFunction * getScriptFunction(const char * name);
+	const GScriptValue * findValue(const char * name) const;
 
 private:
 	void requireDataMap();
