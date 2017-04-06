@@ -51,11 +51,9 @@ void GScriptDataHolder::requireDataMap()
 
 void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & value)
 {
-	GASSERT(value.isScriptFunction());
-
 	this->requireDataMap();
 	
-	// Insert and overwrite the previous function if it exists.
+	// Overwrite any previous value.
 	(*this->dataMap)[name] = value;
 
 	if(value.getType() == GScriptValue::typeScriptFunction) {
@@ -252,11 +250,6 @@ void GObjectGlueData::initialize()
 		}
 		scriptWrapper->initializeScriptWrapper(this->getInstanceAddress(), this->objectInstance->dataStorage.get(), this->getBindingContext()->borrowScriptContext());
 	}
-}
-
-std::string GMethodGlueData::getName() const
-{
-	return getMethodNameFromMethodList(this->methodList.get());
 }
 
 

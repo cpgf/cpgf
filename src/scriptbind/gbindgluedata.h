@@ -307,19 +307,17 @@ private:
 	typedef GGlueData super;
 
 private:
-	GMethodGlueData(const GContextPointer & context, IMetaList * methodList)
-		: super(gdtMethod, context), methodList(methodList) {
+	GMethodGlueData(const GContextPointer & context, const GScriptValue & scriptValue)
+		: super(gdtMethod, context), scriptValue(scriptValue) {
 	}
 
 public:
-	IMetaList * getMethodList() const {
-		return this->methodList.get();
+	const GScriptValue & getScriptValue() const {
+		return this->scriptValue;
 	}
 
-	std::string getName() const;
-
 private:
-	GSharedInterface<IMetaList> methodList;
+	GScriptValue scriptValue;
 
 private:
 	friend class GBindingContext;

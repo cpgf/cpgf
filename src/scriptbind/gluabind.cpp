@@ -916,29 +916,13 @@ bool doValueToScript(
 		}
 
 		case GScriptValue::typeMethod: {
-			void * instance;
-			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
-
-			if(method->isStatic()) {
-				instance = nullptr;
-			}
-			else {
-				if(data.objectData) {
-					instance = data.objectData->getInstanceAddress();
-				}
-			}
-
-			GScopedInterface<IMetaList> methodList(createMetaList());
-			methodList->add(method.get(), instance);
-
-			GMethodGlueDataPointer methodData = context->newMethodGlueData(methodList.get());
+			GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
 			helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}
 
 		case GScriptValue::typeOverloadedMethods: {
-			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
-			GMethodGlueDataPointer methodData = context->newMethodGlueData(methodList.get());
+			GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
 			helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}

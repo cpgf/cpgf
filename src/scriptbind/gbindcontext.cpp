@@ -173,9 +173,9 @@ GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(
 	return data;
 }
 
-GMethodGlueDataPointer GBindingContext::newMethodGlueData(IMetaList * methodList)
+GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GScriptValue & scriptValue)
 {
-	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), methodList));
+	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), scriptValue));
 	return data;
 }
 

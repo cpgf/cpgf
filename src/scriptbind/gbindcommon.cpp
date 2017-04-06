@@ -562,6 +562,49 @@ void * doInvokeConstructor(
 	return instance;
 }
 
+IMetaMethod * doGetCallableFromScriptValue(
+		void ** outInstance,
+		const GScriptValue & scriptValue,
+		IMetaService * service,
+		const GObjectGlueDataPointer & objectData,
+		InvokeCallableParam * callableParam
+	)
+{
+	switch(scriptValue.getType()) {
+		case GScriptValue::typeMethod: {
+			GScopedInterface<IMetaMethod> method(scriptValue.toMethod(outInstance));
+				const int weight = rankCallable(service, objectData, method.get(), callableParam, callableParam->backParamRanks);
+				if(weight >= 0) {
+					std::swap(callableParam->paramRanks, callableParam->backParamRanks);
+					return method.take();
+				}
+		}
+			break;
+
+		case GScriptValue::typeOverloadedMethods: {
+			GScopedInterface<IMetaList> methodList(scriptValue.toOverloadedMethods());
+			const int maxRankIndex = findAppropriateCallable(
+				service,
+				objectData,
+				[&](const uint32_t index) { return methodList->getAt(index); },
+				methodList->getCount(),
+				callableParam,
+				[](IMetaCallable *) { return true; }
+			);
+			if(maxRankIndex >= 0) {
+				*outInstance = methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex));
+				return static_cast<IMetaMethod *>(methodList->getAt(maxRankIndex));
+			}
+		}
+			break;
+			
+		default:
+			break;
+	}
+	
+	return nullptr;
+}
+
 InvokeCallableResult doInvokeMethodList(
 		const GContextPointer & context,
 		const GObjectGlueDataPointer & objectData,
@@ -569,27 +612,24 @@ InvokeCallableResult doInvokeMethodList(
 		InvokeCallableParam * callableParam
 	)
 {
-	IMetaList * methodList = methodData->getMethodList();
-
-	const int maxRankIndex = findAppropriateCallable(
+	void * methodInstance = nullptr;
+	GScopedInterface<IMetaMethod> methodToInvoke(doGetCallableFromScriptValue(
+		&methodInstance,
+		methodData->getScriptValue(),
 		context->getService(),
 		objectData,
-		[=](const uint32_t index) { return methodList->getAt(index); },
-		methodList->getCount(),
-		callableParam,
-		[](IMetaCallable *) { return true; }
-	);
-
-	if(maxRankIndex >= 0) {
+		callableParam
+	));
+	
+	if(methodToInvoke) {
 		InvokeCallableResult result;
-		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
 		void * instance = nullptr;
 		if(objectData) {
 			instance = objectData->getInstanceAddress();
 			if(instance != nullptr) {
 				auto classData = objectData->getClassData();
 				if(classData) {
-					GScopedInterface<IMetaClass> callableClass(gdynamic_cast<IMetaClass *>(callable->getOwnerItem()));
+					GScopedInterface<IMetaClass> callableClass(gdynamic_cast<IMetaClass *>(methodToInvoke->getOwnerItem()));
 					if(classData->getMetaClass() != callableClass.get()) {
 						instance = metaCastAny(instance, classData->getMetaClass(), callableClass.get());
 					}
@@ -598,10 +638,10 @@ InvokeCallableResult doInvokeMethodList(
 		}
 		else {
 			// This happens if an object method is bound to script as a global function.
-			instance = methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex));
+			instance = methodInstance;
 		}
-		doInvokeCallable(context, instance, callable.get(), callableParam, &result);
-		result.callable.reset(callable.get());
+		doInvokeCallable(context, instance, methodToInvoke.get(), callableParam, &result);
+		result.callable.reset(methodToInvoke.get());
 		return result;
 	}
 
@@ -638,14 +678,8 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 				else {
 					methodGlueData = sharedStaticCast<GObjectAndMethodGlueData>(glueData)->getMethodData();
 				}
-				if(methodGlueData->getMethodList()->getCount() == 1) {
-					GScopedInterface<IMetaItem> metaItem(methodGlueData->getMethodList()->getAt(0));
-					return GScriptValue::fromMethod(methodGlueData->getMethodList()->getInstanceAt(0),
-						static_cast<IMetaMethod *>(metaItem.get()));
-				}
-				else {
-					return GScriptValue::fromOverloadedMethods(methodGlueData->getMethodList());
-				}
+				
+				return methodGlueData->getScriptValue();
 			}
 
 			case gdtEnum:
