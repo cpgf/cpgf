@@ -10,8 +10,15 @@ namespace cpgf {
 namespace bind_internal {
 
 GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
-	: object(object)
 {
+	if(object) {
+		this->instanceDataHolder = object->getDataHolder();
+		
+		auto classData = object->getClassData();
+		if(classData) {
+			this->classDataHolder = classData->getDataHolder();
+		}
+	}
 }
 
 GScriptDataStorage::~GScriptDataStorage()
@@ -20,17 +27,12 @@ GScriptDataStorage::~GScriptDataStorage()
 
 IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * name)
 {
-	if(this->object.expired()) {
-		return nullptr;
-	}
-
-	GObjectGlueDataPointer obj(this->object);
 	const GScriptValue * value = nullptr;
-	if(obj->getDataHolder() != nullptr) {
-		value = obj->getDataHolder()->findValue(name);
+	if(this->instanceDataHolder) {
+		value = this->instanceDataHolder->findValue(name);
 	}
-	if(value == nullptr && obj->getClassData()->getDataHolder() != nullptr) {
-		value = obj->getClassData()->getDataHolder()->findValue(name);
+	if(value == nullptr && this->classDataHolder) {
+		value = this->classDataHolder->findValue(name);
 	}
 	
 	if(value != nullptr) {
@@ -116,17 +118,12 @@ bool GGlueData::isValid() const
 }
 
 
-GScriptDataHolder * GClassGlueData::getDataHolder() const
-{
-	return this->dataHolder.get();
-}
-
-GScriptDataHolder * GClassGlueData::requireDataHolder() const
+const GScriptDataHolderPointer & GClassGlueData::getDataHolder() const
 {
 	if(! this->dataHolder) {
 		this->dataHolder.reset(new GScriptDataHolder());
 	}
-	return this->dataHolder.get();
+	return this->dataHolder;
 }
 
 
@@ -186,17 +183,12 @@ GContextPointer GObjectInstance::getBindingContext() const
 }
 
 
-GScriptDataHolder * GObjectInstance::getDataHolder() const
-{
-	return this->dataHolder.get();
-}
-
-GScriptDataHolder * GObjectInstance::requireDataHolder() const
+const GScriptDataHolderPointer & GObjectInstance::getDataHolder() const
 {
 	if(! this->dataHolder) {
 		this->dataHolder.reset(new GScriptDataHolder());
 	}
-	return this->dataHolder.get();
+	return this->dataHolder;
 }
 
 

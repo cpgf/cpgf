@@ -340,10 +340,10 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 	GScriptDataHolder * dataHolder = nullptr;
 	if(objectData) {
-		dataHolder = objectData->getDataHolder();
+		dataHolder = objectData->getDataHolder().get();
 	}
 	if(dataHolder == nullptr && classData) {
-		dataHolder = classData->getDataHolder();
+		dataHolder = classData->getDataHolder().get();
 	}
 	if(dataHolder != nullptr) {
 		const GScriptValue * scriptValue = dataHolder->findValue(name);

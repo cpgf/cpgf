@@ -399,7 +399,7 @@ GScriptValue luaUserDataToScriptValue(const GContextPointer & context, int index
 	return GScriptValue();
 }
 
-bool rawToLua(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
+void rawToLua(const GContextPointer & context, const GVariant & value)
 {
 	lua_State * L = getLuaState(context);
 
@@ -407,18 +407,12 @@ bool rawToLua(const GContextPointer & context, const GVariant & value, GGlueData
 	GRawGlueDataPointer rawData(context->newRawGlueData(value));
 	newGlueDataWrapper(userData, rawData);
 
-	if(outputGlueData != nullptr) {
-		*outputGlueData = rawData;
-	}
-
 	lua_newtable(L);
 
 	setMetaTableSignature(L);
 	setMetaTableGC(L);
 
 	lua_setmetatable(L, -2);
-
-	return true;
 }
 
 struct GLuaMethods
@@ -934,9 +928,7 @@ bool doValueToScript(
 		}
 
 		case GScriptValue::typeRaw:
-			if(! rawToLua(context, value.toRaw(), nullptr)) {
-				raiseCoreException(Error_ScriptBinding_CantBindRaw);
-			}
+			rawToLua(context, value.toRaw());
 			break;
 
 		case GScriptValue::typeAccessible: {

@@ -716,11 +716,11 @@ void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * 
 	GScriptDataHolder * dataHolder = nullptr;
 
 	if(glueData->getType() == gdtObject) {
-		dataHolder = sharedStaticCast<GObjectGlueData>(glueData)->requireDataHolder();
+		dataHolder = sharedStaticCast<GObjectGlueData>(glueData)->getDataHolder().get();
 	}
 	else {
 		if(glueData->getType() == gdtClass) {
-			dataHolder = sharedStaticCast<GClassGlueData>(glueData)->requireDataHolder();
+			dataHolder = sharedStaticCast<GClassGlueData>(glueData)->getDataHolder().get();
 		}
 	}
 

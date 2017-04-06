@@ -16,6 +16,7 @@
 
 #include <set>
 #include <map>
+#include <memory>
 
 namespace cpgf {
 
@@ -56,6 +57,9 @@ enum GBindValueFlagValues {
 
 typedef GFlags<GBindValueFlagValues> GBindValueFlags;
 
+class GScriptDataHolder;
+typedef std::shared_ptr<GScriptDataHolder> GScriptDataHolderPointer;
+
 class GScriptDataStorage : public IScriptDataStorage
 {
 	G_INTERFACE_IMPL_OBJECT
@@ -70,7 +74,8 @@ protected:
 	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
 
 private:
-	GWeakObjectGlueDataPointer object;
+	GScriptDataHolderPointer instanceDataHolder;
+	GScriptDataHolderPointer classDataHolder;
 
 private:
 	friend class GBindingContext;
@@ -138,13 +143,12 @@ public:
 		return &this->mapClass;
 	}
 
-	GScriptDataHolder * getDataHolder() const;
-	GScriptDataHolder * requireDataHolder() const;
+	const GScriptDataHolderPointer & getDataHolder() const;
 
 private:
 	GSharedInterface<IMetaClass> metaClass;
 	mutable GMetaMapClass mapClass;
-	mutable GScopedPointer<GScriptDataHolder> dataHolder;
+	mutable GScriptDataHolderPointer dataHolder;
 
 private:
 	friend class GBindingContext;
@@ -191,8 +195,7 @@ public:
 
 	GContextPointer getBindingContext() const;
 
-	GScriptDataHolder * getDataHolder() const;
-	GScriptDataHolder * requireDataHolder() const;
+	const GScriptDataHolderPointer & getDataHolder() const;
 
 private:
 	GWeakContextPointer context;
@@ -202,7 +205,7 @@ private:
 	bool allowGC;
 	bool isSharedPointer;
 	GScopedInterface<IScriptDataStorage> dataStorage;
-	mutable GScopedPointer<GScriptDataHolder> dataHolder;
+	mutable GScriptDataHolderPointer dataHolder;
 
 private:
 	friend class GObjectGlueData;
@@ -274,12 +277,8 @@ public:
 		return this->sharedPointerTraits.get();
 	}
 
-	GScriptDataHolder * getDataHolder() const {
+	const GScriptDataHolderPointer & getDataHolder() const {
 		return this->objectInstance->getDataHolder();
-	}
-
-	GScriptDataHolder * requireDataHolder() const {
-		return this->objectInstance->requireDataHolder();
 	}
 
 	GObjectInstancePointer getObjectInstance() const {
