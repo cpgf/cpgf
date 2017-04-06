@@ -308,11 +308,9 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(glueData));
 
 	void * instance = nullptr;
-	IMetaClass * outDerived;
 
 	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance, &outDerived));
-		GScopedInterface<IMetaClass> derived(outDerived);
+		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance, nullptr));
 
 		if(!metaClass) {
 			break;
