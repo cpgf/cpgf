@@ -212,15 +212,6 @@ void G_API_CC ImplScriptObject::createScriptObject(GScriptValueData * outResult,
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::getScriptFunction(GScriptValueData * outResult, const char * name)
-{
-	ENTER_BINDING_API()
-
-	*outResult = this->scriptObject->getScriptFunction(name).takeData();
-
-	LEAVE_BINDING_API()
-}
-
 void G_API_CC ImplScriptObject::invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()

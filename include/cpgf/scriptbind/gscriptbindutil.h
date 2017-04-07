@@ -148,9 +148,6 @@ void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScri
 GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name);
 GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char * name);
 
-GScriptValue scriptGetScriptFunction(GScriptObject * scriptObject, const char * name);
-GScriptValue scriptGetScriptFunction(IScriptObject * scriptObject, const char * name);
-
 GScriptValue scriptGetAsScriptArray(GScriptObject * scriptObject, const char * name);
 GScriptValue scriptGetAsScriptArray(IScriptObject * scriptObject, const char * name);
 

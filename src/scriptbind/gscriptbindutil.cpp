@@ -77,18 +77,6 @@ GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char *
 	return createScriptValueFromData(data);
 }
 
-GScriptValue scriptGetScriptFunction(GScriptObject * scriptObject, const char * name)
-{
-	return scriptObject->getScriptFunction(name);
-}
-
-GScriptValue scriptGetScriptFunction(IScriptObject * scriptObject, const char * name)
-{
-	GScriptValueData data;
-	scriptObject->getScriptFunction(&data, name);
-	return createScriptValueFromData(data);
-}
-
 GScriptValue scriptGetAsScriptArray(GScriptObject * scriptObject, const char * name)
 {
 	return scriptObject->getAsScriptArray(name);

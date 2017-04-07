@@ -58,8 +58,6 @@ public:
 
 	virtual GScriptValue createScriptObject(const char * name);
 
-	virtual GScriptValue getScriptFunction(const char * name) = 0;
-
 	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
 	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
 
