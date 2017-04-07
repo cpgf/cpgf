@@ -58,6 +58,8 @@ public:
 
 	virtual GScriptValue createScriptObject(const char * name);
 
+	// In current implementation, these two invoking functions can't be replaced by invoking script function
+	// these two functions can also invoking C++ function which is exposed to the script, beside script function.
 	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
 	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
 
