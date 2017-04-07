@@ -38,10 +38,10 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
-	virtual void G_API_CC invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount);
-	virtual void G_API_CC invokeOnObject(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectlyOnObject(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount) override;
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) override;
+	virtual void G_API_CC invokeOnObject(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount) override;
+	virtual void G_API_CC invokeIndirectlyOnObject(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) override;
 	// Internal use only!!!
 	virtual void G_API_CC weaken();
 
@@ -64,13 +64,13 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
-	virtual uint32_t G_API_CC getLength();
-	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index);
-	virtual void G_API_CC setValue(uint32_t index, const GScriptValueData * value);
+	virtual uint32_t G_API_CC getLength() override;
+	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index) override;
+	virtual void G_API_CC setValue(uint32_t index, const GScriptValueData * value) override;
 
-	virtual gapi_bool G_API_CC maybeIsScriptArray(uint32_t index);
-	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, uint32_t index);
-	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, uint32_t index);
+	virtual gapi_bool G_API_CC maybeIsScriptArray(uint32_t index) override;
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, uint32_t index) override;
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, uint32_t index) override;
 
 private:
 	GScriptArray * scriptArray;
@@ -91,27 +91,27 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
-	virtual IScriptContext * G_API_CC getContext();
+	virtual IScriptContext * G_API_CC getContext() override;
 
-	virtual IScriptObject * G_API_CC getOwner();
-	virtual gapi_bool G_API_CC isGlobal();
+	virtual IScriptObject * G_API_CC getOwner() override;
+	virtual gapi_bool G_API_CC isGlobal() override;
 
-	virtual void G_API_CC getValue(GScriptValueData * outResult, const char * name);
-	virtual void G_API_CC setValue(const char * name, const GScriptValueData * value);
+	virtual void G_API_CC getValue(GScriptValueData * outResult, const char * name) override;
+	virtual void G_API_CC setValue(const char * name, const GScriptValueData * value) override;
 
-	virtual void G_API_CC createScriptObject(GScriptValueData * outResult, const char * name);
+	virtual void G_API_CC createScriptObject(GScriptValueData * outResult, const char * name) override;
 
-	virtual void G_API_CC invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) override;
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) override;
 
-	virtual void G_API_CC assignValue(const char * fromName, const char * toName);
+	virtual void G_API_CC assignValue(const char * fromName, const char * toName) override;
 
-	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
-	virtual void G_API_CC holdObject(IObject * object);
+	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) override;
+	virtual void G_API_CC holdObject(IObject * object) override;
 
-	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name);
-	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name);
-	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, const char * name);
+	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name) override;
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name) override;
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, const char * name) override;
 
 private:
 	GScriptObject * scriptObject;

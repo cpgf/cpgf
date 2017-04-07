@@ -101,7 +101,7 @@ public:
 	const char * getNameAt(size_t index) const;
 	const GAnnotationValue * getValueAt(size_t index) const;
 
-	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const override;
 
 private:
 	void setMetaItem(const GMetaItem * metaItem);

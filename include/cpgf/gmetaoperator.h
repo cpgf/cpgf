@@ -44,25 +44,25 @@ public:
 
 	GMetaOpType getOperator() const;
 
-	virtual size_t getParamCount() const;
-	virtual size_t getDefaultParamCount() const;
-	virtual GMetaType getParamType(size_t index) const;
-	virtual bool hasResult() const;
-	virtual GMetaType getResultType() const;
-	virtual GMetaExtendType getResultExtendType(uint32_t flags) const;
-	virtual GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const;
-	virtual bool isVariadic() const;
-	virtual bool isExplicitThis() const;
+	virtual size_t getParamCount() const override;
+	virtual size_t getDefaultParamCount() const override;
+	virtual GMetaType getParamType(size_t index) const override;
+	virtual bool hasResult() const override;
+	virtual GMetaType getResultType() const override;
+	virtual GMetaExtendType getResultExtendType(uint32_t flags) const override;
+	virtual GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const override;
+	virtual bool isVariadic() const override;
+	virtual bool isExplicitThis() const override;
 
-	virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+	virtual bool checkParam(const GVariant & param, size_t paramIndex) const override;
 
-	virtual bool isParamTransferOwnership(size_t paramIndex) const;
-	virtual bool isResultTransferOwnership() const;
+	virtual bool isParamTransferOwnership(size_t paramIndex) const override;
+	virtual bool isResultTransferOwnership() const override;
 	
-	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
-	virtual GVariant executeByData(void * instance, const GVariantData * * params, size_t paramCount) const;
+	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const override;
+	virtual GVariant executeByData(void * instance, const GVariantData * * params, size_t paramCount) const override;
 
-	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const override;
 
 	void addDefaultParam(const GVariant & v);
 

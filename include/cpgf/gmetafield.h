@@ -37,17 +37,17 @@ public:
 		this->addModifier(metaModifierStatic);
 	}
 
-	virtual bool canGet() const;
-	virtual bool canSet() const;
+	virtual bool canGet() const override;
+	virtual bool canSet() const override;
 
-	virtual GVariant get(const void * instance) const;
-	virtual void set(void * instance, const GVariant & v) const;
+	virtual GVariant get(const void * instance) const override;
+	virtual void set(void * instance, const GVariant & v) const override;
 
-	virtual void * getAddress(const void * instance) const;
+	virtual void * getAddress(const void * instance) const override;
 
-	virtual size_t getSize() const;
+	virtual size_t getSize() const override;
 
-	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const override;
 
 private:
 	GScopedPointer<meta_internal::GMetaFieldDataBase,

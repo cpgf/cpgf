@@ -49,17 +49,17 @@ public:
 	virtual ~GMetaClass();
 
 public:
-	virtual void * createInstance() const;
-	virtual void * createInplace(void * placement) const;
-	virtual void * cloneInstance(const void * instance) const;
-	virtual void * cloneInplace(const void * instance, void * placement) const;
+	virtual void * createInstance() const override;
+	virtual void * createInplace(void * placement) const override;
+	virtual void * cloneInstance(const void * instance) const override;
+	virtual void * cloneInplace(const void * instance, void * placement) const override;
 
-	virtual void destroyInstance(void * instance) const;
-	virtual void destroyInplace(void * instance) const;
+	virtual void destroyInstance(void * instance) const override;
+	virtual void destroyInplace(void * instance) const override;
 
-	virtual size_t getTypeSize() const;
+	virtual size_t getTypeSize() const override;
 
-	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const override;
 
 	const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
 	size_t getConstructorCount() const;
