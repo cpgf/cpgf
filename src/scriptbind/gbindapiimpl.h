@@ -42,8 +42,6 @@ protected:
 	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) override;
 	virtual void G_API_CC invokeOnObject(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount) override;
 	virtual void G_API_CC invokeIndirectlyOnObject(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) override;
-	// Internal use only!!!
-	virtual void G_API_CC weaken();
 
 private:
 	GScriptFunction * scriptFunction;

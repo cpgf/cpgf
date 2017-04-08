@@ -140,9 +140,7 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 		const GScriptInstanceCv cv
 	)
 {
-	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
-	this->classPool->objectCreated(data->getObjectInstance());
-	return data;
+	return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
 }
 
 GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(
@@ -160,7 +158,6 @@ GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(
 	}
 	else {
 		data.reset(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
-		this->classPool->objectCreated(data->getObjectInstance());
 	}
 
 	return data;
@@ -237,7 +234,7 @@ GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
 	InstanceMapType::iterator it = this->instanceMap.find(objectAddressFromVariant(instance));
 
 	if(it != instanceMap.end() && it->second) {
-		GObjectInstancePointer data(it->second.get());
+		GObjectInstancePointer data(it->second);
 		return data;
 	}
 

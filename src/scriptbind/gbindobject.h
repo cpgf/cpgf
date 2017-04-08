@@ -19,9 +19,6 @@ public:
 	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
 	virtual GScriptValue invokeIndirectlyOnObject(GVariant const * const * params, size_t paramCount) { return invokeIndirectly(params, paramCount); };
 
-	// internal use
-	virtual void weaken() = 0;
-
 	GMAKE_NONCOPYABLE(GScriptFunction);
 };
 
@@ -88,21 +85,10 @@ public:
 	explicit GScriptFunctionBase(const GContextPointer & context);
 	~GScriptFunctionBase();
 
-	virtual void weaken();
-
 protected:
 	GContextPointer getBindingContext();
 
 private:
-	// Below comment is out of date.
-	// Here we must use strong shared pointer,
-	// otherwise the context may be freed by the script object
-	// while the script function is still live.
-	// But there is cyclic shared pointer chain
-	// IScriptFunction->GBindingContext->GClassPool->GClassGlueData->GScriptDataHolder->IScriptFunction
-	// Now the cyclic chain is broken by calling weaken when setting IScriptFunction to GScriptDataHolder
-	// The solution is super ugly, but I can't find better solution for now.
-
 	GWeakContextPointer weakContext;
 };
 

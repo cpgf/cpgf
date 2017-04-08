@@ -61,10 +61,6 @@ GScriptFunctionBase::~GScriptFunctionBase()
 {
 }
 
-void GScriptFunctionBase::weaken()
-{
-}
-
 GContextPointer GScriptFunctionBase::getBindingContext()
 {
 	return this->weakContext.get();
