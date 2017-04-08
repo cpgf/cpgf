@@ -50,13 +50,6 @@ enum GGlueDataType {
 	gdtOperator // only used in Lua binding
 };
 
-enum GBindValueFlagValues {
-	bvfAllowGC = 1 << 0,
-	bvfAllowRaw = 1 << 1
-};
-
-typedef GFlags<GBindValueFlagValues> GBindValueFlags;
-
 class GScriptDataHolder;
 typedef std::shared_ptr<GScriptDataHolder> GScriptDataHolderPointer;
 
@@ -225,14 +218,14 @@ private:
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classGlueData,
 		const GVariant & instance,
-		const GBindValueFlags & flags,
+		const bool allowGC,
 		const GScriptInstanceCv cv
 	);
 	GObjectGlueData(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classGlueData,
 		const GObjectInstancePointer & objectInstance,
-		const GBindValueFlags & flags,
+		const bool allowGC,
 		const GScriptInstanceCv cv
 	);
 
@@ -290,7 +283,7 @@ private:
 
 private:
 	GClassGlueDataPointer classGlueData;
-	GBindValueFlags flags;
+	bool allowGC;
 	GScriptInstanceCv cv;
 	GObjectInstancePointer objectInstance;
 	GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits;

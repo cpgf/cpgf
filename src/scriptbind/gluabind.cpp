@@ -330,7 +330,7 @@ void objectToLua(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classData,
 		const GVariant & instance,
-		const GBindValueFlags & flags,
+		const bool allowGC,
 		const GScriptInstanceCv cv,
 		GGlueDataPointer * outputGlueData
 	)
@@ -344,7 +344,7 @@ void objectToLua(
 	}
 
 	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
-	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, allowGC, cv));
 	newGlueDataWrapper(userData, objectData);
 
 	if(outputGlueData != nullptr) {
@@ -676,7 +676,7 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != nullptr) {
-		objectToLua(context, classUserData, instance, GBindValueFlags(bvfAllowGC), GScriptInstanceCv::sicvNone, nullptr);
+		objectToLua(context, classUserData, instance, true, GScriptInstanceCv::sicvNone, nullptr);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -903,9 +903,7 @@ bool doValueToScript(
 			const GVariant instance = value.toObject(&metaClass, &transferOwnership, &cv);
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 			
-			GBindValueFlags flags;
-			flags.setByBool(bvfAllowGC, transferOwnership);
-			objectToLua(context, context->getClassData(metaClass), instance, flags, cv, data.outputGlueData);
+			objectToLua(context, context->getClassData(metaClass), instance, transferOwnership, cv, data.outputGlueData);
 			break;
 		}
 

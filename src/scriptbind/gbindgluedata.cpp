@@ -196,13 +196,13 @@ GObjectGlueData::GObjectGlueData(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classGlueData,
 		const GVariant & instance,
-		const GBindValueFlags & flags,
+		const bool allowGC,
 		const GScriptInstanceCv cv
 	)
 	:
 		super(gdtObject, context),
 		classGlueData(classGlueData),
-		flags(flags),
+		allowGC(allowGC),
 		cv(cv)
 {
 	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(instance));
@@ -210,20 +210,20 @@ GObjectGlueData::GObjectGlueData(
 	if(! objectLifeManager) {
 		objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
 	}
-	objectInstance.reset(new GObjectInstance(context, instance, this->getClassData(), objectLifeManager.get(), this->flags.has(bvfAllowGC)));
+	objectInstance.reset(new GObjectInstance(context, instance, this->getClassData(), objectLifeManager.get(), allowGC));
 }
 
 GObjectGlueData::GObjectGlueData(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classGlueData,
 		const GObjectInstancePointer & objectInstance,
-		const GBindValueFlags & flags,
+		const bool allowGC,
 		const GScriptInstanceCv cv
 	)
 	:
 		super(gdtObject, context),
 		classGlueData(classGlueData),
-		flags(flags),
+		allowGC(allowGC),
 		cv(cv),
 		objectInstance(objectInstance)
 {

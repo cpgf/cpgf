@@ -73,13 +73,13 @@ public:
 	GObjectGlueDataPointer newObjectGlueData(
 		const GClassGlueDataPointer & classData,
 		const GVariant & instance,
-		const GBindValueFlags & flags,
+		const bool allowGC,
 		const GScriptInstanceCv cv
 	);
 	GObjectGlueDataPointer newOrReuseObjectGlueData(
 		const GClassGlueDataPointer & classData,
 		const GVariant & instance,
-		const GBindValueFlags & flags,
+		const bool allowGC,
 		const GScriptInstanceCv cv
 	);
 
@@ -116,6 +116,7 @@ private:
 	GScopedInterface<IScriptContext> scriptContext;
 
 	GScopedPointer<GScriptObjectCache> scriptObjectCache;
+
 private:
 	template <typename T>
 	friend class GGlueDataWrapperImplement;
