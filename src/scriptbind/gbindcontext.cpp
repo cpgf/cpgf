@@ -118,11 +118,6 @@ GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClas
 	return data;
 }
 
-GClassGlueDataPointer GBindingContext::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
-{
-	return this->classPool->getOrNewClassData(instance, metaClass);
-}
-
 GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)
 {
 	return this->classPool->getClassData(metaClass);
@@ -307,23 +302,6 @@ size_t GClassPool::getFreeSlot(ClassMapListType * classDataList, size_t startSlo
 		}
 	}
 	return slot;
-}
-
-GClassGlueDataPointer GClassPool::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
-{
-	InstanceMapType::iterator instanceIterator = this->instanceMap.find(objectAddressFromVariant(instance));
-	if(instanceIterator != this->instanceMap.end()) {
-		if(instanceIterator->second.expired()) {
-			this->instanceMap.erase(instanceIterator);
-		}
-		else {
-			if(metaClass->equals(instanceIterator->second.get()->getClassData()->getMetaClass())) {
-				return instanceIterator->second.get()->getClassData();
-			}
-		}
-	}
-
-	return this->getClassData(metaClass);
 }
 
 GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass)

@@ -65,7 +65,6 @@ public:
 	IScriptContext * borrowScriptContext() const;
 
 public:
-	GClassGlueDataPointer getOrNewClassData(const GVariant & instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
@@ -144,7 +143,6 @@ public:
 
 	GObjectInstancePointer findObjectData(const GVariant & instancecv);
 
-	GClassGlueDataPointer getOrNewClassData(const GVariant & instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
