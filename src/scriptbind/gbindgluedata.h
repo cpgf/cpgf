@@ -152,6 +152,33 @@ typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
 typedef GWeakPointer<GClassGlueData> GWeakClassGlueDataPointer;
 
 
+/*
+Difference between GObjectInstance and GObjectGlueData
+
+GObjectInstance represents the object entity that is at certain memory address.
+The field "classData" is the meta class that created the GObjectInstance originally,
+so GObjectInstance will use "classData" to free the underlying C++ object.
+"classData" is only used to free the object, it's not the type of GObjectInstance.
+Indeed, GObjectInstance is typeless. A GObjectInstance can represent different classes,
+such as a base and a derived class, and a GObjectInstance can also represent complete
+different types, which happens with pointer aliasing.
+Example,
+struct D {};
+class A
+{
+	D d;
+};
+A GObjectInstance of object A may be object A, or object A::d.
+
+GObjectGlueData represents the "logical" object. It contains a meta class as the type,
+it also contains the constness.
+Assume we have,
+A obj;
+A * a = &obj;
+const A * c = &obj;
+Both a and c will have the same GObjectInstance because they point to the same address,
+but they have different GObjectGlueData.
+*/
 class GObjectInstance
 {
 public:
@@ -160,7 +187,7 @@ public:
 		const GVariant & instance,
 		const GClassGlueDataPointer & classData,
 		IMetaObjectLifeManager * objectLifeManager,
-		bool allowGC
+		const bool allowGC
 	);
 	~GObjectInstance();
 
@@ -176,14 +203,6 @@ public:
 
 	const GVariant & getInstance() const {
 		return this->instance;
-	}
-
-	IMetaClass * getMetaClass() const {
-		return this->classData->getMetaClass();
-	}
-
-	GClassGlueDataPointer getClassData() const {
-		return this->classData;
 	}
 
 	GContextPointer getBindingContext() const;
@@ -283,7 +302,6 @@ private:
 
 private:
 	GClassGlueDataPointer classGlueData;
-	bool allowGC;
 	GScriptInstanceCv cv;
 	GObjectInstancePointer objectInstance;
 	GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits;

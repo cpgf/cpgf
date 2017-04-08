@@ -145,7 +145,7 @@ GObjectInstance::GObjectInstance(
 		const GVariant & instance,
 		const GClassGlueDataPointer & classData,
 		IMetaObjectLifeManager * objectLifeManager,
-		bool allowGC
+		const bool allowGC
 	)
 	:
 		context(context),
@@ -202,7 +202,6 @@ GObjectGlueData::GObjectGlueData(
 	:
 		super(gdtObject, context),
 		classGlueData(classGlueData),
-		allowGC(allowGC),
 		cv(cv)
 {
 	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(instance));
@@ -223,7 +222,6 @@ GObjectGlueData::GObjectGlueData(
 	:
 		super(gdtObject, context),
 		classGlueData(classGlueData),
-		allowGC(allowGC),
 		cv(cv),
 		objectInstance(objectInstance)
 {
