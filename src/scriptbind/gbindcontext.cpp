@@ -141,7 +141,6 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 	)
 {
 	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
-	data->initialize();
 	this->classPool->objectCreated(data->getObjectInstance());
 	return data;
 }
@@ -161,7 +160,6 @@ GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(
 	}
 	else {
 		data.reset(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
-		data->initialize();
 		this->classPool->objectCreated(data->getObjectInstance());
 	}
 

@@ -58,7 +58,7 @@ class GScriptDataStorage : public IScriptDataStorage
 	G_INTERFACE_IMPL_OBJECT
 
 private:
-	explicit GScriptDataStorage(const GObjectGlueDataPointer & object);
+	explicit GScriptDataStorage(const GObjectGlueData * object);
 
 public:
 	virtual ~GScriptDataStorage();
@@ -298,7 +298,7 @@ public:
 	}
 
 private:
-	void initialize();
+	void doInitialize();
 
 private:
 	GClassGlueDataPointer classGlueData;

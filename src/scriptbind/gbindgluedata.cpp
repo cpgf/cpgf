@@ -9,7 +9,7 @@ namespace cpgf {
 
 namespace bind_internal {
 
-GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
+GScriptDataStorage::GScriptDataStorage(const GObjectGlueData * object)
 {
 	if(object) {
 		this->instanceDataHolder = object->getDataHolder();
@@ -210,6 +210,8 @@ GObjectGlueData::GObjectGlueData(
 		objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
 	}
 	objectInstance.reset(new GObjectInstance(context, instance, this->getClassData(), objectLifeManager.get(), allowGC));
+
+	this->doInitialize();
 }
 
 GObjectGlueData::GObjectGlueData(
@@ -231,12 +233,12 @@ GObjectGlueData::~GObjectGlueData()
 {
 }
 
-void GObjectGlueData::initialize()
+void GObjectGlueData::doInitialize()
 {
 	GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
 	if(scriptWrapper) {
 		if(! this->objectInstance->dataStorage) {
-			this->objectInstance->dataStorage.reset(new GScriptDataStorage(GObjectGlueDataPointer(this->shareFromThis())));
+			this->objectInstance->dataStorage.reset(new GScriptDataStorage(this));
 		}
 		scriptWrapper->initializeScriptWrapper(this->getInstanceAddress(), this->objectInstance->dataStorage.get(), this->getBindingContext()->borrowScriptContext());
 	}
