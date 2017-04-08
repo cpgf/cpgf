@@ -94,6 +94,7 @@ protected:
 	GContextPointer getBindingContext();
 
 private:
+	// Below comment is out of date.
 	// Here we must use strong shared pointer,
 	// otherwise the context may be freed by the script object
 	// while the script function is still live.
@@ -102,7 +103,6 @@ private:
 	// Now the cyclic chain is broken by calling weaken when setting IScriptFunction to GScriptDataHolder
 	// The solution is super ugly, but I can't find better solution for now.
 
-	GContextPointer context;
 	GWeakContextPointer weakContext;
 };
 

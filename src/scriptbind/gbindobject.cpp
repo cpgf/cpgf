@@ -53,7 +53,7 @@ void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoade
 
 
 GScriptFunctionBase::GScriptFunctionBase(const GContextPointer & context)
-	: context(context), weakContext(context)
+	: /*context(context),*/ weakContext(context)
 {
 }
 
@@ -63,7 +63,6 @@ GScriptFunctionBase::~GScriptFunctionBase()
 
 void GScriptFunctionBase::weaken()
 {
-	this->context.reset();
 }
 
 GContextPointer GScriptFunctionBase::getBindingContext()
