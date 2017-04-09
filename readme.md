@@ -122,13 +122,13 @@ To build the unit test and sample code, feed a second parameter
 	TARGET=sampleirrlicht        Build the Irrlicht binding sample application.
 
 ## Compatibility -- Tested compilers and OSes
-The below cases were based on the old 1.5 version. Since version 1.6, C++11 compiler is required, and VC 2015 and GCC 4.9.1 were tested.
-Windows XP, Microsoft Visual C++ 2008 Express and Microsoft Visual C++ 2010 Professional
-Windows XP, MingW GCC 3.4.2, 4.4.0 and 4.5.2
-Windows XP, Embarcadero C++ Builder 2010
-Linux (Ubuntu 11.04 in VirtualBox), GCC 4.5.2
-Linux (Ubuntu 11.04 in VirtualBox), Intel C++ Compiler Composer XE
-Mac 10.6.8, GCC 4.4.0
+* The below cases were based on the old 1.5 version. Since version 1.6, C++11 compiler is required, and VC 2015 and GCC 4.9.1 were tested.
+* Windows XP, Microsoft Visual C++ 2008 Express and Microsoft Visual C++ 2010 Professional
+* Windows XP, MingW GCC 3.4.2, 4.4.0 and 4.5.2
+* Windows XP, Embarcadero C++ Builder 2010
+* Linux (Ubuntu 11.04 in VirtualBox), GCC 4.5.2
+* Linux (Ubuntu 11.04 in VirtualBox), Intel C++ Compiler Composer XE
+* Mac 10.6.8, GCC 4.4.0
 	
 ## Required third party library -- None for the major libraries
 * For Lua binding, Lua library is required.
