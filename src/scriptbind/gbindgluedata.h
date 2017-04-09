@@ -535,6 +535,10 @@ private:
 };
 
 
+/*
+This class is used to hold all data wrappers which are embeded in script engine,
+to avoid memory leak by the underlying script engine.
+*/
 class GGlueDataWrapperPool
 {
 private:
@@ -548,6 +552,7 @@ public:
 	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
 
 	void clear();
+
 private:
 	bool active;
 	SetType wrapperSet;
