@@ -241,6 +241,7 @@ typedef std::vector<GGlueDataWrapper *> TempListType;
 void GGlueDataWrapperPool::clear()
 {
 	this->active = false;
+return; // It crashes at the moment, don't execute the function for now.
 
 	TempListType tempList(this->wrapperSet.begin(), this->wrapperSet.end());
 	this->wrapperSet.clear();

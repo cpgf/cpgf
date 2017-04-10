@@ -1229,7 +1229,12 @@ void GLuaScopeGuard::rawGet(const char * name)
 
 
 // function is on stack top
-GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant const * const * params, size_t paramCount, const char * name)
+GScriptValue invokeLuaFunctionIndirectly(
+		const GContextPointer & context,
+		GVariant const * const * params,
+		const size_t paramCount,
+		const char * name
+	)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 

@@ -1108,12 +1108,9 @@ PyObject * objectToPython(
 	return object;
 }
 
-PyObject * rawToPython(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
+PyObject * rawToPython(const GContextPointer & context, const GVariant & value)
 {
 	GRawGlueDataPointer rawData(context->newRawGlueData(value));
-	if(outputGlueData != nullptr) {
-		*outputGlueData = rawData;
-	}
 	PyObject * rawObject = createPythonObject(rawData);
 
 	return rawObject;
@@ -1154,46 +1151,6 @@ PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaC
 struct GPythonMethods
 {
 	typedef PyObject * ResultType;
-#if 0
-	static ResultType doObjectToScript(
-			const GContextPointer & context,
-			const GClassGlueDataPointer & classData,
-			const GVariant & instance,
-			const bool allowGC,
-			const GScriptInstanceCv cv,
-			GGlueDataPointer * outputGlueData
-		)
-	{
-		return objectToPython(context, classData, instance, allowGC, cv, outputGlueData);
-	}
-
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const bool allowGC, GGlueDataPointer * outputGlueData)
-	{
-		return variantToPython(context, value, allowGC, outputGlueData);
-	}
-
-	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
-	{
-		return rawToPython(context, value, outputGlueData);
-	}
-
-	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
-	{
-		PyObject * classObject = createClassObject(context, metaClass);
-		return classObject;
-	}
-
-	static ResultType doStringToScript(const GContextPointer & /*context*/, const char * s)
-	{
-		return PyString_FromString(s);
-	}
-
-	static ResultType doWideStringToScript(const GContextPointer & /*context*/, const wchar_t * ws)
-	{
-		std::string s(wideStringToString(ws));
-		return PyString_FromString(s.c_str());
-	}
-#endif
 
 	static bool isSuccessResult(const ResultType & result)
 	{
@@ -1204,32 +1161,6 @@ struct GPythonMethods
 	{
 		return ResultType();
 	}
-
-#if 0
-	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
-		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
-	{
-		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
-		GContextPointer context = classData->getBindingContext();
-		if(data == nullptr) {
-			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
-
-			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-			data = new GMapItemMethodData(context->newMethodGlueData(metaList.get()));
-
-			mapItem->setUserData(data);
-		}
-
-		return createPythonObject(context->newObjectAndMethodGlueData(objectData, data->getMethodData()));
-	}
-
-	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
-	{
-		GContextPointer context = classData->getBindingContext();
-		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-		return createPythonObject(context->newEnumGlueData(metaEnum.get()));
-	}
-#endif
 
 	static ResultType doScriptValueToScript(
 		const GContextPointer & context,
@@ -1508,7 +1439,14 @@ int callbackAnyObjectSetAttribute(PyObject * object, PyObject * attrName, PyObje
 	LEAVE_PYTHON(return -1)
 }
 
-GScriptValue invokePythonFunctionIndirectly(const GContextPointer & context, PyObject * object, PyObject * func, GVariant const * const * params, size_t paramCount, const char * name)
+GScriptValue invokePythonFunctionIndirectly(
+		const GContextPointer & context,
+		PyObject * object,
+		PyObject * func,
+		GVariant const * const * params,
+		const size_t paramCount,
+		const char * name
+	)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1528,7 +1466,12 @@ GScriptValue invokePythonFunctionIndirectly(const GContextPointer & context, PyO
 			PyTuple_SetItem(args.get(), 0, object);
 		}
 		for(size_t i = 0; i < paramCount; ++i) {
-			GPythonScopedPointer arg(variantToPython(context, *params[i]));
+			GPythonScopedPointer arg(doValueToScript(
+				context,
+				doCreateScriptValueFromVariant(context, *params[i], false),
+				ScriptValueToScriptData(),
+				true
+			));
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1662,7 +1605,7 @@ PyObject * doValueToScript(
 		}
 
 		case GScriptValue::typeRaw:
-			result = rawToPython(context, value.toRaw(), nullptr);
+			result = rawToPython(context, value.toRaw());
 			break;
 
 		case GScriptValue::typeAccessible: {

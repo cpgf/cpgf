@@ -158,7 +158,12 @@ void doTestNewObjectProperty(T * /*binding*/, TestScriptContext * context)
 
 	QNEWOBJ(a, TestObject())
 	QDO(a.veryNewObjectProperty = myObject);
-	QASSERT(a.veryNewObjectProperty.myInt == 20);
+	if(context->isPython()) {
+		QASSERT(a.veryNewObjectProperty['myInt'] == 20);
+	}
+	else {
+		QASSERT(a.veryNewObjectProperty.myInt == 20);
+	}
 }
 
 void testNewObjectProperty(TestScriptContext * context)
