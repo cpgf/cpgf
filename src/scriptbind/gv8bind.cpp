@@ -422,7 +422,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	Handle<Value> external = External::New(getV8Isolate(), &signatureKey);
 	Local<Object> object = functionTemplate->GetFunction()->NewInstance(1, &external);
 
-	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 
 	object->SetAlignedPointerInInternalField(0, dataWrapper);

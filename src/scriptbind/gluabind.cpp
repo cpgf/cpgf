@@ -237,7 +237,11 @@ void helperBindAllOperators(const GContextPointer & context, const GObjectGlueDa
 	IMetaClass * metaClass, bool bindingToObject);
 void helperBindClass(const GContextPointer & context, IMetaClass * metaClass);
 void helperBindEnum(const GContextPointer & context, IMetaEnum * metaEnum);
-void helperBindMethodList(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
+void helperBindMethodList(
+	const GContextPointer & context,
+	const GObjectGlueDataPointer & objectData,
+	const GMethodGlueDataPointer & methodData
+);
 
 typedef GCallback<GLuaGlobalAccessor * ()> GlobalAccessorGetter;
 bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptObject, const GScriptValue & value, const ScriptValueToScriptData & data, const char * name = nullptr);
@@ -344,7 +348,7 @@ void objectToLua(
 	}
 
 	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
-	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, allowGC, cv));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
 	newGlueDataWrapper(userData, objectData);
 
 	if(outputGlueData != nullptr) {
@@ -855,7 +859,11 @@ void helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
 	lua_setmetatable(L, -2);
 }
 
-void helperBindMethodList(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
+void helperBindMethodList(
+		const GContextPointer & context,
+		const GObjectGlueDataPointer & objectData,
+		const GMethodGlueDataPointer & methodData
+	)
 {
 	lua_State * L = getLuaState(context);
 
@@ -908,13 +916,13 @@ bool doValueToScript(
 		}
 
 		case GScriptValue::typeMethod: {
-			GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
+			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
 			helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}
 
 		case GScriptValue::typeOverloadedMethods: {
-			GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
+			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
 			helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}

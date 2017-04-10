@@ -210,7 +210,6 @@ GObjectGlueData::GObjectGlueData(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classGlueData,
 		const GObjectInstancePointer & objectInstance,
-		const bool allowGC,
 		const GScriptInstanceCv cv
 	)
 	:

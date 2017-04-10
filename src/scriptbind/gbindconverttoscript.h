@@ -328,7 +328,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 		GObjectGlueDataPointer castedObjectData;
 		if(instance != nullptr && objectData) {
-			castedObjectData = context->newOrReuseObjectGlueData(context->getClassData(metaClass.get()), instance, false, objectData->getCV());
+			castedObjectData = context->newObjectGlueData(context->getClassData(metaClass.get()), instance, false, objectData->getCV());
 		}
 
 		return Methods::doScriptValueToScript(

@@ -76,12 +76,6 @@ public:
 		const bool allowGC,
 		const GScriptInstanceCv cv
 	);
-	GObjectGlueDataPointer newOrReuseObjectGlueData(
-		const GClassGlueDataPointer & classData,
-		const GVariant & instance,
-		const bool allowGC,
-		const GScriptInstanceCv cv
-	);
 
 	GMethodGlueDataPointer newMethodGlueData(const GScriptValue & scriptValue);
 

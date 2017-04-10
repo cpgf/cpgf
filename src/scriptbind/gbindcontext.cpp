@@ -140,27 +140,14 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 		const GScriptInstanceCv cv
 	)
 {
-	return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
-}
-
-GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(
-		const GClassGlueDataPointer & classData,
-		const GVariant & instance,
-		const bool allowGC,
-		const GScriptInstanceCv cv
-	)
-{
 	GObjectInstancePointer objectInstance(this->classPool->findObjectData(instance));
 
-	GObjectGlueDataPointer data;
 	if(objectInstance) {
-		data.reset(new GObjectGlueData(this->shareFromThis(), classData, objectInstance, allowGC, cv));
+		return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, objectInstance, cv));
 	}
 	else {
-		data.reset(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
+		return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
 	}
-
-	return data;
 }
 
 GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GScriptValue & scriptValue)
