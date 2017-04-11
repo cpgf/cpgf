@@ -114,6 +114,7 @@ private:
 };
 
 typedef GSharedPointer<GGlueData> GGlueDataPointer;
+typedef GWeakPointer<GGlueData> GWeakGlueDataPointer;
 
 
 class GClassGlueData : public GGlueData, public GShareFromThis<GClassGlueData>
@@ -304,6 +305,7 @@ private:
 
 private:
 	friend class GBindingContext;
+	friend class GBindingPool;
 };
 
 
@@ -327,9 +329,11 @@ private:
 
 private:
 	friend class GBindingContext;
+	friend class GBindingPool;
 };
 
 typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
+typedef GWeakPointer<GMethodGlueData> GWeakMethodGlueDataPointer;
 
 
 class GEnumGlueData : public GGlueData
@@ -517,12 +521,19 @@ template <typename T>
 class GGlueDataWrapperImplement : public GGlueDataWrapper
 {
 public:
-	explicit GGlueDataWrapperImplement(const T & p) : dataPointer(p) {
+	explicit GGlueDataWrapperImplement(const T & p)
+		: dataPointer(p)
+	{
 		GASSERT((bool)p);
 
+		p->getBindingContext()->getBindingPool()->glueDataAdded(p);
 	}
 
-	virtual ~GGlueDataWrapperImplement() {
+	virtual ~GGlueDataWrapperImplement()
+	{
+		if(this->dataPointer->isValid()) {
+			this->dataPointer->getBindingContext()->getBindingPool()->glueDataRemoved(this->dataPointer);
+		}
 	}
 
 	virtual GGlueDataPointer getData() const {

@@ -83,6 +83,122 @@ void GScriptContext::bindExternalObjectToClass(void * address, IMetaClass * meta
 	);
 }
 
+
+GBindingPool::GBindingPool(const GSharedPointer<GBindingContext> & context)
+	: context(context)
+{
+}
+
+GBindingPool::~GBindingPool()
+{
+}
+
+void GBindingPool::glueDataAdded(const GMethodGlueDataPointer & glueData)
+{
+	this->methodGlueDataMap[this->doMakeMethodKey(glueData->getScriptValue())] = GWeakMethodGlueDataPointer(glueData);
+}
+
+void GBindingPool::glueDataRemoved(const GMethodGlueDataPointer & glueData)
+{
+	auto it = this->methodGlueDataMap.find(this->doMakeMethodKey(glueData->getScriptValue()));
+	if(it != this->methodGlueDataMap.end()) {
+		this->methodGlueDataMap.erase(it);
+	}
+}
+
+GMethodGlueDataPointer GBindingPool::newMethodGlueData(const GScriptValue & scriptValue)
+{
+	auto key = this->doMakeMethodKey(scriptValue);
+	auto it = this->methodGlueDataMap.find(key);
+	if(it != this->methodGlueDataMap.end() && ! it->second.expired()) {
+		return it->second.get();
+	}
+	else {
+		return GMethodGlueDataPointer(new GMethodGlueData(this->context.get(), scriptValue));
+	}
+}
+
+GBindingPool::MethodKey GBindingPool::doMakeMethodKey(const GScriptValue & scriptValue)
+{
+	if(scriptValue.getType() == GScriptValue::typeMethod) {
+		void * instance;
+		GScopedInterface<IMetaMethod> method(scriptValue.toMethod(&instance));
+		return std::make_tuple(method.get(), instance);
+	}
+	else { // GScriptValue::typeOverloadedMethods
+		GScopedInterface<IMetaList> methodList(scriptValue.toOverloadedMethods());
+		return std::make_tuple(methodList.get(), nullptr);
+	}
+}
+
+void GBindingPool::glueDataAdded(const GObjectGlueDataPointer & glueData)
+{
+	if(! glueData) {
+		return;
+	}
+
+	const ObjectKey key = ObjectKey(
+		glueData->getClassData() ? glueData->getClassData()->getMetaClass() : nullptr,
+		objectAddressFromVariant(glueData->getInstance()),
+		glueData->getCV(),
+		glueData->isAllowGC()
+	);
+	this->objectGlueDataMap[key] = GWeakObjectGlueDataPointer(glueData);
+}
+
+void GBindingPool::glueDataRemoved(const GObjectGlueDataPointer & glueData)
+{
+	if(! glueData) {
+		return;
+	}
+
+	const ObjectKey key = ObjectKey(
+		glueData->getClassData() ? glueData->getClassData()->getMetaClass() : nullptr,
+		objectAddressFromVariant(glueData->getInstance()),
+		glueData->getCV(),
+		glueData->isAllowGC()
+	);
+	auto it = this->objectGlueDataMap.find(key);
+	if(it != this->objectGlueDataMap.end()) {
+		this->objectGlueDataMap.erase(it);
+	}
+}
+
+GObjectGlueDataPointer GBindingPool::newObjectGlueData(
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const bool allowGC,
+		const GScriptInstanceCv cv
+	)
+{
+	const ObjectKey key = ObjectKey(
+		classData->getMetaClass(),
+		objectAddressFromVariant(instance),
+		cv,
+		allowGC
+	);
+	auto it = this->objectGlueDataMap.find(key);
+	if(it != this->objectGlueDataMap.end()) {
+		return it->second.get();
+	}
+	else {
+		return GObjectGlueDataPointer(new GObjectGlueData(this->context.get(), classData, instance, allowGC, cv));
+	}
+}
+
+void GBindingPool::glueDataAdded(const GObjectAndMethodGlueDataPointer & glueData)
+{
+	this->glueDataAdded(glueData->getObjectData());
+	this->glueDataAdded(glueData->getMethodData());
+}
+
+void GBindingPool::glueDataRemoved(const GObjectAndMethodGlueDataPointer & glueData)
+{
+	this->glueDataRemoved(glueData->getObjectData());
+	this->glueDataRemoved(glueData->getMethodData());
+}
+	
+
 GBindingContext::GBindingContext(IMetaService * service)
 	: service(service), scriptContext(new GScriptContext(this))
 {
@@ -146,12 +262,16 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 		return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, objectInstance, cv));
 	}
 	else {
+//return this->getBindingPool()->newObjectGlueData(classData, instance, allowGC, cv);
+
 		return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
 	}
 }
 
 GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GScriptValue & scriptValue)
 {
+return this->getBindingPool()->newMethodGlueData(scriptValue);
+
 	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), scriptValue));
 	return data;
 }
@@ -186,6 +306,14 @@ GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(const GObjectGlueD
 	return operatorData;
 }
 
+GBindingPool * GBindingContext::getBindingPool()
+{
+	if(! this->bindingPool) {
+		this->bindingPool.reset(new GBindingPool(this->shareFromThis()));
+	}
+	
+	return this->bindingPool.get();
+}
 
 GScriptObjectCache * GBindingContext::getScriptObjectCache() {
 	if (!scriptObjectCache) {

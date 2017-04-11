@@ -11,6 +11,9 @@
 #include "gbindgluedata.h"
 
 #include <vector>
+#include <tuple>
+#include <map>
+#include <memory>
 
 namespace cpgf {
 
@@ -49,6 +52,47 @@ private:
 	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
+class GBindingPool
+{
+private:
+	typedef std::tuple<void *, void *> MethodKey; // <method, instance>
+	
+	typedef std::tuple<void *, void *, GScriptInstanceCv, bool> ObjectKey; // <class address, object address, constness, allowGC>
+
+public:
+	explicit GBindingPool(const GSharedPointer<GBindingContext> & context);
+	~GBindingPool();
+
+	template <typename T>
+	void glueDataAdded(const T & /*glueData*/) {}
+	template <typename T>
+	void glueDataRemoved(const T & /*glueData*/) {}
+
+	void glueDataAdded(const GMethodGlueDataPointer & glueData);
+	void glueDataRemoved(const GMethodGlueDataPointer & glueData);
+	GMethodGlueDataPointer newMethodGlueData(const GScriptValue & scriptValue);
+
+	void glueDataAdded(const GObjectGlueDataPointer & glueData);
+	void glueDataRemoved(const GObjectGlueDataPointer & glueData);
+	GObjectGlueDataPointer newObjectGlueData(
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const bool allowGC,
+		const GScriptInstanceCv cv
+	);
+
+	void glueDataAdded(const GObjectAndMethodGlueDataPointer & glueData);
+	void glueDataRemoved(const GObjectAndMethodGlueDataPointer & glueData);
+	
+private:
+	MethodKey doMakeMethodKey(const GScriptValue & scriptValue);
+
+private:
+	GWeakPointer<GBindingContext> context;
+
+	std::map<MethodKey, GWeakMethodGlueDataPointer> methodGlueDataMap;
+	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectGlueDataMap;
+};
 
 class GBindingContext : public GShareFromThis<GBindingContext>
 {
@@ -95,6 +139,8 @@ public:
 		IMetaClass * metaClass,
 		GMetaOpType op
 	);
+	
+	GBindingPool * getBindingPool();
 
 	GScriptObjectCache * getScriptObjectCache();
 
@@ -105,6 +151,7 @@ private:
 private:
 	GSharedInterface<IMetaService> service;
 	GScopedPointer<GClassPool> classPool;
+	std::shared_ptr<GBindingPool> bindingPool;
 
 	GScopedPointer<GScriptCoreService> scriptCoreService;
 	GScopedInterface<IScriptContext> scriptContext;
