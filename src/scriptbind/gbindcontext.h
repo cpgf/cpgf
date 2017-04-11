@@ -83,6 +83,10 @@ public:
 
 	void glueDataAdded(const GObjectAndMethodGlueDataPointer & glueData);
 	void glueDataRemoved(const GObjectAndMethodGlueDataPointer & glueData);
+
+	void objectInstanceAdded(const GObjectInstancePointer & objectData);
+	void objectInstanceDestroyed(const GObjectInstance * objectData);
+	GObjectInstancePointer findObjectInstance(const GVariant & instance);
 	
 private:
 	MethodKey doMakeMethodKey(const GScriptValue & scriptValue);
@@ -92,6 +96,7 @@ private:
 
 	std::map<MethodKey, GWeakMethodGlueDataPointer> methodGlueDataMap;
 	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectGlueDataMap;
+	std::map<void *, GWeakObjectInstancePointer> instanceMap;
 };
 
 class GBindingContext : public GShareFromThis<GBindingContext>
@@ -179,11 +184,7 @@ private:
 public:
 	explicit GClassPool(GBindingContext * context);
 
-	void objectCreated(const GObjectInstancePointer & objectData);
-	void objectDestroyed(const GObjectInstance * objectData);
 	void classDestroyed(IMetaClass * metaClass);
-
-	GObjectInstancePointer findObjectData(const GVariant & instancecv);
 
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);

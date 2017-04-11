@@ -198,6 +198,34 @@ void GBindingPool::glueDataRemoved(const GObjectAndMethodGlueDataPointer & glueD
 	this->glueDataRemoved(glueData->getMethodData());
 }
 	
+void GBindingPool::objectInstanceAdded(const GObjectInstancePointer & objectData)
+{
+	void * instance = objectAddressFromVariant(objectData->getInstance());
+	if(this->instanceMap.find(instance) == this->instanceMap.end()) {
+		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
+	}
+}
+
+void GBindingPool::objectInstanceDestroyed(const GObjectInstance * objectData)
+{
+	if(isLibraryLive()) {
+		void * instance = objectAddressFromVariant(objectData->getInstance());
+		this->instanceMap.erase(instance);
+	}
+}
+
+GObjectInstancePointer GBindingPool::findObjectInstance(const GVariant & instance)
+{
+	auto it = this->instanceMap.find(objectAddressFromVariant(instance));
+
+	if(it != this->instanceMap.end() && it->second) {
+		GObjectInstancePointer data(it->second);
+		return data;
+	}
+
+	return GObjectInstancePointer();
+}
+
 
 GBindingContext::GBindingContext(IMetaService * service)
 	: service(service), scriptContext(new GScriptContext(this))
@@ -246,7 +274,7 @@ GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 
 GObjectInstancePointer GBindingContext::findObjectInstance(const GVariant & instance)
 {
-	return this->classPool->findObjectData(instance);
+	return this->getBindingPool()->findObjectInstance(instance);
 }
 
 GObjectGlueDataPointer GBindingContext::newObjectGlueData(
@@ -257,7 +285,7 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 	)
 {
 	auto context = this->shareFromThis();
-	GObjectInstancePointer objectInstance(this->classPool->findObjectData(instance));
+	GObjectInstancePointer objectInstance(this->getBindingPool()->findObjectInstance(instance));
 
 	if(! objectInstance) {
 		objectInstance = GObjectInstance::create(context, instance, classData, allowGC);
@@ -324,34 +352,6 @@ GScriptObjectCache * GBindingContext::getScriptObjectCache() {
 GClassPool::GClassPool(GBindingContext * context)
 	: context(context)
 {
-}
-
-void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
-{
-	void * instance = objectAddressFromVariant(objectData->getInstance());
-	if(this->instanceMap.find(instance) == instanceMap.end()) {
-		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
-	}
-}
-
-void GClassPool::objectDestroyed(const GObjectInstance * objectData)
-{
-	if(isLibraryLive()) {
-		void * instance = objectAddressFromVariant(objectData->getInstance());
-		this->instanceMap.erase(instance);
-	}
-}
-
-GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
-{
-	InstanceMapType::iterator it = this->instanceMap.find(objectAddressFromVariant(instance));
-
-	if(it != instanceMap.end() && it->second) {
-		GObjectInstancePointer data(it->second);
-		return data;
-	}
-
-	return GObjectInstancePointer();
 }
 
 void GClassPool::classDestroyed(IMetaClass * metaClass)

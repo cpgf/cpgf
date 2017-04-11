@@ -134,7 +134,7 @@ GObjectInstancePointer GObjectInstance::create(
 	)
 {
 	GObjectInstancePointer objectInstance(new GObjectInstance(context, instance, classData, allowGC));
-	context->getClassPool()->objectCreated(objectInstance);
+	context->getBindingPool()->objectInstanceAdded(objectInstance);
 	return objectInstance;
 }
 
@@ -178,7 +178,7 @@ GObjectInstance::~GObjectInstance()
 		}
 	}
 	if(! this->context.expired()) {
-		this->getBindingContext()->getClassPool()->objectDestroyed(this);
+		this->getBindingContext()->getBindingPool()->objectInstanceDestroyed(this);
 	}
 }
 
