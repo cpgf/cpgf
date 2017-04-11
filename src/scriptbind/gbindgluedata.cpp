@@ -126,22 +126,40 @@ GClassGlueData::~GClassGlueData()
 }
 
 
+GObjectInstancePointer GObjectInstance::create(
+		const GContextPointer & context,
+		const GVariant & instance,
+		const GClassGlueDataPointer & classData,
+		const bool allowGC
+	)
+{
+	GObjectInstancePointer objectInstance(new GObjectInstance(context, instance, classData, allowGC));
+	context->getClassPool()->objectCreated(objectInstance);
+	return objectInstance;
+}
+
 GObjectInstance::GObjectInstance(
 		const GContextPointer & context,
 		const GVariant & instance,
 		const GClassGlueDataPointer & classData,
-		IMetaObjectLifeManager * objectLifeManager,
 		const bool allowGC
 	)
 	:
 		context(context),
 		instance(instance),
 		classData(classData),
-		objectLifeManager(objectLifeManager),
+		objectLifeManager(),
 		allowGC(allowGC),
 		isSharedPointer(false)
 {
-	objectLifeManager->retainObject(this->getInstanceAddress());
+	GScopedInterface<IMetaObjectLifeManager> newObjectLifeManager(createObjectLifeManagerForInterface(instance));
+
+	if(! newObjectLifeManager) {
+		newObjectLifeManager.reset(metaGetItemExtendType(classData->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
+	}
+	
+	this->objectLifeManager.reset(newObjectLifeManager.get());
+	this->objectLifeManager->retainObject(this->getInstanceAddress());
 
 	GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(this->classData->getMetaClass(), GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
 	if(scriptWrapper) {
@@ -183,28 +201,6 @@ const GScriptDataHolderPointer & GObjectInstance::getDataHolder() const
 	return this->dataHolder;
 }
 
-
-GObjectGlueData::GObjectGlueData(
-		const GContextPointer & context,
-		const GClassGlueDataPointer & classGlueData,
-		const GVariant & instance,
-		const bool allowGC,
-		const GScriptInstanceCv cv
-	)
-	:
-		super(gdtObject, context),
-		classGlueData(classGlueData),
-		cv(cv)
-{
-	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(instance));
-
-	if(! objectLifeManager) {
-		objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
-	}
-	this->objectInstance.reset(new GObjectInstance(context, instance, this->getClassData(), objectLifeManager.get(), allowGC));
-
-	this->getBindingContext()->getClassPool()->objectCreated(this->objectInstance);
-}
 
 GObjectGlueData::GObjectGlueData(
 		const GContextPointer & context,

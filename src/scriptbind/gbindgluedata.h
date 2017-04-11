@@ -180,14 +180,26 @@ const A * c = &obj;
 Both a and c will have the same GObjectInstance because they point to the same address,
 but they have different GObjectGlueData.
 */
+class GObjectInstance;
+
+typedef GSharedPointer<GObjectInstance> GObjectInstancePointer;
+typedef GWeakPointer<GObjectInstance> GWeakObjectInstancePointer;
+
 class GObjectInstance
 {
+public:
+	static GObjectInstancePointer create(
+		const GContextPointer & context,
+		const GVariant & instance,
+		const GClassGlueDataPointer & classData,
+		const bool allowGC
+	);
+
 public:
 	GObjectInstance(
 		const GContextPointer & context,
 		const GVariant & instance,
 		const GClassGlueDataPointer & classData,
-		IMetaObjectLifeManager * objectLifeManager,
 		const bool allowGC
 	);
 	~GObjectInstance();
@@ -224,9 +236,6 @@ private:
 	friend class GObjectGlueData;
 };
 
-typedef GSharedPointer<GObjectInstance> GObjectInstancePointer;
-typedef GWeakPointer<GObjectInstance> GWeakObjectInstancePointer;
-
 
 class GObjectGlueData : public GGlueData, public GShareFromThis<GObjectGlueData>
 {
@@ -234,13 +243,6 @@ private:
 	typedef GGlueData super;
 
 private:
-	GObjectGlueData(
-		const GContextPointer & context,
-		const GClassGlueDataPointer & classGlueData,
-		const GVariant & instance,
-		const bool allowGC,
-		const GScriptInstanceCv cv
-	);
 	GObjectGlueData(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classGlueData,

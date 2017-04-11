@@ -166,14 +166,14 @@ void GBindingPool::glueDataRemoved(const GObjectGlueDataPointer & glueData)
 
 GObjectGlueDataPointer GBindingPool::newObjectGlueData(
 		const GClassGlueDataPointer & classData,
-		const GVariant & instance,
+		const GObjectInstancePointer & objectInstance,
 		const bool allowGC,
 		const GScriptInstanceCv cv
 	)
 {
 	const ObjectKey key = ObjectKey(
 		classData->getMetaClass(),
-		objectAddressFromVariant(instance),
+		objectAddressFromVariant(objectInstance->getInstanceAddress()),
 		cv,
 		allowGC
 	);
@@ -182,7 +182,7 @@ GObjectGlueDataPointer GBindingPool::newObjectGlueData(
 		return it->second.get();
 	}
 	else {
-		return GObjectGlueDataPointer(new GObjectGlueData(this->context.get(), classData, instance, allowGC, cv));
+		return GObjectGlueDataPointer(new GObjectGlueData(this->context.get(), classData, objectInstance, cv));
 	}
 }
 
@@ -256,24 +256,22 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 		const GScriptInstanceCv cv
 	)
 {
+	auto context = this->shareFromThis();
 	GObjectInstancePointer objectInstance(this->classPool->findObjectData(instance));
 
-	if(objectInstance) {
-		return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, objectInstance, cv));
+	if(! objectInstance) {
+		objectInstance = GObjectInstance::create(context, instance, classData, allowGC);
 	}
-	else {
-//return this->getBindingPool()->newObjectGlueData(classData, instance, allowGC, cv);
 
-		return GObjectGlueDataPointer(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
-	}
+return this->getBindingPool()->newObjectGlueData(classData, objectInstance, allowGC, cv);
+//	return GObjectGlueDataPointer(new GObjectGlueData(context, classData, objectInstance, cv));
 }
 
 GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GScriptValue & scriptValue)
 {
 return this->getBindingPool()->newMethodGlueData(scriptValue);
 
-	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), scriptValue));
-	return data;
+//	return GMethodGlueDataPointer(new GMethodGlueData(this->shareFromThis(), scriptValue));
 }
 
 GEnumGlueDataPointer GBindingContext::newEnumGlueData(IMetaEnum * metaEnum)

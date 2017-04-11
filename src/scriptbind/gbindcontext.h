@@ -76,7 +76,7 @@ public:
 	void glueDataRemoved(const GObjectGlueDataPointer & glueData);
 	GObjectGlueDataPointer newObjectGlueData(
 		const GClassGlueDataPointer & classData,
-		const GVariant & instance,
+		const GObjectInstancePointer & objectInstance,
 		const bool allowGC,
 		const GScriptInstanceCv cv
 	);
