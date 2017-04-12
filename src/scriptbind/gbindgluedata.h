@@ -27,6 +27,11 @@ A glue data is used as the "user data" in the underlying script engine.
 When a value is passed from script to C++, cpgf uses the glue data internally.
 */
 
+class GObjectInstance;
+
+typedef GSharedPointer<GObjectInstance> GObjectInstancePointer;
+typedef GWeakPointer<GObjectInstance> GWeakObjectInstancePointer;
+
 class GObjectGlueData;
 
 typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
@@ -79,11 +84,19 @@ private:
 class GScriptDataHolder
 {
 private:
-	typedef std::map<std::string, GScriptValue> MapType;
-	typedef std::pair<std::string, GScriptValue> MapValueType;
+	struct Item {
+		GScriptValue scriptValue;
+		/*
+			Need to hold the object instance pointer, otherwise, the object
+			may be GCed while GScriptDataHolder still hold a pointer to it.
+		*/
+		GObjectInstancePointer objectInstance;
+	};
+
+	typedef std::map<std::string, Item> MapType;
 
 public:
-	void setScriptValue(const char * name, const GScriptValue & value);
+	void setScriptValue(const GContextPointer & context, const char * name, const GScriptValue & value);
 	const GScriptValue * findValue(const char * name) const;
 
 private:
@@ -180,11 +193,6 @@ const A * c = &obj;
 Both a and c will have the same GObjectInstance because they point to the same address,
 but they have different GObjectGlueData.
 */
-class GObjectInstance;
-
-typedef GSharedPointer<GObjectInstance> GObjectInstancePointer;
-typedef GWeakPointer<GObjectInstance> GWeakObjectInstancePointer;
-
 class GObjectInstance
 {
 public:
@@ -439,8 +447,15 @@ private:
 	typedef GGlueData super;
 
 private:
-	GObjectAndMethodGlueData(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
-		: super(gdtObjectAndMethod, context), objectData(objectData), methodData(methodData)
+	GObjectAndMethodGlueData(
+			const GContextPointer & context,
+			const GObjectGlueDataPointer & objectData,
+			const GMethodGlueDataPointer & methodData
+		)
+		:
+			super(gdtObjectAndMethod, context),
+			objectData(objectData),
+			methodData(methodData)
 	{
 	}
 

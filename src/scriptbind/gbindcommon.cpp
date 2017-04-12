@@ -725,7 +725,7 @@ void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * 
 	}
 
 	if(dataHolder != nullptr) {
-		dataHolder->setScriptValue(name, value);
+		dataHolder->setScriptValue(glueData->getBindingContext(), name, value);
 	}
 }
 
@@ -821,9 +821,6 @@ bool setValueOnNamedMember(
 		break;
 	}
 
-	// We always set the value to data holder even the meta data is not found.
-	// This is useful when a base class has non-public virtual method, and in the derived wrapper class
-	// we want to override the virtual method from script.
 	setValueToScriptDataHolder(instanceGlueData, name, value);
 	return true;
 }

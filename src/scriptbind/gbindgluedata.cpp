@@ -44,12 +44,15 @@ void GScriptDataHolder::requireDataMap()
 	}
 }
 
-void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & value)
+void GScriptDataHolder::setScriptValue(const GContextPointer & context, const char * name, const GScriptValue & value)
 {
 	this->requireDataMap();
 	
-	// Overwrite any previous value.
-	(*this->dataMap)[name] = value;
+	GObjectInstancePointer objectInstance;
+	if(value.isObject()) {
+		objectInstance = context->findObjectInstance(value.toObject(nullptr, nullptr, nullptr));
+	}
+	(*this->dataMap)[name] = { value, objectInstance };
 }
 
 const GScriptValue * GScriptDataHolder::findValue(const char * name) const
@@ -57,7 +60,7 @@ const GScriptValue * GScriptDataHolder::findValue(const char * name) const
 	if(this->dataMap) {
 		MapType::iterator it = this->dataMap->find(name);
 		if(it != this->dataMap->end()) {
-			return &it->second;
+			return &it->second.scriptValue;
 		}
 	}
 	return nullptr;

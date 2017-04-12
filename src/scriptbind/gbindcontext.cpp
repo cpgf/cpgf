@@ -109,13 +109,15 @@ void GBindingPool::glueDataRemoved(const GMethodGlueDataPointer & glueData)
 GMethodGlueDataPointer GBindingPool::newMethodGlueData(const GScriptValue & scriptValue)
 {
 	auto key = this->doMakeMethodKey(scriptValue);
+	GMethodGlueDataPointer result;
 	auto it = this->methodGlueDataMap.find(key);
 	if(it != this->methodGlueDataMap.end() && ! it->second.expired()) {
-		return it->second.get();
+		result = it->second.get();
 	}
-	else {
-		return GMethodGlueDataPointer(new GMethodGlueData(this->context.get(), scriptValue));
+	if(! result) {
+		result = GMethodGlueDataPointer(new GMethodGlueData(this->context.get(), scriptValue));
 	}
+	return result;
 }
 
 GBindingPool::MethodKey GBindingPool::doMakeMethodKey(const GScriptValue & scriptValue)
@@ -177,13 +179,15 @@ GObjectGlueDataPointer GBindingPool::newObjectGlueData(
 		cv,
 		allowGC
 	);
+	GObjectGlueDataPointer result;
 	auto it = this->objectGlueDataMap.find(key);
 	if(it != this->objectGlueDataMap.end()) {
-		return it->second.get();
+		result = it->second.get();
 	}
-	else {
-		return GObjectGlueDataPointer(new GObjectGlueData(this->context.get(), classData, objectInstance, cv));
+	if(! result) {
+		result = GObjectGlueDataPointer(new GObjectGlueData(this->context.get(), classData, objectInstance, cv));
 	}
+	return result;
 }
 
 void GBindingPool::glueDataAdded(const GObjectAndMethodGlueDataPointer & glueData)
