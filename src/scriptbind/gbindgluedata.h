@@ -159,6 +159,7 @@ private:
 
 private:
 	friend class GBindingContext;
+	friend class GBindingPool;
 	friend class GClassPool;
 };
 

@@ -81,7 +81,7 @@ protected:
 	void doInit() {
 		if(this->accessor.canRead()) {
 			if(! this->flags.has(ttifHasFrom)) {
-				this->from = this->accessor();
+				this->from = (ValueType)this->accessor();
 			}
 		}
 

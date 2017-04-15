@@ -124,7 +124,7 @@ GClassGlueData::GClassGlueData(const GContextPointer & context, IMetaClass * met
 GClassGlueData::~GClassGlueData()
 {
 	if(this->isValid()) {
-		this->getBindingContext()->getClassPool()->classDestroyed(this->getMetaClass());
+		this->getBindingContext()->classDestroyed(this->getMetaClass());
 	}
 }
 

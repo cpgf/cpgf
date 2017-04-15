@@ -87,7 +87,10 @@ public:
 	void objectInstanceAdded(const GObjectInstancePointer & objectData);
 	void objectInstanceDestroyed(const GObjectInstance * objectData);
 	GObjectInstancePointer findObjectInstance(const GVariant & instance);
-	
+
+	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
+	void classDestroyed(IMetaClass * metaClass);
+
 private:
 	MethodKey doMakeMethodKey(const GScriptValue & scriptValue);
 
@@ -97,6 +100,7 @@ private:
 	std::map<MethodKey, GWeakMethodGlueDataPointer> methodGlueDataMap;
 	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectGlueDataMap;
 	std::map<void *, GWeakObjectInstancePointer> instanceMap;
+	std::map<IMetaClass *, GWeakClassGlueDataPointer> classMap;
 };
 
 class GBindingContext : public GShareFromThis<GBindingContext>
@@ -116,6 +120,7 @@ public:
 public:
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
+	void classDestroyed(IMetaClass * metaClass);
 
 	GObjectInstancePointer findObjectInstance(const GVariant & instance);
 

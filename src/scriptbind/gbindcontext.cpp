@@ -230,6 +230,26 @@ GObjectInstancePointer GBindingPool::findObjectInstance(const GVariant & instanc
 	return GObjectInstancePointer();
 }
 
+GClassGlueDataPointer GBindingPool::getClassData(IMetaClass * metaClass)
+{
+	auto it = this->classMap.find(metaClass);
+	if(it != this->classMap.end() && it->second) {
+		return it->second.get();
+	}
+
+	GClassGlueDataPointer result = GClassGlueDataPointer(new GClassGlueData(this->context.get(), metaClass));
+	this->classMap[metaClass] = GWeakClassGlueDataPointer(result);
+	return result;
+}
+
+void GBindingPool::classDestroyed(IMetaClass * metaClass)
+{
+	auto it = this->classMap.find(metaClass);
+	if(it != this->classMap.end()) {
+		this->classMap.erase(it);
+	}
+}
+
 
 GBindingContext::GBindingContext(IMetaService * service)
 	: service(service), scriptContext(new GScriptContext(this))
@@ -268,12 +288,20 @@ GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClas
 
 GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)
 {
+//return this->getBindingPool()->getClassData(metaClass);
 	return this->classPool->getClassData(metaClass);
 }
 
 GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 {
+//return this->getBindingPool()->getClassData(metaClass);
 	return this->classPool->newClassData(metaClass);
+}
+
+void GBindingContext::classDestroyed(IMetaClass * metaClass)
+{
+//this->getBindingPool()->classDestroyed(metaClass); return;
+	this->classPool->classDestroyed(metaClass);
 }
 
 GObjectInstancePointer GBindingContext::findObjectInstance(const GVariant & instance)
@@ -295,15 +323,12 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 		objectInstance = GObjectInstance::create(context, instance, classData, allowGC);
 	}
 
-return this->getBindingPool()->newObjectGlueData(classData, objectInstance, allowGC, cv);
-//	return GObjectGlueDataPointer(new GObjectGlueData(context, classData, objectInstance, cv));
+	return this->getBindingPool()->newObjectGlueData(classData, objectInstance, allowGC, cv);
 }
 
 GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GScriptValue & scriptValue)
 {
-return this->getBindingPool()->newMethodGlueData(scriptValue);
-
-//	return GMethodGlueDataPointer(new GMethodGlueData(this->shareFromThis(), scriptValue));
+	return this->getBindingPool()->newMethodGlueData(scriptValue);
 }
 
 GEnumGlueDataPointer GBindingContext::newEnumGlueData(IMetaEnum * metaEnum)
