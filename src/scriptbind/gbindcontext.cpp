@@ -206,7 +206,8 @@ void GBindingPool::objectInstanceAdded(const GObjectInstancePointer & objectData
 {
 	void * instance = objectAddressFromVariant(objectData->getInstance());
 	if(this->instanceMap.find(instance) == this->instanceMap.end()) {
-		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
+//		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
+		this->instanceMap[instance] = objectData;
 	}
 }
 
@@ -276,11 +277,6 @@ IScriptContext * GBindingContext::borrowScriptContext() const
 }
 
 GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)
-{
-	return this->getBindingPool()->getClassData(metaClass);
-}
-
-GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 {
 	return this->getBindingPool()->getClassData(metaClass);
 }

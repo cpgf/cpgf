@@ -117,6 +117,12 @@ protected:
 	virtual bool doLib(const char * code) const = 0;
 	virtual bool doApi(const char * code) const = 0;
 
+	// The derived class should clean up (such as shutting down the 
+	// script engine) in its dtor after calling finalize() before exit the dtor,
+	// because TestScriptContext needs to cleanup the script objects before
+	// the underlying script engine is destroyed.
+	void finalize();
+
 protected:
 	bool canPrintError() const {
 		return this->printError;

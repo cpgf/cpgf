@@ -1118,9 +1118,9 @@ PyObject * rawToPython(const GContextPointer & context, const GVariant & value)
 
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass)
 {
-	return createPythonObject(context->newClassData(metaClass));
+	return createPythonObject(context->getClassData(metaClass));
 
-//	GPythonClass * object = new GPythonClass(context->newClassData(metaClass));
+//	GPythonClass * object = new GPythonClass(context->getClassData(metaClass));
 //	getPythonDataWrapperPool()->dataWrapperCreated(object);
 //	return object->toPythonObject();
 
@@ -1141,7 +1141,7 @@ PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaC
 	if(typeObject->tp_dict == nullptr) {
 		typeObject->tp_dict = PyDict_New();
 	}
-	bindClassItems(typeObject->tp_dict, context->newClassData(metaClass));
+	bindClassItems(typeObject->tp_dict, context->getClassData(metaClass));
 
 	PyObject_INIT(typeObject, &PyType_Type);
 	return ooo;

@@ -845,7 +845,7 @@ void helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
 	lua_State * L = getLuaState(context);
 
 	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GClassGlueData>());
-	GClassGlueDataPointer classData(context->newClassData(metaClass));
+	GClassGlueDataPointer classData(context->getClassData(metaClass));
 	newGlueDataWrapper(userData, classData);
 
 	lua_newtable(L);

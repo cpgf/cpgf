@@ -128,7 +128,7 @@ endif()
 if(${HAS_PYTHON})
 	FIND_PACKAGE(PythonLibs)
 
-	if(PYTHON_INCLUDE_DIR)
+	if(0) #PYTHON_INCLUDE_DIR)
 		set(PYTHON_INC ${PYTHON_INCLUDE_DIR})
 		set(PYTHON_LIB ${PYTHON_LIBRARY})
 	else()
@@ -140,7 +140,7 @@ if(${HAS_PYTHON})
 
 		if(MSVC)
 			set(PYTHON_LIB
-				debug ${PYTHON_DIR}/libs/python27_d.lib
+				debug ${PYTHON_DIR}/libs/python27.lib
 				optimized ${PYTHON_DIR}/libs/python27.lib
 			)
 	    else()
