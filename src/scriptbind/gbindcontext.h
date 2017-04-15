@@ -14,6 +14,7 @@
 #include <tuple>
 #include <map>
 #include <memory>
+#include <string>
 
 namespace cpgf {
 
@@ -59,6 +60,19 @@ private:
 	
 	typedef std::tuple<void *, void *, GScriptInstanceCv, bool> ObjectKey; // <class address, object address, constness, allowGC>
 
+	struct ClassKey
+	{
+		explicit ClassKey(IMetaClass * metaClass)
+			: metaClass(metaClass)
+		{}
+
+		IMetaClass * metaClass;
+
+		bool operator < (const ClassKey & other) const {
+			return this->metaClass < other.metaClass;
+		}
+	};
+
 public:
 	explicit GBindingPool(const GSharedPointer<GBindingContext> & context);
 	~GBindingPool();
@@ -100,7 +114,7 @@ private:
 	std::map<MethodKey, GWeakMethodGlueDataPointer> methodGlueDataMap;
 	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectGlueDataMap;
 	std::map<void *, GWeakObjectInstancePointer> instanceMap;
-	std::map<IMetaClass *, GWeakClassGlueDataPointer> classMap;
+	std::map<ClassKey, GClassGlueDataPointer> classMap;
 };
 
 class GBindingContext : public GShareFromThis<GBindingContext>
@@ -155,12 +169,10 @@ public:
 	GScriptObjectCache * getScriptObjectCache();
 
 private:
-	GClassPool * getClassPool();
 	GClassGlueDataPointer createClassGlueData(IMetaClass * metaClass);
 
 private:
 	GSharedInterface<IMetaService> service;
-	GScopedPointer<GClassPool> classPool;
 	std::shared_ptr<GBindingPool> bindingPool;
 
 	GScopedPointer<GScriptCoreService> scriptCoreService;
@@ -177,35 +189,6 @@ private:
 	friend class GObjectGlueData;
 	friend class GClassPool;
 };
-
-class GClassPool
-{
-private:
-	typedef std::map<void *, GWeakObjectInstancePointer> InstanceMapType;
-
-	typedef std::vector<GClassGlueDataPointer> ClassMapListType;
-	typedef GStringMap<ClassMapListType, GStringMapReuseKey> ClassMapType;
-
-public:
-	explicit GClassPool(GBindingContext * context);
-
-	void classDestroyed(IMetaClass * metaClass);
-
-	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
-	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
-
-private:
-	ClassMapListType * getList(IMetaClass * metaClass);
-	GClassGlueDataPointer * findClassDataByPointer(ClassMapListType * classDataList, IMetaClass * metaClass);
-	GClassGlueDataPointer createClassDataAtSlot(ClassMapListType * classDataList, IMetaClass * metaClass, size_t slot);
-	size_t getFreeSlot(ClassMapListType * classDataList, size_t startSlot);
-
-private:
-	InstanceMapType instanceMap;
-	ClassMapType classMap;
-	GBindingContext * context;
-};
-
 
 
 } //namespace bind_internal

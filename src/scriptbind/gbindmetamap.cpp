@@ -74,7 +74,7 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass, void * instance)
 	uint32_t count;
 	uint32_t i;
 
-	count = metaClass->getClassCount();
+	count = metaClass->getClassCount(); 
 	for(i = 0; i < count; ++i) {
 		GScopedInterface<IMetaClass> innerClass(metaClass->getClassAt(i));
 		const char * name = innerClass->getName();

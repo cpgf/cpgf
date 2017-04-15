@@ -232,19 +232,20 @@ GObjectInstancePointer GBindingPool::findObjectInstance(const GVariant & instanc
 
 GClassGlueDataPointer GBindingPool::getClassData(IMetaClass * metaClass)
 {
-	auto it = this->classMap.find(metaClass);
+	ClassKey key(metaClass);
+	auto it = this->classMap.find(key);
 	if(it != this->classMap.end() && it->second) {
-		return it->second.get();
+		return it->second;
 	}
 
 	GClassGlueDataPointer result = GClassGlueDataPointer(new GClassGlueData(this->context.get(), metaClass));
-	this->classMap[metaClass] = GWeakClassGlueDataPointer(result);
+	this->classMap[key] = result;
 	return result;
 }
 
 void GBindingPool::classDestroyed(IMetaClass * metaClass)
 {
-	auto it = this->classMap.find(metaClass);
+	auto it = this->classMap.find(ClassKey(metaClass));
 	if(it != this->classMap.end()) {
 		this->classMap.erase(it);
 	}
@@ -254,7 +255,6 @@ void GBindingPool::classDestroyed(IMetaClass * metaClass)
 GBindingContext::GBindingContext(IMetaService * service)
 	: service(service), scriptContext(new GScriptContext(this))
 {
-	this->classPool.reset(new GClassPool(this));
 }
 
 GBindingContext::~GBindingContext()
@@ -275,11 +275,6 @@ IScriptContext * GBindingContext::borrowScriptContext() const
 	return this->scriptContext.get();
 }
 
-GClassPool * GBindingContext::getClassPool()
-{
-	return this->classPool.get();
-}
-
 GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClass)
 {
 	GClassGlueDataPointer data(new GClassGlueData(this->shareFromThis(), metaClass));
@@ -288,20 +283,17 @@ GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClas
 
 GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)
 {
-//return this->getBindingPool()->getClassData(metaClass);
-	return this->classPool->getClassData(metaClass);
+	return this->getBindingPool()->getClassData(metaClass);
 }
 
 GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 {
-//return this->getBindingPool()->getClassData(metaClass);
-	return this->classPool->newClassData(metaClass);
+	return this->getBindingPool()->getClassData(metaClass);
 }
 
 void GBindingContext::classDestroyed(IMetaClass * metaClass)
 {
-//this->getBindingPool()->classDestroyed(metaClass); return;
-	this->classPool->classDestroyed(metaClass);
+	this->getBindingPool()->classDestroyed(metaClass);
 }
 
 GObjectInstancePointer GBindingContext::findObjectInstance(const GVariant & instance)
@@ -375,88 +367,6 @@ GScriptObjectCache * GBindingContext::getScriptObjectCache() {
 		scriptObjectCache.reset(new GScriptObjectCache());
 	}
 	return scriptObjectCache.get();
-}
-
-
-GClassPool::GClassPool(GBindingContext * context)
-	: context(context)
-{
-}
-
-void GClassPool::classDestroyed(IMetaClass * metaClass)
-{
-	if(isLibraryLive()) {
-		ClassMapListType * classDataList = this->getList(metaClass);
-		if(classDataList != nullptr) {
-			for(ClassMapListType::iterator it = classDataList->begin(); it != classDataList->end(); ++it) {
-				if((*it)->getMetaClass() == metaClass) {
-					(*it).reset();
-					break;
-				}
-			}
-		}
-	}
-}
-
-GClassPool::ClassMapListType * GClassPool::getList(IMetaClass * metaClass)
-{
-	ClassMapType::iterator it = this->classMap.find(metaClass->getQualifiedName());
-	if(it == this->classMap.end()) {
-		this->classMap.set(metaClass->getQualifiedName(), ClassMapListType());
-		it = this->classMap.find(metaClass->getQualifiedName());
-	}
-	return &it->second;
-}
-
-GClassGlueDataPointer * GClassPool::findClassDataByPointer(ClassMapListType * classDataList, IMetaClass * metaClass)
-{
-	for(ClassMapListType::iterator it = classDataList->begin(); it != classDataList->end(); ++it) {
-		if(*it && (*it)->getMetaClass() == metaClass) {
-			return &(*it);
-		}
-	}
-
-	return nullptr;
-}
-
-GClassGlueDataPointer GClassPool::createClassDataAtSlot(ClassMapListType * classDataList, IMetaClass * metaClass, size_t slot)
-{
-	while(slot >= classDataList->size()) {
-		classDataList->push_back(GClassGlueDataPointer());
-	}
-	if(! (*classDataList)[slot]) {
-		(*classDataList)[slot] = this->context->createClassGlueData(metaClass);
-	}
-	return (*classDataList)[slot];
-}
-
-size_t GClassPool::getFreeSlot(ClassMapListType * classDataList, size_t startSlot)
-{
-	size_t slot = startSlot;
-	for(; slot < classDataList->size(); ++slot) {
-		if(! (*classDataList)[slot]) {
-			return slot;
-		}
-	}
-	return slot;
-}
-
-GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass)
-{
-	ClassMapListType * classDataList = this->getList(metaClass);
-
-	GClassGlueDataPointer * dataPointer = this->findClassDataByPointer(classDataList, metaClass);
-	if(dataPointer != nullptr) {
-		return *dataPointer;
-	}
-
-	return this->createClassDataAtSlot(classDataList, metaClass, 0);
-}
-
-GClassGlueDataPointer GClassPool::newClassData(IMetaClass * metaClass)
-{
-	ClassMapListType * classDataList = this->getList(metaClass);
-	return this->createClassDataAtSlot(classDataList, metaClass, this->getFreeSlot(classDataList, 1));
 }
 
 
