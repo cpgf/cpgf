@@ -116,8 +116,8 @@ const GScriptDataHolderPointer & GClassGlueData::getDataHolder() const
 }
 
 
-GClassGlueData::GClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
-	: super(gdtClass, context), metaClass(metaClass), mapClass(metaClass)
+GClassGlueData::GClassGlueData(const GContextPointer & context, IMetaClass * metaClass, GMetaMapClass * mapClass)
+	: super(gdtClass, context), metaClass(metaClass), mapClass(mapClass)
 {
 }
 

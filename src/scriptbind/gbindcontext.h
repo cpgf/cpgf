@@ -21,7 +21,6 @@ namespace cpgf {
 namespace bind_internal {
 
 class GBindingContext;
-class GClassPool;
 class GScriptObjectCache;
 
 class GScriptContext : public IScriptContext
@@ -110,6 +109,7 @@ private:
 
 private:
 	GWeakPointer<GBindingContext> context;
+	GMetaMap metaMap;
 
 	std::map<MethodKey, GWeakMethodGlueDataPointer> methodGlueDataMap;
 	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectGlueDataMap;
@@ -169,9 +169,6 @@ public:
 	GScriptObjectCache * getScriptObjectCache();
 
 private:
-	GClassGlueDataPointer createClassGlueData(IMetaClass * metaClass);
-
-private:
 	GSharedInterface<IMetaService> service;
 	std::shared_ptr<GBindingPool> bindingPool;
 
@@ -187,7 +184,6 @@ private:
 	friend class GClassGlueData;
 	friend class GObjectInstance;
 	friend class GObjectGlueData;
-	friend class GClassPool;
 };
 
 

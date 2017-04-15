@@ -238,7 +238,7 @@ GClassGlueDataPointer GBindingPool::getClassData(IMetaClass * metaClass)
 		return it->second;
 	}
 
-	GClassGlueDataPointer result = GClassGlueDataPointer(new GClassGlueData(this->context.get(), metaClass));
+	GClassGlueDataPointer result = GClassGlueDataPointer(new GClassGlueData(this->context.get(), metaClass, this->metaMap.getMetaClassMap(metaClass)));
 	this->classMap[key] = result;
 	return result;
 }
@@ -273,12 +273,6 @@ void GBindingContext::bindScriptCoreService(GScriptObject * scriptObject, const 
 IScriptContext * GBindingContext::borrowScriptContext() const
 {
 	return this->scriptContext.get();
-}
-
-GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClass)
-{
-	GClassGlueDataPointer data(new GClassGlueData(this->shareFromThis(), metaClass));
-	return data;
 }
 
 GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)

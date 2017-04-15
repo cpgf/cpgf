@@ -13,6 +13,7 @@ class GSharedInterface
 {
 private:
     typedef GSharedInterface<T> ThisType;
+	typedef T ElementType;
 
 public:
 	GSharedInterface(): rawPointer(nullptr) {

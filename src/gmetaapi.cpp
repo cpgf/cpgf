@@ -16,7 +16,7 @@
 #include "cpgf/gsharedinterface.h"
 
 #include <string>
-
+#include <map>
 
 #ifdef G_COMPILER_CPPBUILDER
 #pragma warn -8104 //Local Static with constructor dangerous for multi-threaded apps
@@ -567,6 +567,9 @@ private:
 	const GMetaClass * getClass() const {
 		return static_cast<const GMetaClass *>(this->doGetItem());
 	}
+
+private:
+	std::map<const GMetaItem *, GSharedInterface<IMetaItem> > itemMap;
 };
 
 
@@ -591,6 +594,8 @@ protected:
 private:
 	GMetaModule * module;
 	GMetaClass * metaClass;
+	std::map<const GMetaTypedItem *, GSharedInterface<IMetaTypedItem> > metaTypedItemMap;
+	std::map<const GMetaClass *, GSharedInterface<IMetaClass> > metaClassMap;
 };
 
 
@@ -633,8 +638,28 @@ private:
 template <typename T, typename P>
 T * doCreateItem(P * p)
 {
-	if(p) {
+	if(p != nullptr) {
 		return new T(p, false);
+	}
+	else {
+		return nullptr;
+	}
+}
+
+template <typename T, typename P, typename M>
+T * doCreateItemWithCache(P * p, M & cache)
+{
+	if(p != nullptr) {
+		auto it = cache.find(p);
+		if(it != cache.end()) {
+			it->second->addReference();
+			return static_cast<T *>(it->second.get());
+		}
+		else {
+			T * result = new T(p, false);
+			cache[p].reset(result);
+			return result;
+		}
 	}
 	else {
 		return nullptr;
@@ -1538,7 +1563,7 @@ IMetaConstructor * G_API_CC ImplMetaClass::getConstructorByParamCount(uint32_t p
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaConstructor>(this->getClass()->getConstructorByParamCount(paramCount));
+	return doCreateItemWithCache<ImplMetaConstructor>(this->getClass()->getConstructorByParamCount(paramCount), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1556,7 +1581,7 @@ IMetaConstructor * G_API_CC ImplMetaClass::getConstructorAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaConstructor>(this->getClass()->getConstructorAt(index));
+	return doCreateItemWithCache<ImplMetaConstructor>(this->getClass()->getConstructorAt(index), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1565,7 +1590,7 @@ IMetaField * G_API_CC ImplMetaClass::getFieldInHierarchy(const char * name, void
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaField>(this->getClass()->getFieldInHierarchy(name, instance));
+	return doCreateItemWithCache<ImplMetaField>(this->getClass()->getFieldInHierarchy(name, instance), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1574,7 +1599,7 @@ IMetaField * G_API_CC ImplMetaClass::getField(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaField>(this->getClass()->getField(name));
+	return doCreateItemWithCache<ImplMetaField>(this->getClass()->getField(name), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1592,7 +1617,7 @@ IMetaField * G_API_CC ImplMetaClass::getFieldAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaField>(this->getClass()->getFieldAt(index));
+	return doCreateItemWithCache<ImplMetaField>(this->getClass()->getFieldAt(index), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1601,7 +1626,7 @@ IMetaProperty * G_API_CC ImplMetaClass::getPropertyInHierarchy(const char * name
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaProperty>(this->getClass()->getPropertyInHierarchy(name, instance));
+	return doCreateItemWithCache<ImplMetaProperty>(this->getClass()->getPropertyInHierarchy(name, instance), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1610,7 +1635,7 @@ IMetaProperty * G_API_CC ImplMetaClass::getProperty(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaProperty>(this->getClass()->getProperty(name));
+	return doCreateItemWithCache<ImplMetaProperty>(this->getClass()->getProperty(name), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1628,7 +1653,7 @@ IMetaProperty * G_API_CC ImplMetaClass::getPropertyAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaProperty>(this->getClass()->getPropertyAt(index));
+	return doCreateItemWithCache<ImplMetaProperty>(this->getClass()->getPropertyAt(index), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1637,7 +1662,7 @@ IMetaMethod * G_API_CC ImplMetaClass::getMethodInHierarchy(const char * name, vo
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaMethod>(this->getClass()->getMethodInHierarchy(name, instance));
+	return doCreateItemWithCache<ImplMetaMethod>(this->getClass()->getMethodInHierarchy(name, instance), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1646,7 +1671,7 @@ IMetaMethod * G_API_CC ImplMetaClass::getMethod(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaMethod>(this->getClass()->getMethod(name));
+	return doCreateItemWithCache<ImplMetaMethod>(this->getClass()->getMethod(name), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1664,7 +1689,7 @@ IMetaMethod * G_API_CC ImplMetaClass::getMethodAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaMethod>(this->getClass()->getMethodAt(index));
+	return doCreateItemWithCache<ImplMetaMethod>(this->getClass()->getMethodAt(index), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1673,7 +1698,7 @@ IMetaOperator * G_API_CC ImplMetaClass::getOperatorInHierarchy(uint32_t op, void
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaOperator>(this->getClass()->getOperatorInHierarchy(static_cast<GMetaOpType>(op), instance));
+	return doCreateItemWithCache<ImplMetaOperator>(this->getClass()->getOperatorInHierarchy(static_cast<GMetaOpType>(op), instance), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1682,7 +1707,7 @@ IMetaOperator * G_API_CC ImplMetaClass::getOperator(uint32_t op)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaOperator>(this->getClass()->getOperator(static_cast<GMetaOpType>(op)));
+	return doCreateItemWithCache<ImplMetaOperator>(this->getClass()->getOperator(static_cast<GMetaOpType>(op)), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1700,7 +1725,7 @@ IMetaOperator * G_API_CC ImplMetaClass::getOperatorAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaOperator>(this->getClass()->getOperatorAt(index));
+	return doCreateItemWithCache<ImplMetaOperator>(this->getClass()->getOperatorAt(index), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1709,7 +1734,7 @@ IMetaEnum * G_API_CC ImplMetaClass::getEnumInHierarchy(const char * name, void *
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaEnum>(this->getClass()->getEnumInHierarchy(name, instance));
+	return doCreateItemWithCache<ImplMetaEnum>(this->getClass()->getEnumInHierarchy(name, instance), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1718,7 +1743,7 @@ IMetaEnum * G_API_CC ImplMetaClass::getEnum(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaEnum>(this->getClass()->getEnum(name));
+	return doCreateItemWithCache<ImplMetaEnum>(this->getClass()->getEnum(name), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1736,7 +1761,7 @@ IMetaEnum * G_API_CC ImplMetaClass::getEnumAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaEnum>(this->getClass()->getEnumAt(index));
+	return doCreateItemWithCache<ImplMetaEnum>(this->getClass()->getEnumAt(index), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1745,7 +1770,7 @@ IMetaClass * G_API_CC ImplMetaClass::getClassInHierarchy(const char * name, void
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(this->getClass()->getClassInHierarchy(name, instance));
+	return doCreateItemWithCache<ImplMetaClass>(this->getClass()->getClassInHierarchy(name, instance), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1755,7 +1780,7 @@ IMetaClass * G_API_CC ImplMetaClass::getClass(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(this->getClass()->getClass(name));
+	return doCreateItemWithCache<ImplMetaClass>(this->getClass()->getClass(name), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1773,7 +1798,7 @@ IMetaClass * G_API_CC ImplMetaClass::getClassAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(this->getClass()->getClassAt(index));
+	return doCreateItemWithCache<ImplMetaClass>(this->getClass()->getClassAt(index), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1845,7 +1870,7 @@ IMetaClass * G_API_CC ImplMetaClass::getBaseClass(uint32_t baseIndex)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(this->getClass()->getBaseClass(baseIndex));
+	return doCreateItemWithCache<ImplMetaClass>(this->getClass()->getBaseClass(baseIndex), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1863,7 +1888,7 @@ IMetaClass * G_API_CC ImplMetaClass::getDerivedClass(uint32_t derivedIndex)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(this->getClass()->getDerivedClass(derivedIndex));
+	return doCreateItemWithCache<ImplMetaClass>(this->getClass()->getDerivedClass(derivedIndex), this->itemMap);
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1965,7 +1990,20 @@ IMetaTypedItem * G_API_CC ImplMetaModule::findTypedItemByName(const char * name)
 
 	const GMetaTypedItem * typedItem = this->metaClass->getModule()->findItemByName(name);
 
-	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
+	if(typedItem == nullptr) {
+		return nullptr;
+	}
+
+	auto it = this->metaTypedItemMap.find(typedItem);
+	if(it != this->metaTypedItemMap.end()) {
+		it->second->addReference();
+		return it->second.get();
+	}
+	else {
+		IMetaTypedItem * result = static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
+		this->metaTypedItemMap[typedItem].reset(result);
+		return result;
+	}
 
 	LEAVE_META_API(return nullptr)
 }
@@ -1974,7 +2012,7 @@ IMetaClass * G_API_CC ImplMetaModule::findClassByName(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(this->metaClass->getModule()->findClassByName(name));
+	return doCreateItemWithCache<ImplMetaClass>(this->metaClass->getModule()->findClassByName(name), this->metaClassMap);
 
 	LEAVE_META_API(return nullptr)
 }

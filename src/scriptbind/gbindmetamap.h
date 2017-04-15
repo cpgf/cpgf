@@ -89,14 +89,13 @@ private:
 class GMetaMap
 {
 private:
-	// Change this to unorder_map may hit performance.
 	typedef std::map<const char *, GMetaMapClass *, GCStringCompare> MapType;
 
 public:
 	GMetaMap();
 	~GMetaMap();
 
-	GMetaMapClass * getClassMap(IMetaClass * metaClass);
+	GMetaMapClass * getMetaClassMap(IMetaClass * metaClass);
 
 private:
 	MapType classMap;

@@ -39,7 +39,6 @@ typedef GWeakPointer<GObjectGlueData> GWeakObjectGlueDataPointer;
 
 
 class GBindingContext;
-class GClassPool;
 
 typedef GSharedPointer<GBindingContext> GContextPointer;
 typedef GWeakPointer<GBindingContext> GWeakContextPointer;
@@ -136,7 +135,7 @@ private:
 	typedef GGlueData super;
 
 protected:
-	GClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
+	GClassGlueData(const GContextPointer & context, IMetaClass * metaClass, GMetaMapClass * mapClass);
 
 public:
 	~GClassGlueData();
@@ -147,20 +146,19 @@ public:
 	}
 
 	GMetaMapClass * getClassMap() const {
-		return &this->mapClass;
+		return this->mapClass;
 	}
 
 	const GScriptDataHolderPointer & getDataHolder() const;
 
 private:
 	GSharedInterface<IMetaClass> metaClass;
-	mutable GMetaMapClass mapClass;
+	GMetaMapClass * mapClass;
 	mutable GScriptDataHolderPointer dataHolder;
 
 private:
 	friend class GBindingContext;
 	friend class GBindingPool;
-	friend class GClassPool;
 };
 
 typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;

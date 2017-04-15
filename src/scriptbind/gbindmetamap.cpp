@@ -145,7 +145,7 @@ GMetaMap::~GMetaMap()
 	}
 }
 
-GMetaMapClass * GMetaMap::getClassMap(IMetaClass * metaClass)
+GMetaMapClass * GMetaMap::getMetaClassMap(IMetaClass * metaClass)
 {
 	using namespace std;
 
