@@ -56,7 +56,7 @@ class GBindingPool
 {
 private:
 	typedef std::tuple<void *, void *> MethodKey; // <method, instance>
-	typedef std::tuple<void *, void *, GScriptInstanceCv, bool> ObjectKey; // <class address, object address, constness, allowGC>
+	typedef std::tuple<void *, void *, GScriptInstanceCv> ObjectKey; // <class address, object address, constness>
 	typedef std::tuple<GObjectGlueData *, GMethodGlueData *> ObjectAndMethodKey;
 	typedef std::tuple<void *, IMetaAccessible *> AccessibleKey;
 	typedef std::tuple<GObjectGlueData *, IMetaClass *, GMetaOpType> OperatorKey;

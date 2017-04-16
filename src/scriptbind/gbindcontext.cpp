@@ -135,8 +135,7 @@ GBindingPool::ObjectKey GBindingPool::doMakeObjectKey(const GObjectGlueDataPoint
 	return ObjectKey(
 		glueData->getClassData() ? glueData->getClassData()->getMetaClass() : nullptr,
 		objectAddressFromVariant(glueData->getInstance()),
-		glueData->getCV(),
-		glueData->isAllowGC()
+		glueData->getCV()
 	);
 }
 
@@ -167,9 +166,8 @@ GObjectGlueDataPointer GBindingPool::newObjectGlueData(
 {
 	const ObjectKey key = ObjectKey(
 		classData->getMetaClass(),
-		objectAddressFromVariant(objectInstance->getInstanceAddress()),
-		cv,
-		allowGC
+		objectInstance->getInstanceAddress(),
+		cv
 	);
 	GObjectGlueDataPointer result;
 	auto it = this->objectMap.find(key);
