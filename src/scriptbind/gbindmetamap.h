@@ -14,13 +14,6 @@ namespace cpgf {
 
 namespace bind_internal {
 
-class GUserData
-{
-public:
-	GUserData() {}
-	virtual ~GUserData() {}
-};
-
 class GMetaMapItem
 {
 public:
@@ -33,21 +26,12 @@ public:
 
 	void swap(GMetaMapItem & other);
 
-	void setUserData(GUserData * userData) const {
-		this->userData.reset(userData);
-	}
-
-	GUserData * getUserData() const {
-		return this->userData.get();
-	}
-	
 	const GScriptValue & getScriptValue() const {
 		return this->scriptValue;
 	}
 
 private:
 	GScriptValue scriptValue;
-	mutable GScopedPointer<GUserData> userData;
 };
 
 inline void swap(GMetaMapItem & a, GMetaMapItem & b)
@@ -70,20 +54,11 @@ public:
 		return &this->itemMap;
 	}
 
-	void setUserData(GUserData * data) {
-		this->userData.reset(data);
-	}
-
-	GUserData * getUserData() const {
-		return this->userData.get();
-	}
-
 private:
 	void buildMap(IMetaClass * metaClass, void * instance);
 
 private:
 	MapType itemMap;
-	GScopedPointer<GUserData> userData;
 };
 
 class GMetaMap
@@ -103,20 +78,6 @@ private:
 
 class GMethodGlueData;
 typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
-
-class GMapItemMethodData : public GUserData
-{
-public:
-	explicit GMapItemMethodData(const GMethodGlueDataPointer & methodData);
-	~GMapItemMethodData();
-
-	const GMethodGlueDataPointer & getMethodData() const {
-		return this->methodData;
-	}
-
-private:
-	GMethodGlueDataPointer methodData;
-};
 
 
 } //namespace bind_internal

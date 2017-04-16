@@ -10,12 +10,12 @@ namespace cpgf {
 namespace bind_internal {
 
 GMetaMapItem::GMetaMapItem()
-	: scriptValue(), userData()
+	: scriptValue()
 {
 }
 
 GMetaMapItem::GMetaMapItem(const GScriptValue & scriptValue)
-	: scriptValue(scriptValue), userData()
+	: scriptValue(scriptValue)
 {
 }
 
@@ -158,16 +158,6 @@ GMetaMapClass * GMetaMap::getMetaClassMap(IMetaClass * metaClass)
 	else {
 		return this->classMap.insert(MapType::value_type(name, new GMetaMapClass(metaClass))).first->second;
 	}
-}
-
-
-GMapItemMethodData::GMapItemMethodData(const GMethodGlueDataPointer & methodData)
-	: methodData(methodData)
-{
-}
-
-GMapItemMethodData::~GMapItemMethodData()
-{
 }
 
 

@@ -105,8 +105,14 @@ private:
 	GScopedPointer<MapType> dataMap;
 };
 
+class GGlueUserData
+{
+public:
+	GGlueUserData() {}
+	virtual ~GGlueUserData() {}
+};
 
-class GGlueData : public GNoncopyable
+class GGlueData
 {
 public:
 	void * operator new (const std::size_t size);
@@ -120,12 +126,26 @@ public:
 	GContextPointer getBindingContext() const;
 	bool isValid() const;
 
+	void setUserData(GGlueUserData * userData) {
+		this->userData.reset(userData);
+	}
+
+	GGlueUserData * getUserData() const {
+		return this->userData.get();
+	}
+
+	template <typename T>
+	T * getUserDataAs() const {
+		return static_cast<T *>(this->userData.get());
+	}
+
 	GGlueData(const GGlueData &) = delete;
 	GGlueData & operator = (const GGlueData &) = delete;
 
 private:
 	GGlueDataType type;
 	GWeakContextPointer context;
+	std::unique_ptr<GGlueUserData> userData;
 };
 
 typedef GSharedPointer<GGlueData> GGlueDataPointer;
