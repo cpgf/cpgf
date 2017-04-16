@@ -56,21 +56,10 @@ class GBindingPool
 {
 private:
 	typedef std::tuple<void *, void *> MethodKey; // <method, instance>
-	
 	typedef std::tuple<void *, void *, GScriptInstanceCv, bool> ObjectKey; // <class address, object address, constness, allowGC>
-
-	struct ClassKey
-	{
-		explicit ClassKey(IMetaClass * metaClass)
-			: metaClass(metaClass)
-		{}
-
-		IMetaClass * metaClass;
-
-		bool operator < (const ClassKey & other) const {
-			return this->metaClass < other.metaClass;
-		}
-	};
+	typedef std::tuple<GObjectGlueData *, GMethodGlueData *> ObjectAndMethodKey;
+	typedef std::tuple<void *, IMetaAccessible *> AccessibleKey;
+	typedef std::tuple<GObjectGlueData *, IMetaClass *, GMetaOpType> OperatorKey;
 
 public:
 	explicit GBindingPool(const GSharedPointer<GBindingContext> & context);
@@ -96,6 +85,30 @@ public:
 
 	void glueDataAdded(const GObjectAndMethodGlueDataPointer & glueData);
 	void glueDataRemoved(const GObjectAndMethodGlueDataPointer & glueData);
+	GObjectAndMethodGlueDataPointer newObjectAndMethodGlueData(
+		const GObjectGlueDataPointer & objectData,
+		const GMethodGlueDataPointer & methodData
+	);
+
+	void glueDataAdded(const GEnumGlueDataPointer & glueData);
+	void glueDataRemoved(const GEnumGlueDataPointer & glueData);
+	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
+
+	void glueDataAdded(const GAccessibleGlueDataPointer & glueData);
+	void glueDataRemoved(const GAccessibleGlueDataPointer & glueData);
+	GAccessibleGlueDataPointer newAccessibleGlueData(void * instance, IMetaAccessible * accessible);
+
+	void glueDataAdded(const GRawGlueDataPointer & glueData);
+	void glueDataRemoved(const GRawGlueDataPointer & glueData);
+	GRawGlueDataPointer newRawGlueData(const GVariant & data);
+
+	void glueDataAdded(const GOperatorGlueDataPointer & glueData);
+	void glueDataRemoved(const GOperatorGlueDataPointer & glueData);
+	GOperatorGlueDataPointer newOperatorGlueData(
+		const GObjectGlueDataPointer & objectData,
+		IMetaClass * metaClass,
+		const GMetaOpType op
+	);
 
 	void objectInstanceAdded(const GObjectInstancePointer & objectData);
 	void objectInstanceDestroyed(const GObjectInstance * objectData);
@@ -106,15 +119,20 @@ public:
 
 private:
 	MethodKey doMakeMethodKey(const GScriptValue & scriptValue);
+	ObjectKey doMakeObjectKey(const GObjectGlueDataPointer & glueData);
 
 private:
 	GWeakPointer<GBindingContext> context;
 	GMetaMap metaMap;
 
-	std::map<MethodKey, GWeakMethodGlueDataPointer> methodGlueDataMap;
-	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectGlueDataMap;
+	std::map<MethodKey, GWeakMethodGlueDataPointer> methodMap;
+	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectMap;
 	std::map<void *, GObjectInstancePointer> instanceMap;
-	std::map<ClassKey, GClassGlueDataPointer> classMap;
+	std::map<IMetaClass *, GClassGlueDataPointer> classMap;
+	std::map<ObjectAndMethodKey, GWeakObjectAndMethodGlueDataPointer> objectAndMethodMap;
+	std::map<IMetaEnum *, GWeakEnumGlueDataPointer> enumMap;
+	std::map<AccessibleKey, GWeakAccessibleGlueDataPointer> accessibleMap;
+	std::map<OperatorKey, GWeakOperatorGlueDataPointer> operatorMap;
 };
 
 class GBindingContext : public GShareFromThis<GBindingContext>

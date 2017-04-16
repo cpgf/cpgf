@@ -237,7 +237,7 @@ void helperBindAllOperators(const GContextPointer & context, const GObjectGlueDa
 	IMetaClass * metaClass, bool bindingToObject);
 void helperBindClass(const GContextPointer & context, IMetaClass * metaClass);
 void helperBindEnum(const GContextPointer & context, IMetaEnum * metaEnum);
-void helperBindMethodList(
+void helperBindMethods(
 	const GContextPointer & context,
 	const GObjectGlueDataPointer & objectData,
 	const GMethodGlueDataPointer & methodData
@@ -859,7 +859,7 @@ void helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
 	lua_setmetatable(L, -2);
 }
 
-void helperBindMethodList(
+void helperBindMethods(
 		const GContextPointer & context,
 		const GObjectGlueDataPointer & objectData,
 		const GMethodGlueDataPointer & methodData
@@ -917,13 +917,13 @@ bool doValueToScript(
 
 		case GScriptValue::typeMethod: {
 			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
-			helperBindMethodList(context, data.objectData, methodData);
+			helperBindMethods(context, data.objectData, methodData);
 			break;
 		}
 
 		case GScriptValue::typeOverloadedMethods: {
 			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
-			helperBindMethodList(context, data.objectData, methodData);
+			helperBindMethods(context, data.objectData, methodData);
 			break;
 		}
 

@@ -95,23 +95,20 @@ GBindingPool::~GBindingPool()
 
 void GBindingPool::glueDataAdded(const GMethodGlueDataPointer & glueData)
 {
-	this->methodGlueDataMap[this->doMakeMethodKey(glueData->getScriptValue())] = GWeakMethodGlueDataPointer(glueData);
+	this->methodMap[this->doMakeMethodKey(glueData->getScriptValue())] = GWeakMethodGlueDataPointer(glueData);
 }
 
 void GBindingPool::glueDataRemoved(const GMethodGlueDataPointer & glueData)
 {
-	auto it = this->methodGlueDataMap.find(this->doMakeMethodKey(glueData->getScriptValue()));
-	if(it != this->methodGlueDataMap.end()) {
-		this->methodGlueDataMap.erase(it);
-	}
+	this->methodMap.erase(this->doMakeMethodKey(glueData->getScriptValue()));
 }
 
 GMethodGlueDataPointer GBindingPool::newMethodGlueData(const GScriptValue & scriptValue)
 {
 	auto key = this->doMakeMethodKey(scriptValue);
 	GMethodGlueDataPointer result;
-	auto it = this->methodGlueDataMap.find(key);
-	if(it != this->methodGlueDataMap.end() && ! it->second.expired()) {
+	auto it = this->methodMap.find(key);
+	if(it != this->methodMap.end() && ! it->second.expired()) {
 		result = it->second.get();
 	}
 	if(! result) {
@@ -133,19 +130,23 @@ GBindingPool::MethodKey GBindingPool::doMakeMethodKey(const GScriptValue & scrip
 	}
 }
 
+GBindingPool::ObjectKey GBindingPool::doMakeObjectKey(const GObjectGlueDataPointer & glueData)
+{
+	return ObjectKey(
+		glueData->getClassData() ? glueData->getClassData()->getMetaClass() : nullptr,
+		objectAddressFromVariant(glueData->getInstance()),
+		glueData->getCV(),
+		glueData->isAllowGC()
+	);
+}
+
 void GBindingPool::glueDataAdded(const GObjectGlueDataPointer & glueData)
 {
 	if(! glueData) {
 		return;
 	}
 
-	const ObjectKey key = ObjectKey(
-		glueData->getClassData() ? glueData->getClassData()->getMetaClass() : nullptr,
-		objectAddressFromVariant(glueData->getInstance()),
-		glueData->getCV(),
-		glueData->isAllowGC()
-	);
-	this->objectGlueDataMap[key] = GWeakObjectGlueDataPointer(glueData);
+	this->objectMap[this->doMakeObjectKey(glueData)] = GWeakObjectGlueDataPointer(glueData);
 }
 
 void GBindingPool::glueDataRemoved(const GObjectGlueDataPointer & glueData)
@@ -154,16 +155,7 @@ void GBindingPool::glueDataRemoved(const GObjectGlueDataPointer & glueData)
 		return;
 	}
 
-	const ObjectKey key = ObjectKey(
-		glueData->getClassData() ? glueData->getClassData()->getMetaClass() : nullptr,
-		objectAddressFromVariant(glueData->getInstance()),
-		glueData->getCV(),
-		glueData->isAllowGC()
-	);
-	auto it = this->objectGlueDataMap.find(key);
-	if(it != this->objectGlueDataMap.end()) {
-		this->objectGlueDataMap.erase(it);
-	}
+	this->objectMap.erase(this->doMakeObjectKey(glueData));
 }
 
 GObjectGlueDataPointer GBindingPool::newObjectGlueData(
@@ -180,8 +172,8 @@ GObjectGlueDataPointer GBindingPool::newObjectGlueData(
 		allowGC
 	);
 	GObjectGlueDataPointer result;
-	auto it = this->objectGlueDataMap.find(key);
-	if(it != this->objectGlueDataMap.end()) {
+	auto it = this->objectMap.find(key);
+	if(it != this->objectMap.end()) {
 		result = it->second.get();
 	}
 	if(! result) {
@@ -194,29 +186,151 @@ void GBindingPool::glueDataAdded(const GObjectAndMethodGlueDataPointer & glueDat
 {
 	this->glueDataAdded(glueData->getObjectData());
 	this->glueDataAdded(glueData->getMethodData());
+
+	const ObjectAndMethodKey key = ObjectAndMethodKey(
+		glueData->getObjectData().get(),
+		glueData->getMethodData().get()
+	);
+	this->objectAndMethodMap[key] = GWeakObjectAndMethodGlueDataPointer(glueData);
 }
 
 void GBindingPool::glueDataRemoved(const GObjectAndMethodGlueDataPointer & glueData)
 {
 	this->glueDataRemoved(glueData->getObjectData());
 	this->glueDataRemoved(glueData->getMethodData());
+
+	const ObjectAndMethodKey key = ObjectAndMethodKey(
+		glueData->getObjectData().get(),
+		glueData->getMethodData().get()
+	);
+	this->objectAndMethodMap.erase(key);
 }
-	
+
+GObjectAndMethodGlueDataPointer GBindingPool::newObjectAndMethodGlueData(
+		const GObjectGlueDataPointer & objectData,
+		const GMethodGlueDataPointer & methodData
+	)
+{
+	const ObjectAndMethodKey key = ObjectAndMethodKey(
+		objectData.get(),
+		methodData.get()
+	);
+	GObjectAndMethodGlueDataPointer result;
+	auto it = this->objectAndMethodMap.find(key);
+	if(it != this->objectAndMethodMap.end()) {
+		result = it->second.get();
+	}
+	if(! result) {
+		result = GObjectAndMethodGlueDataPointer(new GObjectAndMethodGlueData(this->context.get(), objectData, methodData));
+	}
+	return result;
+}
+
+void GBindingPool::glueDataAdded(const GEnumGlueDataPointer & glueData)
+{
+	this->enumMap[glueData->getMetaEnum()] = GWeakEnumGlueDataPointer(glueData);
+}
+
+void GBindingPool::glueDataRemoved(const GEnumGlueDataPointer & glueData)
+{
+	this->enumMap.erase(glueData->getMetaEnum());
+}
+
+GEnumGlueDataPointer GBindingPool::newEnumGlueData(IMetaEnum * metaEnum)
+{
+	GEnumGlueDataPointer result;
+	auto it = this->enumMap.find(metaEnum);
+	if(it != this->enumMap.end()) {
+		result = it->second.get();
+	}
+	if(! result) {
+		result = GEnumGlueDataPointer(new GEnumGlueData(this->context.get(), metaEnum));
+	}
+	return result;
+}
+
+void GBindingPool::glueDataAdded(const GAccessibleGlueDataPointer & glueData)
+{
+	const AccessibleKey key = AccessibleKey(objectAddressFromVariant(glueData->getInstance()), glueData->getAccessible());
+	this->accessibleMap[key] = GWeakAccessibleGlueDataPointer(glueData);
+}
+
+void GBindingPool::glueDataRemoved(const GAccessibleGlueDataPointer & glueData)
+{
+	const AccessibleKey key = AccessibleKey(objectAddressFromVariant(glueData->getInstance()), glueData->getAccessible());
+	this->accessibleMap.erase(key);
+}
+
+GAccessibleGlueDataPointer GBindingPool::newAccessibleGlueData(void * instance, IMetaAccessible * accessible)
+{
+	const AccessibleKey key = AccessibleKey(objectAddressFromVariant(instance), accessible);
+	GAccessibleGlueDataPointer result;
+	auto it = this->accessibleMap.find(key);
+	if(it != this->accessibleMap.end()) {
+		result = it->second.get();
+	}
+	if(! result) {
+		result = GAccessibleGlueDataPointer(new GAccessibleGlueData(this->context.get(), instance, accessible));
+	}
+	return result;
+}
+
+void GBindingPool::glueDataAdded(const GRawGlueDataPointer & /*glueData*/)
+{
+}
+
+void GBindingPool::glueDataRemoved(const GRawGlueDataPointer & /*glueData*/)
+{
+}
+
+GRawGlueDataPointer GBindingPool::newRawGlueData(const GVariant & data)
+{
+	return GRawGlueDataPointer(new GRawGlueData(this->context.get(), data));
+}
+
+void GBindingPool::glueDataAdded(const GOperatorGlueDataPointer & glueData)
+{
+	const OperatorKey key = OperatorKey(glueData->getObjectData().get(), glueData->getMetaClass(), glueData->getOp());
+	this->operatorMap[key] = GWeakOperatorGlueDataPointer(glueData);
+}
+
+void GBindingPool::glueDataRemoved(const GOperatorGlueDataPointer & glueData)
+{
+	const OperatorKey key = OperatorKey(glueData->getObjectData().get(), glueData->getMetaClass(), glueData->getOp());
+	this->operatorMap.erase(key);
+}
+
+GOperatorGlueDataPointer GBindingPool::newOperatorGlueData(
+		const GObjectGlueDataPointer & objectData,
+		IMetaClass * metaClass,
+		const GMetaOpType op
+	)
+{
+	const OperatorKey key = OperatorKey(objectData.get(), metaClass, op);
+	GOperatorGlueDataPointer result;
+	auto it = this->operatorMap.find(key);
+	if(it != this->operatorMap.end()) {
+		result = it->second.get();
+	}
+	if(! result) {
+		result = GOperatorGlueDataPointer(new GOperatorGlueData(this->context.get(), objectData, metaClass, op));
+	}
+
+	return result;
+}
+
 void GBindingPool::objectInstanceAdded(const GObjectInstancePointer & objectData)
 {
 	void * instance = objectAddressFromVariant(objectData->getInstance());
 	if(this->instanceMap.find(instance) == this->instanceMap.end()) {
-//		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 		this->instanceMap[instance] = objectData;
 	}
 }
 
 void GBindingPool::objectInstanceDestroyed(const GObjectInstance * objectData)
 {
-	if(isLibraryLive()) {
-		void * instance = objectAddressFromVariant(objectData->getInstance());
-		this->instanceMap.erase(instance);
-	}
+	void * instance = objectAddressFromVariant(objectData->getInstance());
+	this->instanceMap.erase(instance);
 }
 
 GObjectInstancePointer GBindingPool::findObjectInstance(const GVariant & instance)
@@ -233,23 +347,19 @@ GObjectInstancePointer GBindingPool::findObjectInstance(const GVariant & instanc
 
 GClassGlueDataPointer GBindingPool::getClassData(IMetaClass * metaClass)
 {
-	ClassKey key(metaClass);
-	auto it = this->classMap.find(key);
+	auto it = this->classMap.find(metaClass);
 	if(it != this->classMap.end() && it->second) {
 		return it->second;
 	}
 
 	GClassGlueDataPointer result = GClassGlueDataPointer(new GClassGlueData(this->context.get(), metaClass, this->metaMap.getMetaClassMap(metaClass)));
-	this->classMap[key] = result;
+	this->classMap[metaClass] = result;
 	return result;
 }
 
 void GBindingPool::classDestroyed(IMetaClass * metaClass)
 {
-	auto it = this->classMap.find(ClassKey(metaClass));
-	if(it != this->classMap.end()) {
-		this->classMap.erase(it);
-	}
+	this->classMap.erase(metaClass);
 }
 
 
@@ -315,32 +425,27 @@ GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GScriptValue & s
 
 GEnumGlueDataPointer GBindingContext::newEnumGlueData(IMetaEnum * metaEnum)
 {
-	GEnumGlueDataPointer enumData(new GEnumGlueData(this->shareFromThis(), metaEnum));
-	return enumData;
+	return this->getBindingPool()->newEnumGlueData(metaEnum);
 }
 
 GAccessibleGlueDataPointer GBindingContext::newAccessibleGlueData(void * instance, IMetaAccessible * accessible)
 {
-	GAccessibleGlueDataPointer accessibleData(new GAccessibleGlueData(this->shareFromThis(), instance, accessible));
-	return accessibleData;
+	return this->getBindingPool()->newAccessibleGlueData(instance, accessible);
 }
 
 GRawGlueDataPointer GBindingContext::newRawGlueData(const GVariant & data)
 {
-	GRawGlueDataPointer rawData(new GRawGlueData(this->shareFromThis(), data));
-	return rawData;
+	return this->getBindingPool()->newRawGlueData(data);
 }
 
 GObjectAndMethodGlueDataPointer GBindingContext::newObjectAndMethodGlueData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
 {
-	GObjectAndMethodGlueDataPointer objectAndMethodData(new GObjectAndMethodGlueData(this->shareFromThis(), objectData, methodData));
-	return objectAndMethodData;
+	return this->getBindingPool()->newObjectAndMethodGlueData(objectData, methodData);
 }
 
 GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op)
 {
-	GOperatorGlueDataPointer operatorData(new GOperatorGlueData(this->shareFromThis(), objectData, metaClass, op));
-	return operatorData;
+	return this->getBindingPool()->newOperatorGlueData(objectData, metaClass, op);
 }
 
 GBindingPool * GBindingContext::getBindingPool()

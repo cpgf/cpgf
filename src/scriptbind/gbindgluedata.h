@@ -120,6 +120,9 @@ public:
 	GContextPointer getBindingContext() const;
 	bool isValid() const;
 
+	GGlueData(const GGlueData &) = delete;
+	GGlueData & operator = (const GGlueData &) = delete;
+
 private:
 	GGlueDataType type;
 	GWeakContextPointer context;
@@ -365,9 +368,11 @@ private:
 
 private:
 	friend class GBindingContext;
+	friend class GBindingPool;
 };
 
 typedef GSharedPointer<GEnumGlueData> GEnumGlueDataPointer;
+typedef GWeakPointer<GEnumGlueData> GWeakEnumGlueDataPointer;
 
 
 class GAccessibleGlueData : public GGlueData
@@ -399,9 +404,11 @@ private:
 
 private:
 	friend class GBindingContext;
+	friend class GBindingPool;
 };
 
 typedef GSharedPointer<GAccessibleGlueData> GAccessibleGlueDataPointer;
+typedef GWeakPointer<GAccessibleGlueData> GWeakAccessibleGlueDataPointer;
 
 
 class GRawGlueData : public GGlueData
@@ -434,9 +441,11 @@ private:
 
 private:
 	friend class GBindingContext;
+	friend class GBindingPool;
 };
 
 typedef GSharedPointer<GRawGlueData> GRawGlueDataPointer;
+typedef GWeakPointer<GRawGlueData> GWeakRawGlueDataPointer;
 
 
 // Used by Lua and Python binding
@@ -473,9 +482,11 @@ private:
 
 private:
 	friend class GBindingContext;
+	friend class GBindingPool;
 };
 
 typedef GSharedPointer<GObjectAndMethodGlueData> GObjectAndMethodGlueDataPointer;
+typedef GWeakPointer<GObjectAndMethodGlueData> GWeakObjectAndMethodGlueDataPointer;
 
 
 // Used by Lua and Python binding
@@ -517,6 +528,7 @@ private:
 };
 
 typedef GSharedPointer<GOperatorGlueData> GOperatorGlueDataPointer;
+typedef GWeakPointer<GOperatorGlueData> GWeakOperatorGlueDataPointer;
 
 
 class GGlueDataWrapper
