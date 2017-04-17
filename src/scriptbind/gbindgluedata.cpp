@@ -83,7 +83,7 @@ void GGlueData::operator delete(void * p, size_t size)
 }
 
 GGlueData::GGlueData(GGlueDataType type, const GContextPointer & context)
-	: type(type), context(GWeakContextPointer(context))
+	: type(type), context(GWeakContextPointer(context)), userDataHolder(), userData(nullptr)
 {
 }
 

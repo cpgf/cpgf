@@ -56,8 +56,6 @@ GGlueDataWrapperPool * getPythonDataWrapperPool()
 	return pythonDataWrapperPool;
 }
 
-class GPythonObject;
-
 class GPythonNative : public GGlueDataWrapper
 {
 public:
@@ -67,6 +65,10 @@ public:
 
 	virtual GGlueDataPointer getData() const;
 	virtual PyObject * toPythonObject() = 0;
+	
+	void resetData() {
+		this->glueData.reset();
+	}
 
 private:
 	GGlueDataPointer glueData;
@@ -874,10 +876,42 @@ PyTypeObject * getTypeObject(const GGlueDataPointer & glueData)
 	return typeObject;
 }
 
+class GPythonUserData : public GGlueUserData
+{
+public:
+	explicit GPythonUserData(GPythonNative * pythonObject)
+		: pythonObject(pythonObject)
+	{}
+
+	GPythonNative * getPythonNative() const {
+		return this->pythonObject;
+	}
+
+private:
+	GPythonNative * pythonObject;
+};
+
+PyObject * pyAddRef(PyObject * obj)
+{
+	Py_XINCREF(obj);
+
+	return obj;
+}
+
 GPythonObject * createPythonObject(const GGlueDataPointer & glueData)
 {
-	GPythonObject * object = new GPythonObject(glueData);
-	getPythonDataWrapperPool()->dataWrapperCreated(object);
+	GPythonUserData * userData = glueData->getUserDataAs<GPythonUserData>();
+	GPythonObject * object;
+	if(userData == nullptr) {
+		object = new GPythonObject(glueData);
+		userData = new GPythonUserData(object);
+		glueData->setUserData(userData, false);
+		getPythonDataWrapperPool()->dataWrapperCreated(userData->getPythonNative());
+	}
+	else {
+		object = static_cast<GPythonObject *>(userData->getPythonNative());
+		pyAddRef(object);
+	}
 	return object;
 
 //	GPythonObject * obj = PyObject_New(GPythonObject, getTypeObject(glueData));
@@ -894,10 +928,15 @@ GPythonObject * createEmptyPythonObject()
 
 void deletePythonObject(GPythonNative * object)
 {
-	if (object->getData()->isValid()) {
-		object->getData()->getBindingContext()->getScriptObjectCache()->freeScriptObject(object);
+	const GGlueDataPointer & glueData = object->getData();
+	if(glueData->isValid()) {
+		glueData->setUserData(nullptr);
+		glueData->getBindingContext()->getScriptObjectCache()->freeScriptObject(object);
 	}
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
+	
+	object->resetData();
+
 	delete object;
 }
 
@@ -1072,13 +1111,6 @@ void error(const char * message)
 	PyErr_SetString(PyExc_RuntimeError, message);
 }
 
-PyObject * pyAddRef(PyObject * obj)
-{
-	Py_XINCREF(obj);
-
-	return obj;
-}
-
 PyObject * objectToPython(
 		const GContextPointer & context,
 		const GClassGlueDataPointer & classData,
@@ -1173,7 +1205,7 @@ struct GPythonMethods
 
 };
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & data)
+PyObject * variantToPython(const GContextPointer & /*context*/, const GVariant & data)
 {
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);

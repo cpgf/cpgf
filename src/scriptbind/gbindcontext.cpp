@@ -160,7 +160,6 @@ void GBindingPool::glueDataRemoved(const GObjectGlueDataPointer & glueData)
 GObjectGlueDataPointer GBindingPool::newObjectGlueData(
 		const GClassGlueDataPointer & classData,
 		const GObjectInstancePointer & objectInstance,
-		const bool allowGC,
 		const GScriptInstanceCv cv
 	)
 {
@@ -413,7 +412,7 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 		objectInstance = GObjectInstance::create(context, instance, classData, allowGC);
 	}
 
-	return this->getBindingPool()->newObjectGlueData(classData, objectInstance, allowGC, cv);
+	return this->getBindingPool()->newObjectGlueData(classData, objectInstance, cv);
 }
 
 GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GScriptValue & scriptValue)

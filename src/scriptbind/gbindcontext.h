@@ -79,7 +79,6 @@ public:
 	GObjectGlueDataPointer newObjectGlueData(
 		const GClassGlueDataPointer & classData,
 		const GObjectInstancePointer & objectInstance,
-		const bool allowGC,
 		const GScriptInstanceCv cv
 	);
 

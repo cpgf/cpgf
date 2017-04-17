@@ -126,17 +126,23 @@ public:
 	GContextPointer getBindingContext() const;
 	bool isValid() const;
 
-	void setUserData(GGlueUserData * userData) {
-		this->userData.reset(userData);
+	void setUserData(GGlueUserData * newUserData) {
+		this->userData = newUserData;
+		this->userDataHolder.reset(newUserData);
+	}
+
+	void setUserData(GGlueUserData * newUserData, const bool freeIt) {
+		this->userData = newUserData;
+		this->userDataHolder.reset(freeIt ? newUserData : nullptr);
 	}
 
 	GGlueUserData * getUserData() const {
-		return this->userData.get();
+		return this->userData;
 	}
 
 	template <typename T>
 	T * getUserDataAs() const {
-		return static_cast<T *>(this->userData.get());
+		return static_cast<T *>(this->userData);
 	}
 
 	GGlueData(const GGlueData &) = delete;
@@ -145,7 +151,8 @@ public:
 private:
 	GGlueDataType type;
 	GWeakContextPointer context;
-	std::unique_ptr<GGlueUserData> userData;
+	std::unique_ptr<GGlueUserData> userDataHolder;
+	GGlueUserData * userData;
 };
 
 typedef GSharedPointer<GGlueData> GGlueDataPointer;
