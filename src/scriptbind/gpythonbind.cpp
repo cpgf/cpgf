@@ -906,7 +906,7 @@ GPythonObject * createPythonObject(const GGlueDataPointer & glueData)
 		object = new GPythonObject(glueData);
 		userData = new GPythonUserData(object);
 		glueData->setUserData(userData, false);
-		getPythonDataWrapperPool()->dataWrapperCreated(userData->getPythonNative());
+		getPythonDataWrapperPool()->dataWrapperCreated(object);
 	}
 	else {
 		object = static_cast<GPythonObject *>(userData->getPythonNative());
