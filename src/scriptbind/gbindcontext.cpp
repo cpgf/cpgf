@@ -1,6 +1,5 @@
 #include "gbindcontext.h"
 #include "gbindcommon.h"
-#include "gbindobjectcache.h"
 
 namespace cpgf {
 
@@ -452,13 +451,6 @@ GBindingPool * GBindingContext::getBindingPool()
 	}
 	
 	return this->bindingPool.get();
-}
-
-GScriptObjectCache * GBindingContext::getScriptObjectCache() {
-	if (!scriptObjectCache) {
-		scriptObjectCache.reset(new GScriptObjectCache());
-	}
-	return scriptObjectCache.get();
 }
 
 

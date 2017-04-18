@@ -21,7 +21,6 @@ namespace cpgf {
 namespace bind_internal {
 
 class GBindingContext;
-class GScriptObjectCache;
 
 class GScriptContext : public IScriptContext
 {
@@ -182,16 +181,12 @@ public:
 	
 	GBindingPool * getBindingPool();
 
-	GScriptObjectCache * getScriptObjectCache();
-
 private:
 	GSharedInterface<IMetaService> service;
 	std::shared_ptr<GBindingPool> bindingPool;
 
 	GScopedPointer<GScriptCoreService> scriptCoreService;
 	GScopedInterface<IScriptContext> scriptContext;
-
-	GScopedPointer<GScriptObjectCache> scriptObjectCache;
 
 private:
 	template <typename T>

@@ -141,12 +141,6 @@ private:
 	JSObject  * jsObject;
 };
 
-class SpiderMonkeyScriptObjectCacheData : public GScriptObjectCacheData {
-public:
-	GSharedJsObject jsObject;
-	SpiderMonkeyScriptObjectCacheData(GSharedJsObject jsObject) : jsObject(jsObject) {}
-};
-
 class JsClassUserData : public GUserData
 {
 private:
@@ -735,11 +729,6 @@ JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDa
 		return JSVAL_NULL;
 	}
 
-	SpiderMonkeyScriptObjectCacheData *sharedJsObject = context->getScriptObjectCache()->findScriptObject<SpiderMonkeyScriptObjectCacheData>(instance, classData, cv);
-	if(sharedJsObject != nullptr) {
-		return ObjectValue(*(sharedJsObject->jsObject.getJsObject()));
-	}
-
 	GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, flags, cv);
 	GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, sharedStaticCast<GSpiderBindingContext>(context)->getGlueDataWrapperPool());
 
@@ -753,9 +742,6 @@ JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDa
 
 	JSObject * object = JS_NewObject(context->getJsContext(), classUserData->getJsClass(), nullptr, nullptr);
 	setObjectPrivateData(object, objectWrapper);
-
-	context->getScriptObjectCache()->addScriptObject(instance, classData, cv,
-		new SpiderMonkeyScriptObjectCacheData(GSharedJsObject(context->getJsContext(), object)));
 
 	return ObjectValue(*object);
 }
@@ -1006,9 +992,6 @@ JSBool objectConstructor(JSContext * jsContext, unsigned int argc, jsval * value
 			GGlueDataPointer objectData;
 			JsValue object = objectToSpider(context, classData, instance, GBindValueFlags(bvfAllowGC), opcvNone, &objectData);
 			JS_SET_RVAL(jsContext, valuePointer, object);
-
-			context->getScriptObjectCache()->addScriptObject(sharedStaticCast<GObjectGlueData>(objectData)->getInstance(),
-				classData, opcvNone, new SpiderMonkeyScriptObjectCacheData(GSharedJsObject(context->getJsContext(), &object.toObject())));
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);

@@ -17,7 +17,6 @@
 
 #include "gbindcommon.h"
 #include "gbindapiimpl.h"
-#include "gbindobjectcache.h"
 #include "../gstaticuninitializerorders.h"
 
 #include <stdexcept>
@@ -123,12 +122,6 @@ public:
 
 private:
 	void initType();
-};
-
-class PythonScriptObjectCacheData : public GScriptObjectCacheData {
-public:
-	GPythonNative * pythonObject;
-	PythonScriptObjectCacheData(GPythonNative *pythonObject) : pythonObject(pythonObject) {}
 };
 
 class GPythonBindingContext : public GBindingContext, public GShareFromBase
@@ -931,7 +924,6 @@ void deletePythonObject(GPythonNative * object)
 	const GGlueDataPointer & glueData = object->getData();
 	if(glueData->isValid()) {
 		glueData->setUserData(nullptr);
-		glueData->getBindingContext()->getScriptObjectCache()->freeScriptObject(object);
 	}
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
 	
@@ -1126,18 +1118,11 @@ PyObject * objectToPython(
 		return pyAddRef(Py_None);
 	}
 
-	PythonScriptObjectCacheData * cachedPythonObject = context->getScriptObjectCache()->findScriptObject<PythonScriptObjectCacheData>(instance, classData, cv);
-	if(cachedPythonObject) {
-		return pyAddRef(cachedPythonObject->pythonObject->toPythonObject());
-	}
-
 	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
 	if(outputGlueData != nullptr) {
 		*outputGlueData = objectData;
 	}
-	GPythonObject * object = createPythonObject(objectData);
-	context->getScriptObjectCache()->addScriptObject(instance, classData, cv, new PythonScriptObjectCacheData(object));
-	return object;
+	return createPythonObject(objectData);
 }
 
 PyObject * rawToPython(const GContextPointer & context, const GVariant & value)

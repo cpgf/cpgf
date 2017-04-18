@@ -65,7 +65,6 @@ set(SRC_SCRIPTBIND
 	${SRC_PATH}/scriptbind/gbindmetamap.cpp
 	${SRC_PATH}/scriptbind/gbindmethods.cpp
 	${SRC_PATH}/scriptbind/gbindobject.cpp
-	${SRC_PATH}/scriptbind/gbindobjectcache.cpp
 	
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp

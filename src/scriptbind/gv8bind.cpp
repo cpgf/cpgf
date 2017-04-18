@@ -57,12 +57,6 @@ GGlueDataWrapperPool * getV8DataWrapperPool()
 // Declarations
 //*********************************************
 
-class V8ScriptObjectCacheData : public GScriptObjectCacheData {
-public:
-	GSharedPointer<Persistent<Object> > v8Object;
-	V8ScriptObjectCacheData(GSharedPointer<Persistent<Object> > v8Object) : v8Object(v8Object) {}
-};
-
 class GV8BindingContext : public GBindingContext, public GShareFromBase
 {
 private:
@@ -413,11 +407,6 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		return Handle<Value>();
 	}
 
-	V8ScriptObjectCacheData * cachedObject = context->getScriptObjectCache()->findScriptObject<V8ScriptObjectCacheData>(instance, classData, cv);
-	if(cachedObject != nullptr) {
-		return Local<Object>::New(getV8Isolate(), *(cachedObject->v8Object.get()));
-	}
-
 	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, classData);
 	Handle<Value> external = External::New(getV8Isolate(), &signatureKey);
 	Local<Object> object = functionTemplate->GetFunction()->NewInstance(1, &external);
@@ -433,8 +422,6 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	if(outputGlueData != nullptr) {
 		*outputGlueData = objectData;
 	}
-
-	context->getScriptObjectCache()->addScriptObject(instance, classData, cv, new V8ScriptObjectCacheData(self->getPersistent()));
 
 	return self->createLocal();
 }
@@ -875,7 +862,6 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			setObjectSignature(&localSelf);
 
 			PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), localSelf, objectWrapper);
-			objectData->getBindingContext()->getScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, new V8ScriptObjectCacheData(self->getPersistent()));
 
 			args.GetReturnValue().Set( self->createLocal() );
 		}
