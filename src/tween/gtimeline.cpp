@@ -242,8 +242,7 @@ void GTimeline::performTime(GTweenNumber elapsed, GTweenNumber frameDuration, bo
 			if(shouldRestart) {
 				it->tweenable->restart();
 			}
-			if(frameDuration == 0
-				|| (!reversed && t >= it->startTime)
+			if((!reversed && t >= it->startTime)
 				|| (reversed && t >= it->startTime && t <= it->startTime + it->tweenable->getTotalDuration() + it->tweenable->getDelay())
 			) {
 				if(reversed) {
