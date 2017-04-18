@@ -82,6 +82,8 @@ GSpiderMonkeyScriptRunnerImplement::GSpiderMonkeyScriptRunnerImplement(IMetaServ
 
 GSpiderMonkeyScriptRunnerImplement::~GSpiderMonkeyScriptRunnerImplement()
 {
+	this->finalize();
+
 //	JS_ClearNonGlobalObject(this->jsContext, this->jsGlobal);
 	
 	JS_DestroyContext(this->jsContext);

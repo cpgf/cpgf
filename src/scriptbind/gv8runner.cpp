@@ -78,6 +78,8 @@ void GV8ScriptRunnerImplement::init()
 
 GV8ScriptRunnerImplement::~GV8ScriptRunnerImplement()
 {
+	this->finalize();
+
 	delete this->contextScope;
 
 	this->context.Reset();

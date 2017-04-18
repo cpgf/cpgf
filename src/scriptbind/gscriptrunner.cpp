@@ -47,6 +47,12 @@ void GScriptRunnerImplement::setScripeObject(IScriptObject * scriptObject)
 	this->scriptObject->addReference();
 }
 
+void GScriptRunnerImplement::finalize()
+{
+	this->scriptObject.reset();
+	this->service.reset();
+}
+
 
 GScriptRunner::GScriptRunner(GScriptRunnerImplement * implement)
 	: implement(implement)

@@ -45,6 +45,7 @@ GLuaScriptRunnerImplement::GLuaScriptRunnerImplement(IMetaService * service)
 
 GLuaScriptRunnerImplement::~GLuaScriptRunnerImplement()
 {
+	this->finalize();
 	lua_close(this->luaState);
 }
 

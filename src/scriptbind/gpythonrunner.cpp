@@ -46,6 +46,8 @@ GPythonScriptRunnerImplement::GPythonScriptRunnerImplement(IMetaService * servic
 
 GPythonScriptRunnerImplement::~GPythonScriptRunnerImplement()
 {
+	this->finalize();
+	
 	Py_XDECREF(this->object);
 }
 
