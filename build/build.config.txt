@@ -1,38 +1,37 @@
 # set 1 to enable Lua binding, 0 to disable
-set(HAS_LUA	1) #release=false
+set(HAS_LUA	1)
 
+# !!! Don't set it to 1, V8 is broken.
 # set 1 to enable Google V8 binding, 0 to disable
-set(HAS_V8 0) #release=false
+set(HAS_V8 0)
 
 # set 1 to enable Python binding, 0 to disable
-set(HAS_PYTHON 0) #release=false
+set(HAS_PYTHON 0)
 
+# !!! Don't set it to 1, SpiderMonkey is broken.
 # set 1 to enable Mozilla SpiderMonkey binding, 0 to disable
-set(HAS_SPIDERMONKEY 0) #release=false
+set(HAS_SPIDERMONKEY 0)
 
 # set 1 to enable unit tests.
 # it requires UnitTest++ installed.
-set(HAS_UNITTEST 1) #release=false
+set(HAS_UNITTEST 1)
 
 # set 1 to enable Boost library, 0 to disable. This is only used in unit test.
-set(HAS_BOOST 0) #release=false
+set(HAS_BOOST 0)
 
 # whether we have GLUT library
-set(HAS_GLUT 1) #release=false
+set(HAS_GLUT 1)
 
 ### Samples config
 
-# whether we have Box2D library
-# this value is not used in library, only used in samples
-set(HAS_BOX2D 1) #release=false
+# Whether we have Box2D library. It's only used in samples.
+set(HAS_BOX2D 1)
 
-# whether we have SFML library
-# this value is not used in library, only used in samples
-set(HAS_SFML 1) #release=false
+# Whether we have SFML library. It's only used in samples.
+set(HAS_SFML 1)
 
-# whether we have irrlicht library
-# this value is not used in library, only used in samples
-set(HAS_IRRLICHT 1) #release=false
+# Whether we have Irrlicht library. It's only used in samples.
+set(HAS_IRRLICHT 1)
 
 set(LIB_SHARED 0)
 
@@ -67,14 +66,12 @@ endif()
 
 
 ### Unit test config
-
 set(UNIT_TEST_DIR
 	E:/source/unittest++
 )
 
 
 ### Lua config
-
 if(${HAS_LUA})
 	find_package(Lua51)
 
@@ -105,7 +102,6 @@ endif()
 
 
 ### V8 config
-
 if(${HAS_V8})
 	set(V8_DIR
 		c:/source/v8
@@ -124,7 +120,6 @@ endif()
 
 
 ### Python config
-
 if(${HAS_PYTHON})
 	FIND_PACKAGE(PythonLibs)
 
@@ -152,7 +147,6 @@ endif()
 
 
 ### SpiderMonkey config
-
 if(${HAS_SPIDERMONKEY})
 	set(SPIDERMONKEY_DIR
 		c:/source/xulrunner-sdk
@@ -172,7 +166,6 @@ endif()
 
 
 ### glut config
-
 if(MSVC)
 	set(GLUT_DIR
 		/source/freeglut/vc
@@ -190,7 +183,6 @@ set(GLUT_INC ${GLUT_DIR}/include)
 
 
 ### Box2D config
-
 set(BOX2D_DIR
 	c:/source/Box2D/Box2D
 )
@@ -207,7 +199,6 @@ set(BOX2D_INC ${BOX2D_DIR}/)
 
 
 ### SFML config
-
 set(SFML_DIR
 	c:/source/SFML-1.6
 )
@@ -236,7 +227,6 @@ set(SFML_INC ${SFML_DIR}/include)
 
 
 ### irrlicht config
-
 set(IRRLICHT_DIR
 	c:/source/irrlicht-1.8
 )
@@ -251,7 +241,6 @@ set(IRRLICHT_INC ${IRRLICHT_DIR}/include)
 
 
 ### Boost config
-
 set(BOOST_DIR
 	c:/source/boost
 )
