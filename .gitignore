@@ -1,6 +1,8 @@
 /build/bin/
 /build/temp_*
 /build/project_*
+/build/android/libs
+/build/android/obj
 /lib/
 /test/metagen/xml/
 /tools/metagen/tool/bin/
