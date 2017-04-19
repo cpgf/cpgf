@@ -1,18 +1,23 @@
 LOCAL_PATH := $(call my-dir)
  
 include $(CLEAR_VARS)
+LOCAL_MODULE := lua
+LOCAL_SRC_FILES := liblua.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 
 ROOT_PATH := ${LOCAL_PATH}//../../../..
  
 SRC_PATH := $(ROOT_PATH)/src
 
-LOCAL_ARM_MODE := arm
 LOCAL_CFLAGS += -O3 -frtti -fexceptions -std=c++11 -DENABLE_LUA=1
 LOCAL_MODULE    := cpgf
 
-LIB_PATH := /source/lua-5.3.4/android/libs/armeabi-v7a/
-LOCAL_LDLIBS += -l${LIB_PATH}/liblua.so
-LOCAL_SHARE_LIBRARIES := liblua
+#LIB_PATH := /source/lua-5.3.4/android/libs/armeabi-v7a/
+#LOCAL_LDLIBS += -l${LIB_PATH}/liblua.so
+LOCAL_SHARED_LIBRARIES := lua
 
 LOCAL_C_INCLUDES += \
 	/projects/cpgf/include \

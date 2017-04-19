@@ -10,3 +10,4 @@
 /tools/metagen/metagen.jar
 /tools/metagen/*/xml/
 org.eclipse.jdt.core.prefs
+*.so
