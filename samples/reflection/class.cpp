@@ -7,6 +7,7 @@ namespace {
 class TestAbstract
 {
 public:
+	virtual ~TestAbstract() {}
 	virtual void abstractFunction() = 0;
 };
 

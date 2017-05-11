@@ -261,11 +261,13 @@ void error(lua_State * L, const char * message);
 
 const int RefTable = LUA_REGISTRYINDEX;
 
+/*
 string debugGetTypeName(lua_State * L, const int index)
 {
 	const int type = lua_type(L, -index);
 	return lua_typename(L, type);
 }
+*/
 
 int refLua(lua_State * L, int objectIndex)
 {

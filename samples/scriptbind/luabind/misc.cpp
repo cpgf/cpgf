@@ -3,7 +3,7 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
-#include "cpgf/gtestutil.h"
+#include "../../gtestutil.h"
 #include "cpgf/scriptbind/gluabind.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gscopedinterface.h"
@@ -237,7 +237,7 @@ void doTest()
 	GScopedInterface<IMetaClass> globalClass(metaGetGlobalMetaClass(service.get(), 0));
 	testCheckAssert(globalClass);
 
-	GScopedPointer<GScriptObject> binding(createLuaScriptObject(service.get(), L, GScriptConfig()));
+	GScopedPointer<GScriptObject> binding(createLuaScriptObject(service.get(), L));
 
 	GScopedInterface<IScriptObject> scope(binding->createScriptObject("myscope").toScriptObject());
 
@@ -255,8 +255,8 @@ void doTest()
 	GScopedInterface<IMetaEnum> metaEnum(globalClass->getEnum("GlobalEnum"));
 	scriptSetValue(binding.get(), metaEnum->getName(), GScriptValue::fromEnum(metaEnum.get()));
 
-	scriptSetValue(binding.get(), "ONE", GScriptValue::fromString("This is one"));
-	scriptSetValue(scope.get(), "TWO", GScriptValue::fromString("Second one"));
+	scriptSetValue(binding.get(), "ONE", GScriptValue::fromPrimary("This is one"));
+	scriptSetValue(scope.get(), "TWO", GScriptValue::fromPrimary("Second one"));
 
 	const char * code =
 //		"for k,v in pairs(getmetatable(TestObject)) do print(k,v) end \n"
@@ -298,11 +298,11 @@ void doTest()
 
 	GVariant result = invokeScriptFunction(binding.get(), "luaAdd", 8, 2);
 	cout << "Result: " << fromVariant<int>(result) << endl;
-	cout << scriptGetValue(binding.get(), "lss").toString() << endl;
+	cout << fromVariant<std::string>(scriptGetValue(binding.get(), "lss").toPrimary()) << endl;
 	{
-		cout << static_cast<TestObject *>(scriptGetValue(binding.get(), "newObj").toObjectAddress(NULL, NULL))->width << endl;
+		cout << static_cast<TestObject *>(scriptGetValue(binding.get(), "newObj").toObjectAddress(NULL, NULL, NULL))->width << endl;
 	IMetaClass * item = NULL;
-	scriptGetValue(binding.get(), "newObj").toObject(&item, NULL);
+	scriptGetValue(binding.get(), "newObj").toObject(&item, NULL, NULL);
 	GScopedInterface<IMetaClass> type(item);
 	cout << type->getName() << endl;
 	}

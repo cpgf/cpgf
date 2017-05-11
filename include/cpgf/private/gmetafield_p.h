@@ -5,6 +5,9 @@
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
+
+#include <type_traits>
 
 namespace cpgf {
 
@@ -63,15 +66,36 @@ private:
 		return Writable;
 	}
 
-	static GVariant virtualGet(const void * self, const void * instance) {
+	template <typename U>
+	static GVariant doGet(U self, const void * instance, typename std::enable_if<Readable, U>::type * = 0) {
 		return createVariant<ValueType>(static_cast<const GMetaFieldDataAccessor *>(self)->accessor.get(instance), true);
 	}
 
-	static void virtualSet(const void * self, void * instance, const GVariant & value) {
+	template <typename U>
+	static GVariant doGet(U /*self*/, const void * /*instance*/, typename std::enable_if<! Readable, U>::type * = 0) {
+		raiseCoreException(Error_Meta_ReadDenied);
+		return GVariant();
+	}
+
+	static GVariant virtualGet(const void * self, const void * instance) {
+		return doGet(self, instance);
+	}
+
+	template <typename U>
+	static void doSet(U self, void * instance, const GVariant & value, typename std::enable_if<Writable, U>::type * = 0) {
 		static_cast<const GMetaFieldDataAccessor *>(self)->accessor.set(
 			instance,
 			(const typename Accessor::SetterType::PassType &)fromVariant<ValueType>(value)
 		);
+	}
+
+	template <typename U>
+	static void doSet(U /*self*/, void * /*instance*/, const GVariant & /*value*/, typename std::enable_if<! Writable, U>::type * = 0) {
+		raiseCoreException(Error_Meta_WriteDenied);
+	}
+
+	static void virtualSet(const void * self, void * instance, const GVariant & value) {
+		doSet(self, instance, value);
 	}
 
 	static size_t virtualGetFieldSize() {

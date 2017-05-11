@@ -26,7 +26,7 @@ public:
 	static constexpr bool Writable = false;
 
 public:
-	static PassType set(DataType & /*data*/, const void * /*instance*/) {
+	static PassType set(DataType & /*data*/, const void * /*instance*/, const PassType & /*value*/) {
 		raiseCoreException(Error_Meta_WriteDenied);
 
 		return ValueType();

@@ -21,15 +21,6 @@ std::wstring stringToWString(const std::string & s)
 }
 
 
-std::string wstringToString(const std::wstring & s)
-{
-    std::string temp(s.length(), ' ');
-
-    std::copy(s.begin(), s.end(), temp.begin());
-
-    return temp;
-}
-
 class TestObject
 {
 public:

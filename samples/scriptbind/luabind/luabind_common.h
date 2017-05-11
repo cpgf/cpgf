@@ -22,7 +22,7 @@ public:
 		this->luaState = luaL_newstate();
 		luaL_openlibs(this->luaState);
 		this->service.reset(cpgf::createDefaultMetaService());
-		this->binding.reset(createLuaScriptObject(this->service.get(), this->luaState, cpgf::GScriptConfig()));
+		this->binding.reset(createLuaScriptObject(this->service.get(), this->luaState));
 		testscript::bindBasicData(this->binding.get());
 	}
 

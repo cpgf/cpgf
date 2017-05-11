@@ -1,7 +1,7 @@
 #ifndef CPGF_TESTSCRIPTBIND_H
 #define CPGF_TESTSCRIPTBIND_H
 
-#include "cpgf/gtestutil.h"
+#include "../gtestutil.h"
 
 #include "cpgf/gmetaclass.h"
 

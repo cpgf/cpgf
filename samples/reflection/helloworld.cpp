@@ -1,4 +1,4 @@
-#include "cpgf/gtestutil.h" // for test
+#include "../gtestutil.h" // for test
 
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
@@ -23,6 +23,9 @@ public:
 	};
 
 	FirstReflection() : headCount(0) {
+	}
+	
+	virtual ~FirstReflection() {
 	}
 
 	virtual std::string getSentence(HelloStyle style) const {

@@ -153,7 +153,7 @@ void doTestLib()
 		testCheckAssert(pobj->name != "abc");
 		fromVariant<std::string &>(method->invoke(obj)) = "abc";
 		testCheckAssert(pobj->name == "abc");
-		*static_cast<std::string *>(referenceAddressFromVariant(method->invoke(obj))) = "def";
+		*static_cast<std::string *>(fromVariant<void *>(method->invoke(obj))) = "def";
 		testCheckAssert(pobj->name == "def");
 		metaClass->destroyInstance(obj);
 	}
@@ -244,7 +244,7 @@ void doTestAPI()
 		testCheckAssert(pobj->name != "abc");
 		fromVariant<std::string &>(metaInvokeMethod(method.get(), obj)) = "abc";
 		testCheckAssert(pobj->name == "abc");
-		*static_cast<std::string *>(referenceAddressFromVariant(metaInvokeMethod(method.get(), obj))) = "def";
+		*static_cast<std::string *>(fromVariant<void *>(metaInvokeMethod(method.get(), obj))) = "def";
 		testCheckAssert(pobj->name == "def");
 		metaClass->destroyInstance(obj);
 	}

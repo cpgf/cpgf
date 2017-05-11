@@ -16,6 +16,8 @@ public:
 	static const int ID = 1;
 
 public:
+	virtual ~Window() {}
+
 	virtual std::string getName() = 0;
 
 	int getID() {

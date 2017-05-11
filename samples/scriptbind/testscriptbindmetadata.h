@@ -4,6 +4,7 @@
 
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/scriptbind/gscriptbind.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 
 
 namespace testscript {

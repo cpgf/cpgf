@@ -15,7 +15,7 @@ void doTest()
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestObject"));
 	testCheckAssert(metaClass);
 	
-	context.getBinding()->bindClass("TestObject", metaClass.get());
+	scriptSetValue(context.getBinding(), "TestObject", GScriptValue::fromClass(metaClass.get()));
 
 	context.doString(""
 		LINE(a = TestObject())
