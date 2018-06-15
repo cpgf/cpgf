@@ -3,6 +3,7 @@
 
 #include "cpgf/gapiutil.h"
 
+#include <type_traits>
 
 namespace cpgf {
 
@@ -51,7 +52,7 @@ struct GMetaTraitsCreateConverter
 template <typename T>
 IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam & param, T *)
 {
-	return GMetaTraitsCreateConverter<T>::createConverter(param);
+	return GMetaTraitsCreateConverter<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::createConverter(param);
 }
 
 } // namespace cpgf

@@ -3,8 +3,8 @@
 
 #include "cpgf/gapi.h"
 
+#include <type_traits>
 #include <cstddef>
-
 
 namespace cpgf {
 
@@ -41,7 +41,7 @@ struct GMetaTraitsCreateObjectLifeManager
 template <typename T>
 IMetaObjectLifeManager * createObjectLifeManagerFromMetaTraits(const GMetaTraitsParam & param, T *)
 {
-	IMetaObjectLifeManager * objectLifeManager = GMetaTraitsCreateObjectLifeManager<T>::createObjectLifeManager(param);
+	IMetaObjectLifeManager * objectLifeManager = GMetaTraitsCreateObjectLifeManager<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::createObjectLifeManager(param);
 	if(objectLifeManager == nullptr) {
 		objectLifeManager = metatraits_internal::createDefaultObjectLifeManagerFromMetaTraits();
 	}
