@@ -1,21 +1,18 @@
 #ifndef CPGF_GMETASCRIPTWRAPPER_H
 #define CPGF_GMETASCRIPTWRAPPER_H
 
-
 #include "cpgf/gapiutil.h"
-
 
 namespace cpgf {
 
-
 struct IScriptDataStorage;
+struct IScriptContext;
 struct GMetaTraitsParam;
 
 struct IMetaScriptWrapper : public IObject
 {
-	virtual void G_API_CC setScriptDataStorage(void * instance, IScriptDataStorage * scriptDataStorage) = 0;
+	virtual void G_API_CC initializeScriptWrapper(void * instance, IScriptDataStorage * scriptDataStorage, IScriptContext * scriptContext) = 0;
 };
-
 
 template <typename T>
 struct GMetaTraitsCreateScriptWrapper
@@ -32,9 +29,7 @@ inline IMetaScriptWrapper * metaTraitsCreateScriptWrapper(const GMetaTraitsParam
 }
 
 
-
 } // namespace cpgf
-
 
 
 #endif

@@ -1,4 +1,4 @@
-#include "../pinclude/gmetaarchivecommonimpl.h"
+#include "gmetaarchivecommonimpl.h"
 
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gfixedtype.h"

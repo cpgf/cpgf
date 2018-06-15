@@ -48,7 +48,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	QVARNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
 	QASSERT(c.getValue() == 3);
 
-	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	GEQUAL(18, objA->getValue());
 	
 	QDO(GrandDerivedClass.getName = overrideGetName);
@@ -106,7 +106,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 	QVARNEWOBJ(b, mtest.SimpleOverrideWrapper(6))
 	QASSERT(b.getValue() == 6);
 
-	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	GEQUAL(7, objA->getValue());
 
 	QDO(a.getName = overrideGetName);
@@ -154,8 +154,10 @@ void doTestSimpleOverrideFromScript_discardOwnership(T * /* binding */, TestScri
 	QDO(DerivedClass.createHelperData = createHelperData)
 	
 	QVARNEWOBJ(a, DerivedClass(0))
-// This causes test failure, just comment it out for now, will check later.
-//	QDO(a.consumeHelperData())
+
+	// This line tests the overrided createHelperData in SimpleOverrideWrapper
+	// the line will crash if the result value from doesn't discard ownership.
+	QDO(a.consumeHelperData())
 
 	// there is no explicit assertion as it has to be done at a layer above this test, e.g. valgrind
 	// checking the double-free

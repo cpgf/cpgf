@@ -57,6 +57,12 @@ TestScriptContext::~TestScriptContext()
 {
 }
 
+void TestScriptContext::finalize()
+{
+	this->bindingLib.reset();
+	this->bindingApi.reset();
+}
+
 void TestScriptContext::setBinding(cpgf::GScriptObject * binding)
 {
 	this->bindingLib.reset(binding);
@@ -130,18 +136,20 @@ public:
 			this->luaStateLib = luaL_newstate();
 			luaL_openlibs(this->luaStateLib);
 
-			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateLib));
 		}
 
 		if(api == tsaApi) {
 			this->luaStateApi = luaL_newstate();
 			luaL_openlibs(this->luaStateApi);
 
-			this->setBinding(cpgf::createLuaScriptInterface(this->getService(), this->luaStateApi, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createLuaScriptInterface(this->getService(), this->luaStateApi));
 		}
 	}
 
 	~TestScriptContextLua() {
+		this->finalize();
+
 		if(this->luaStateLib != NULL) {
 			lua_close(this->luaStateLib);
 		}
@@ -156,12 +164,12 @@ public:
 	}
 
 protected:
-	virtual bool doLib(const char * code) const {
+	virtual bool doLib(const char * code) const override {
 		luaL_loadstring(this->luaStateLib, code);
 		return checkError(lua_pcall(this->luaStateLib, 0, LUA_MULTRET, 0), this->luaStateLib);
 	}
 
-	virtual bool doApi(const char * code) const {
+	virtual bool doApi(const char * code) const override {
 		luaL_loadstring(this->luaStateApi, code);
 		return checkError(lua_pcall(this->luaStateApi, 0, LUA_MULTRET, 0), this->luaStateApi);
 	}
@@ -247,15 +255,17 @@ public:
 		Local<Object> global = ctx->Global();
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, GScriptConfig()));
+			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global));
 		}
 
 		if(api == tsaApi) {
-			this->setBinding(cpgf::createV8ScriptInterface(this->getService(), global, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createV8ScriptInterface(this->getService(), global));
 		}
 	}
 
 	~TestScriptContextV8() {
+		this->finalize();
+
 		delete this->contextScope;
 
 		this->context.Reset();
@@ -311,15 +321,17 @@ public:
 		Py_XINCREF(this->mainDict);
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->moduleMain));
 		}
 
 		if(api == tsaApi) {
-			this->setBinding(cpgf::createPythonScriptInterface(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createPythonScriptInterface(this->getService(), this->moduleMain));
 		}
 	}
 
 	~TestScriptContextPython() {
+		this->finalize();
+
 		Py_XDECREF(this->mainDict);
 		Py_XDECREF(this->moduleMain);
 
@@ -493,19 +505,20 @@ public:
 		spiderMonkeyEnv->resetContext();
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, GScriptConfig()));
+			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal));
 
 			this->nullObjects();
 		}
 
 		if(api == tsaApi) {
-			this->setBinding(cpgf::createSpiderMonkeyScriptInterface(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createSpiderMonkeyScriptInterface(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal));
 
 			this->nullObjects();
 		}
 	}
 
 	~TestScriptContextSpiderMonkey() {
+		this->finalize();
 	}
 
 	virtual bool isSpiderMonkey() const {

@@ -4,15 +4,18 @@
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gstringutil.h"
 
-#include "../pinclude/gbindcommon.h"
-#include "../pinclude/gscriptbindapiimpl.h"
+#include "gbindcommon.h"
+#include "gbindapiimpl.h"
 
 
 #include <stdexcept>
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <iostream>
+#include <string>
 
 #include <string.h>
 
@@ -66,6 +69,8 @@ public:
 	virtual GScriptValue invoke(const GVariant * params, size_t paramCount);
 	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
+	void toLua();
+
 private:
 	int ref;
 };
@@ -86,6 +91,8 @@ public:
 	virtual bool maybeIsScriptArray(size_t index);
 	virtual GScriptValue getAsScriptArray(size_t index);
 	virtual GScriptValue createScriptArray(size_t index);
+
+	void toLua();
 	
 private:
 	int ref;
@@ -98,9 +105,9 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+	GLuaScriptObject(IMetaService * service, lua_State * L);
 	GLuaScriptObject(const GLuaScriptObject & other);
-	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex);
+	GLuaScriptObject(IMetaService * service, lua_State * L, int objectIndex);
 	virtual ~GLuaScriptObject();
 
 	virtual bool isGlobal() const;
@@ -123,15 +130,18 @@ public:
 		return this->luaState;
 	}
 	
+	GLuaGlobalAccessor * getGlobalAccessor();
+
+	void getTable() const;
+
+	using super::getBindingContext;
+
 protected:
 	virtual GScriptValue doGetValue(const char * name);
 	virtual void doSetValue(const char * name, const GScriptValue & value);
 
 private:
-	void getTable() const;
 	GMethodGlueDataPointer doGetMethodUserData();
-	GLuaGlobalAccessor * getGlobalAccessor();
-
 
 private:
 	lua_State * luaState;
@@ -153,8 +163,8 @@ private:
 	typedef GBindingContext super;
 
 public:
-	GLuaBindingContext(IMetaService * service, const GScriptConfig & config, lua_State * luaState)
-		: super(service, config), luaState(luaState)
+	GLuaBindingContext(IMetaService * service, lua_State * luaState)
+		: super(service), luaState(luaState)
 	{
 	}
 
@@ -229,12 +239,14 @@ void helperBindAllOperators(const GContextPointer & context, const GObjectGlueDa
 	IMetaClass * metaClass, bool bindingToObject);
 void helperBindClass(const GContextPointer & context, IMetaClass * metaClass);
 void helperBindEnum(const GContextPointer & context, IMetaEnum * metaEnum);
-void helperBindMethodList(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
-void helperBindMethodList(const GContextPointer & context, IMetaList * methodList);
+void helperBindMethods(
+	const GContextPointer & context,
+	const GObjectGlueDataPointer & objectData,
+	const GMethodGlueDataPointer & methodData
+);
 
 typedef GCallback<GLuaGlobalAccessor * ()> GlobalAccessorGetter;
-bool helperBindValue(const GContextPointer & context, const char * name,
-	const GScriptValue & value, const GlobalAccessorGetter & globalAccessorGetter);
+bool doValueToScript(const GContextPointer & context, GLuaScriptObject * scriptObject, const GScriptValue & value, const ScriptValueToScriptData & data, const char * name = nullptr);
 
 void initObjectMetaTable(lua_State * L);
 void setMetaTableGC(lua_State * L);
@@ -242,14 +254,20 @@ void setMetaTableCall(lua_State * L, void * userData);
 void setMetaTableSignature(lua_State * L);
 bool isValidMetaTable(lua_State * L, int index);
 
-bool variantToLua(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
-GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData);
-
-bool doIndexMemberData(const GContextPointer & context, IMetaAccessible * data, void * instance, bool instanceIsConst);
+bool variantToLua(const GContextPointer & context, const GVariant & data);
+GScriptValue doScriptToValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData);
 
 void error(lua_State * L, const char * message);
 
 const int RefTable = LUA_REGISTRYINDEX;
+
+/*
+string debugGetTypeName(lua_State * L, const int index)
+{
+	const int type = lua_type(L, -index);
+	return lua_typename(L, type);
+}
+*/
 
 int refLua(lua_State * L, int objectIndex)
 {
@@ -286,6 +304,204 @@ lua_State * getLuaState(const GContextPointer & context)
 }
 
 
+const char * luaOperators[] = {
+	"__add", "__sub", "__mul", "__div",
+	"__mod", "__unm", "__eq", "__lt",
+	"__le", "__call"
+};
+
+const GMetaOpType metaOpTypes[] = {
+	mopAdd, mopSub, mopMul, mopDiv,
+	mopMod, mopNeg, mopEqual, mopLessor,
+	mopLessorEqual, mopFunctor
+};
+
+const char * metaTableSignature = "cpgf_suPer_mEta_Table";
+const lua_Integer metaTableSigValue = 0x1eabeef;
+const char * classMetaTablePrefix = "cpgf_cLaSs_mEta_Table";
+
+
+class GLuaRefUserData : public GGlueUserData
+{
+public:
+	explicit GLuaRefUserData(lua_State * luaState)
+		: luaState(luaState), ref(LUA_NOREF)
+	{}
+
+	~GLuaRefUserData()
+	{
+		this->release();
+	}
+
+	void retain(const int objectIndex)
+	{
+		this->release();
+		this->ref = refLua(this->luaState, objectIndex);
+	}
+
+	void retainAndPop()
+	{
+		this->retain(-1);
+
+		// the object is still on the stack
+		// pops it to balance the stack.
+		lua_pop(this->luaState, 1);
+	}
+
+	void release()
+	{
+		unrefLua(this->luaState, this->ref);
+	}
+
+	void get()
+	{
+		getRefObject(this->luaState, this->ref);
+	}
+
+private:
+	lua_State * luaState;
+	int ref;
+};
+
+
+void error(lua_State * L, const char * message)
+{
+	lua_Debug ar;
+	lua_getstack(L, 1, &ar);
+	lua_getinfo(L, "nSl", &ar);
+
+	const char * fileName = ar.source;
+	char dummy = 0;
+	if(fileName == nullptr || *fileName != '@') {
+		fileName = &dummy;
+	}
+
+	char s[1024];
+	sprintf(s, "Error: file %.256s, line %d: %.700s", fileName, ar.currentline, message);
+
+	lua_pushstring(L, s);
+	lua_error(L);
+}
+
+void objectToLua(
+		const GContextPointer & context,
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const bool allowGC,
+		const GScriptInstanceCv cv,
+		GGlueDataPointer * outputGlueData
+	)
+{
+	lua_State * L = getLuaState(context);
+
+	if(objectAddressFromVariant(instance) == nullptr) {
+		lua_pushnil(L);
+
+		return;
+	}
+
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
+	if(outputGlueData != nullptr) {
+		*outputGlueData = objectData;
+	}
+
+	GLuaRefUserData * glueUserData = objectData->getUserDataAs<GLuaRefUserData>();
+	if(glueUserData == nullptr) {
+		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
+		newGlueDataWrapper(userData, objectData);
+
+		IMetaClass * metaClass = classData->getMetaClass();
+
+		const char * className = metaClass->getName();
+	
+		GASSERT_MSG(strlen(className) < 1000, "Meta class name is too long");
+
+		char metaTableName[1100];
+
+		strcpy(metaTableName, classMetaTablePrefix);
+		strcat(metaTableName, className);
+
+		lua_getfield(L, LUA_REGISTRYINDEX, metaTableName);
+		if(lua_isnil(L, -1)) {
+			lua_pop(L, 1);
+
+			lua_newtable(L);
+			setMetaTableSignature(L);
+
+			setMetaTableGC(L);
+	
+			initObjectMetaTable(L);
+
+			lua_pushvalue(L, -1); // duplicate the meta table
+			lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
+	
+			helperBindAllOperators(context, objectData, metaClass, false);
+		}
+		helperBindAllOperators(context, objectData, metaClass, true);
+	
+		lua_setmetatable(L, -2);
+
+		glueUserData = new GLuaRefUserData(L);
+		objectData->setUserData(glueUserData);
+		glueUserData->retainAndPop();
+	}
+
+	glueUserData->get();
+}
+
+GScriptValue luaUserDataToScriptValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData)
+{
+	lua_State * L = getLuaState(context);
+
+	if(isValidMetaTable(L, index)) {
+		void * userData = lua_touserdata(L, index);
+		GGlueDataPointer glueData = static_cast<GGlueDataWrapper *>(userData)->getData();
+		if(outputGlueData != nullptr) {
+			*outputGlueData = glueData;
+		}
+		return glueDataToScriptValue(glueData);
+	}
+
+	return GScriptValue();
+}
+
+void rawToLua(const GContextPointer & context, const GVariant & value)
+{
+	lua_State * L = getLuaState(context);
+
+	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GRawGlueData>());
+	GRawGlueDataPointer rawData(context->newRawGlueData(value));
+	newGlueDataWrapper(userData, rawData);
+
+	lua_newtable(L);
+
+	setMetaTableSignature(L);
+	setMetaTableGC(L);
+
+	lua_setmetatable(L, -2);
+}
+
+struct GLuaMethods
+{
+	typedef bool ResultType;
+
+	static bool isSuccessResult(const ResultType & result)
+	{
+		return result;
+	}
+
+	static ResultType defaultValue()
+	{
+		return ResultType();
+	}
+
+	static ResultType doScriptValueToScript(const GContextPointer & context, const GScriptValue & scriptValue, const ScriptValueToScriptData & data)
+	{
+		return doValueToScript(context, nullptr, scriptValue, data);
+	}
+
+};
+
 int GlobalAccessor_index(lua_State * L)
 {
 	ENTER_LUA()
@@ -302,9 +518,9 @@ int GlobalAccessor_newindex(lua_State * L)
 	ENTER_LUA()
 
 	GLuaGlobalAccessor * accessor = static_cast<GLuaGlobalAccessor *>(lua_touserdata(L, lua_upvalueindex(1)));
-	
+
 	return accessor->doNewIndex();
-	
+
 	LEAVE_LUA(L, return 0)
 }
 
@@ -312,92 +528,6 @@ GLuaGlobalAccessor::GLuaGlobalAccessor(GLuaScriptObject * scriptObject)
 	: scriptObject(scriptObject)
 {
 	this->initialize();
-}
-
-void GLuaGlobalAccessor::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
-{
-	string sname(name);
-
-	this->itemMap.insert(make_pair(sname, GLuaGlobalAccessorItem(instance, accessible)));
-}
-
-int GLuaGlobalAccessor::doIndex()
-{
-	lua_State * L = this->scriptObject->getLuaState();
-
-	const char * name = lua_tostring(L, -1);
-
-	string sname(name);
-	MapType::iterator it = this->itemMap.find(sname);
-	if(it != this->itemMap.end()) {
-		doIndexMemberData(this->scriptObject->getBindingContext(), it->second.accessible.get(), it->second.instance, false);
-		return 1;
-	}
-
-	return this->doPreviousIndex(name);
-}
-
-int GLuaGlobalAccessor::doNewIndex()
-{
-	lua_State * L = this->scriptObject->getLuaState();
-
-	const char * name = lua_tostring(L, -2);
-	
-	string sname(name);
-	MapType::iterator it = this->itemMap.find(sname);
-	if(it != this->itemMap.end()) {
-		GVariant value = luaToScriptValue(this->scriptObject->getBindingContext(), -1, nullptr).getValue();
-		GVariantData varData = value.refData();
-		it->second.accessible->set(it->second.instance, &varData);
-		metaCheckError(it->second.accessible.get());
-		return 1;
-	}
-
-	return this->doPreviousNewIndex(name);
-}
-
-int GLuaGlobalAccessor::doPreviousIndex(const char * name)
-{
-	lua_State * L = this->scriptObject->getLuaState();
-	
-	this->scriptObject->getTable();
-
-	if(lua_isfunction(L, -1)) {
-		lua_pushstring(L, name);
-		lua_call(L, 1, 1);
-		return 1;
-	}
-	if(lua_istable(L, -1)) {
-		lua_pushstring(L, name);
-		lua_rawget(L, -2);
-
-		return 1;
-	}
-
-	return 0;
-}
-
-int GLuaGlobalAccessor::doPreviousNewIndex(const char * name)
-{
-	lua_State * L = this->scriptObject->getLuaState();
-	
-	this->scriptObject->getTable();
-
-	if(lua_isfunction(L, -1)) {
-		lua_pushstring(L, name);
-		lua_pushvalue(L, -3);
-		lua_call(L, 2, 0);
-		return 1;
-	}
-	if(lua_istable(L, -1)) {
-		lua_pushstring(L, name);
-		lua_pushvalue(L, -3);
-		lua_rawset(L, -3);
-
-		return 1;
-	}
-
-	return 0;
 }
 
 void GLuaGlobalAccessor::initialize()
@@ -409,7 +539,7 @@ void GLuaGlobalAccessor::initialize()
 	}
 
 	lua_newtable(L);
-	
+
 	lua_pushstring(L, "__index");
 	lua_pushlightuserdata(L, this);
 	lua_pushcclosure(L, &GlobalAccessor_index, 1);
@@ -434,283 +564,100 @@ void GLuaGlobalAccessor::initialize()
 	}
 }
 
-
-const char * luaOperators[] = {
-	"__add", "__sub", "__mul", "__div",
-	"__mod", "__unm", "__eq", "__lt",
-	"__le", "__call"
-};
-
-const GMetaOpType metaOpTypes[] = {
-	mopAdd, mopSub, mopMul, mopDiv,
-	mopMod, mopNeg, mopEqual, mopLessor,
-	mopLessorEqual, mopFunctor
-};
-
-const char * metaTableSignature = "cpgf_suPer_mEta_Table";
-const lua_Integer metaTableSigValue = 0x1eabeef;
-const char * classMetaTablePrefix = "cpgf_cLaSs_mEta_Table";
-
-
-void error(lua_State * L, const char * message)
+void GLuaGlobalAccessor::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
 {
-	lua_Debug ar;
-	lua_getstack(L, 1, &ar);
-	lua_getinfo(L, "nSl", &ar);
+	string sname(name);
 
-	const char * fileName = ar.source;
-	char dummy = 0;
-	if(fileName == nullptr || *fileName != '@') {
-		fileName = &dummy;
-	}
-
-	char s[1024];
-	sprintf(s, "Error: file %.256s, line %d: %.700s", fileName, ar.currentline, message);
-
-	lua_pushstring(L, s);
-	lua_error(L);
+	this->itemMap.insert(make_pair(sname, GLuaGlobalAccessorItem(instance, accessible)));
 }
 
-void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & classData,
-				 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+int GLuaGlobalAccessor::doIndex()
 {
-	lua_State * L = getLuaState(context);
+	lua_State * L = this->scriptObject->getLuaState();
 
-	if(objectAddressFromVariant(instance) == nullptr) {
-		lua_pushnil(L);
+	const char * name = lua_tostring(L, -1);
 
-		return;
+	string sname(name);
+	MapType::iterator it = this->itemMap.find(sname);
+	if(it != this->itemMap.end()) {
+		accessibleToScript<GLuaMethods>(this->scriptObject->getBindingContext(), it->second.accessible.get(), it->second.instance, false);
+		return 1;
 	}
 
-	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
-	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
-	newGlueDataWrapper(userData, objectData);
-
-	if(outputGlueData != nullptr) {
-		*outputGlueData = objectData;
-	}
-
-	IMetaClass * metaClass = classData->getMetaClass();
-
-	const char * className = metaClass->getName();
-	
-	GASSERT_MSG(strlen(className) < 1000, "Meta class name is too long");
-
-	char metaTableName[1100];
-
-	strcpy(metaTableName, classMetaTablePrefix);
-	strcat(metaTableName, className);
-
-	lua_getfield(L, LUA_REGISTRYINDEX, metaTableName);
-	if(lua_isnil(L, -1)) {
-		lua_pop(L, 1);
-
-		lua_newtable(L);
-		setMetaTableSignature(L);
-
-		setMetaTableGC(L);
-	
-		initObjectMetaTable(L);
-
-		lua_pushvalue(L, -1); // duplicate the meta table
-		lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
-	
-		helperBindAllOperators(context, objectData, metaClass, false);
-	}
-	helperBindAllOperators(context, objectData, metaClass, true);
-	
-	lua_setmetatable(L, -2);
+	return this->doPreviousIndex(name);
 }
 
-GScriptValue luaUserDataToScriptValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData)
+int GLuaGlobalAccessor::doNewIndex()
 {
-	lua_State * L = getLuaState(context);
+	lua_State * L = this->scriptObject->getLuaState();
 
-	if(isValidMetaTable(L, index)) {
-		void * userData = lua_touserdata(L, index);
-		GGlueDataPointer glueData = static_cast<GGlueDataWrapper *>(userData)->getData();
-		if(outputGlueData != nullptr) {
-			*outputGlueData = glueData;
-		}
-		return glueDataToScriptValue(glueData);
+	const char * name = lua_tostring(L, -2);
+
+	string sname(name);
+	MapType::iterator it = this->itemMap.find(sname);
+	if(it != this->itemMap.end()) {
+		GVariant value = doScriptToValue(this->scriptObject->getBindingContext(), -1, nullptr).getValue();
+		it->second.accessible->set(it->second.instance, &value.refData());
+		metaCheckError(it->second.accessible.get());
+		return 1;
 	}
 
-	return GScriptValue();
+	return this->doPreviousNewIndex(name);
 }
 
-GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData)
+int GLuaGlobalAccessor::doPreviousIndex(const char * name)
 {
-	lua_State * L = getLuaState(context);
+	lua_State * L = this->scriptObject->getLuaState();
 
-	int type = lua_type(L, index);
+	this->scriptObject->getTable();
 
-	switch(type) {
-		case LUA_TNIL:
-			return GScriptValue::fromNull();
+	if(lua_isfunction(L, -1)) {
+		lua_pushstring(L, name);
+		lua_call(L, 1, 1);
+		return 1;
+	}
+	if(lua_istable(L, -1)) {
+		lua_pushstring(L, name);
+		lua_rawget(L, -2);
 
-		case LUA_TNUMBER:
-			return GScriptValue::fromFundamental(lua_tonumber(L, index));
-
-		case LUA_TBOOLEAN:
-			return GScriptValue::fromFundamental(bool(lua_toboolean(L, index) != 0));
-
-		case LUA_TSTRING:
-			return GScriptValue::fromAndCopyString(lua_tostring(L, index));
-
-		case LUA_TUSERDATA:
-			return luaUserDataToScriptValue(context, index, outputGlueData);
-
-		case LUA_TFUNCTION: {
-			const bool ok = (lua_getupvalue(L, index, 1) != NULL);
-			if(ok && ! lua_isnil(L, -1)) {
-				void * rawUserData = lua_touserdata(L, -1);
-				GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(rawUserData);
-
-				if(dataWrapper != nullptr) {
-					GScriptValue scriptValue = glueDataToScriptValue(dataWrapper->getData());
-					if(! scriptValue.isNull()) {
-						return scriptValue;
-					}
-				}
-			}
-
-			if(ok) {
-				// Remove the up value from stack
-				lua_pop(L, 1);
-			}
-
-			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(context, index), true));
-			return GScriptValue::fromScriptFunction(func.get());
-		}
-		break;
-
-		case LUA_TLIGHTUSERDATA:
-			break;
-
-		case LUA_TTABLE: {
-			GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GLuaScriptObject(context->getService(), L, context->getConfig(), index), true));
-			return GScriptValue::fromScriptObject(scriptObject.get());
-		}
-			
-		case LUA_TTHREAD:
-			break;
+		return 1;
 	}
 
-	return GScriptValue();
+	return 0;
 }
 
-bool rawToLua(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
+int GLuaGlobalAccessor::doPreviousNewIndex(const char * name)
 {
-	if(context->getConfig().allowAccessRawData()) {
-		lua_State * L = getLuaState(context);
+	lua_State * L = this->scriptObject->getLuaState();
 
-		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GRawGlueData>());
-		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		newGlueDataWrapper(userData, rawData);
+	this->scriptObject->getTable();
 
-		if(outputGlueData != nullptr) {
-			*outputGlueData = rawData;
-		}
+	if(lua_isfunction(L, -1)) {
+		lua_pushstring(L, name);
+		lua_pushvalue(L, -3);
+		lua_call(L, 2, 0);
+		return 1;
+	}
+	if(lua_istable(L, -1)) {
+		lua_pushstring(L, name);
+		lua_pushvalue(L, -3);
+		lua_rawset(L, -3);
 
-		lua_newtable(L);
-
-		setMetaTableSignature(L);
-		setMetaTableGC(L);
-
-		lua_setmetatable(L, -2);
-
-		return true;
+		return 1;
 	}
 
-	return false;
+	return 0;
 }
 
-struct GLuaMethods
-{
-	typedef bool ResultType;
 
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
-	{
-		objectToLua(context, classData, instance, flags, cv, outputGlueData);
-		return true;
-	}
-
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
-	{
-		return variantToLua(context, value, flags, outputGlueData);
-	}
-	
-	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
-	{
-		return rawToLua(context, value, outputGlueData);
-	}
-
-	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
-	{
-		helperBindClass(context, metaClass);
-		return true;
-	}
-
-	static ResultType doStringToScript(const GContextPointer & context, const char * s)
-	{
-		lua_pushstring(getLuaState(context), s);
-
-		return true;
-	}
-
-	static ResultType doWideStringToScript(const GContextPointer & context, const wchar_t * ws)
-	{
-		GScopedArray<char> s(wideStringToString(ws));
-		lua_pushstring(getLuaState(context), s.get());
-
-		return true;
-	}
-
-	static bool isSuccessResult(const ResultType & result)
-	{
-		return result;
-	}
-
-	static ResultType defaultValue()
-	{
-		return ResultType();
-	}
-
-	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
-		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
-	{
-		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
-		GContextPointer context = classData->getBindingContext();
-		if(data == nullptr) {
-			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
-
-			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-			GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get());
-			data = new GMapItemMethodData(glueData);
-			mapItem->setUserData(data);
-		}
-		helperBindMethodList(context, objectData, data->getMethodData());
-		return true;
-	}
-	
-	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
-	{
-		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-		helperBindEnum(classData->getBindingContext(), metaEnum.get());
-		return true;
-	}
-
-};
-
-bool variantToLua(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
+bool variantToLua(const GContextPointer & context, const GVariant & data)
 {
 	lua_State * L = getLuaState(context);
 
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
 
-	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
+	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 	
 	if(vtIsEmpty(vt)) {
 		lua_pushnil(L);
@@ -742,26 +689,19 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 		return true;
 	}
 
-	if(variantIsString(value)) {
-		lua_pushstring(L, fromVariant<char *>(value));
+	if(variantIsAnyString(value)) {
+		lua_pushstring(L, stringFromVariant(value).c_str());
 
 		return true;
 	}
 
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		GScopedArray<char> s(wideStringToString(ws));
-		lua_pushstring(L, s.get());
-		return true;
-	}
-
-	return complexVariantToScript<GLuaMethods >(context, value, type, flags, outputGlueData);
+	return false;
 }
 
 void loadCallableParam(const GContextPointer & context, InvokeCallableParam * callableParam, int startIndex)
 {
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
-		callableParam->params[i].value = luaToScriptValue(context, static_cast<int>(i) + startIndex, &callableParam->params[i].paramGlueData);
+		callableParam->params[i].value = doScriptToValue(context, static_cast<int>(i) + startIndex, &callableParam->params[i].paramGlueData);
 	}
 }
 
@@ -802,7 +742,7 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != nullptr) {
-		objectToLua(context, classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone, nullptr);
+		objectToLua(context, classUserData, instance, true, GScriptInstanceCv::sicvNone, nullptr);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -865,11 +805,6 @@ int UserData_call(lua_State * L)
 	LEAVE_LUA(L, return 0)
 }
 
-bool doIndexMemberData(const GContextPointer & context, IMetaAccessible * data, void * instance, bool instanceIsConst)
-{
-	return accessibleToScript<GLuaMethods>(context, data, instance, instanceIsConst);
-}
-
 int UserData_index(lua_State * L)
 {
 	ENTER_LUA()
@@ -899,7 +834,7 @@ int UserData_newindex(lua_State * L)
 
 	GGlueDataPointer valueGlueData;
 
-	GScriptValue value = luaToScriptValue(instanceGlueData->getBindingContext(), -1, &valueGlueData);
+	GScriptValue value = doScriptToValue(instanceGlueData->getBindingContext(), -1, &valueGlueData);
 	if(setValueOnNamedMember(instanceGlueData, name, value, valueGlueData)) {
 		return 1;
 	}
@@ -926,18 +861,27 @@ void helperBindOperator(const GContextPointer & context, const GObjectGlueDataPo
 
 	for(size_t i = 0; i < sizeof(metaOpTypes) / sizeof(metaOpTypes[0]); ++i) {
 		if(metaOpTypes[i] == op) {
-			lua_pushstring(L, luaOperators[i]);
-			void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GOperatorGlueData>());
 			GOperatorGlueDataPointer operatorData(context->newOperatorGlueData(objectData, metaClass, op));
-			newGlueDataWrapper(userData, operatorData);
+			GLuaRefUserData * glueUserData = operatorData->getUserDataAs<GLuaRefUserData>();
+			if(glueUserData == nullptr) {
+				lua_pushstring(L, luaOperators[i]);
+				void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GOperatorGlueData>());
+				newGlueDataWrapper(userData, operatorData);
 
-			lua_newtable(L);
-			setMetaTableSignature(L);
-			setMetaTableGC(L);
-			lua_setmetatable(L, -2);
+				lua_newtable(L);
+				setMetaTableSignature(L);
+				setMetaTableGC(L);
+				lua_setmetatable(L, -2);
 
-			lua_pushcclosure(L, &UserData_operator, 1);
-			lua_rawset(L, -3);
+				lua_pushcclosure(L, &UserData_operator, 1);
+				lua_rawset(L, -3);
+
+				glueUserData = new GLuaRefUserData(L);
+				operatorData->setUserData(glueUserData);
+				glueUserData->retainAndPop();
+			}
+
+			glueUserData->get();
 
 			return;
 		}
@@ -971,46 +915,67 @@ void helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
 {
 	lua_State * L = getLuaState(context);
 
-	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GClassGlueData>());
-	GClassGlueDataPointer classData(context->newClassData(metaClass));
-	newGlueDataWrapper(userData, classData);
+	GClassGlueDataPointer classData(context->getClassData(metaClass));
+	GLuaRefUserData * glueUserData = classData->getUserDataAs<GLuaRefUserData>();
+	if(glueUserData == nullptr) {
+		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GClassGlueData>());
+		newGlueDataWrapper(userData, classData);
 
-	lua_newtable(L);
+		lua_newtable(L);
 
-	setMetaTableSignature(L);
-	setMetaTableGC(L);
-	setMetaTableCall(L, userData);
+		setMetaTableSignature(L);
+		setMetaTableGC(L);
+		setMetaTableCall(L, userData);
 
-	initObjectMetaTable(L);
+		initObjectMetaTable(L);
 
-	lua_setmetatable(L, -2);
+		lua_setmetatable(L, -2);
+
+		glueUserData = new GLuaRefUserData(L);
+		classData->setUserData(glueUserData);
+		glueUserData->retainAndPop();
+	}
+
+	glueUserData->get();
 }
 
-void helperBindMethodList(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
+void helperBindMethods(
+		const GContextPointer & context,
+		const GObjectGlueDataPointer & objectData,
+		const GMethodGlueDataPointer & methodData
+	)
 {
 	lua_State * L = getLuaState(context);
 
-	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectAndMethodGlueData>());
 	GObjectAndMethodGlueDataPointer objectAndMethodData(context->newObjectAndMethodGlueData(objectData, methodData));
-	newGlueDataWrapper(userData, objectAndMethodData);
+	GLuaRefUserData * glueUserData = objectAndMethodData->getUserDataAs<GLuaRefUserData>();
+	if(glueUserData == nullptr) {
+		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectAndMethodGlueData>());
+		newGlueDataWrapper(userData, objectAndMethodData);
 
-	lua_newtable(L);
+		lua_newtable(L);
 	
-	setMetaTableSignature(L);
-	setMetaTableGC(L);
-	lua_setmetatable(L, -2);
+		setMetaTableSignature(L);
+		setMetaTableGC(L);
+		lua_setmetatable(L, -2);
 	
-	lua_pushcclosure(L, &callbackInvokeMethodList, 1);
+		lua_pushcclosure(L, &callbackInvokeMethodList, 1);
+
+		glueUserData = new GLuaRefUserData(L);
+		objectAndMethodData->setUserData(glueUserData);
+		glueUserData->retainAndPop();
+	}
+
+	glueUserData->get();
 }
 
-void helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
-{
-	GMethodGlueDataPointer methodData = context->newMethodGlueData(GClassGlueDataPointer(), methodList);
-	helperBindMethodList(context, GObjectGlueDataPointer(), methodData);
-}
-
-bool helperBindValue(const GContextPointer & context, const char * name,
-	const GScriptValue & value, const GlobalAccessorGetter & globalAccessorGetter)
+bool doValueToScript(
+		const GContextPointer & context,
+		GLuaScriptObject * scriptObject,
+		const GScriptValue & value,
+		const ScriptValueToScriptData & data,
+		const char * name
+	)
 {
 	lua_State * L = getLuaState(context);
 
@@ -1019,15 +984,8 @@ bool helperBindValue(const GContextPointer & context, const char * name,
 			lua_pushnil(L);
 			break;
 
-		case GScriptValue::typeFundamental:
-			if(! variantToLua(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr)) {
-				raiseCoreException(Error_ScriptBinding_CantBindFundamental);
-			}
-			break;
-
-		case GScriptValue::typeString:
-			lua_pushstring(L, value.toString().c_str());
-			break;
+		case GScriptValue::typePrimary:
+			return variantToLua(context, value.toPrimary());
 
 		case GScriptValue::typeClass: {
 			GScopedInterface<IMetaClass> metaClass(value.toClass());
@@ -1038,33 +996,23 @@ bool helperBindValue(const GContextPointer & context, const char * name,
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			const GVariant instance = value.toObject(&metaClass, &transferOwnership, &cv);
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 			
-			GBindValueFlags flags;
-			flags.setByBool(bvfAllowGC, transferOwnership);
-			objectToLua(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
+			objectToLua(context, context->getClassData(metaClass), instance, transferOwnership, cv, data.outputGlueData);
 			break;
 		}
 
 		case GScriptValue::typeMethod: {
-			void * instance;
-			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
-
-			if(method->isStatic()) {
-				instance = nullptr;
-			}
-
-			GScopedInterface<IMetaList> methodList(createMetaList());
-			methodList->add(method.get(), instance);
-
-			helperBindMethodList(context, methodList.get());
+			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
+			helperBindMethods(context, data.objectData, methodData);
 			break;
 		}
 
 		case GScriptValue::typeOverloadedMethods: {
-			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
-			helperBindMethodList(context, methodList.get());
+			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
+			helperBindMethods(context, data.objectData, methodData);
 			break;
 		}
 
@@ -1075,21 +1023,126 @@ bool helperBindValue(const GContextPointer & context, const char * name,
 		}
 
 		case GScriptValue::typeRaw:
-			if(! rawToLua(context, value.toRaw(), nullptr)) {
-				raiseCoreException(Error_ScriptBinding_CantBindRaw);
-			}
+			rawToLua(context, value.toRaw());
 			break;
 
 		case GScriptValue::typeAccessible: {
 			void * instance;
 			GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
-			globalAccessorGetter()->bindAccessible(name, instance, accessible.get());
-			return false;
+
+			bool instanceIsConst = false;
+
+			if(data.objectData) {
+				instance = data.objectData->getInstanceAddress();
+				instanceIsConst = (data.objectData->getCV() == GScriptInstanceCv::sicvConst);
+			}
+
+			if(scriptObject != nullptr && name != nullptr) {
+				// Bind the accessible to name, then the script can access it by name.
+				scriptObject->getGlobalAccessor()->bindAccessible(name, instance, accessible.get());
+				return false;
+			}
+			else {
+				// Bind the accessible value to script.
+				accessibleToScript<GLuaMethods>(context, accessible.get(), instance, instanceIsConst);
+				return true;
+			}
+
+			break;
 		}
 
+		case GScriptValue::typeScriptObject: {
+			GScopedInterface<IScriptObject> obj(value.toScriptObject());
+			GLuaScriptObject * luaObj = static_cast<GLuaScriptObject *>(
+				static_cast<ImplScriptObject *>(obj.get())->getUnderlying()
+			);
+			if(! luaObj->isGlobal()) {
+				luaObj->getTable();
+			}
+			break;
+		}
+		
+		case GScriptValue::typeScriptFunction: {
+			GScopedInterface<IScriptFunction> func(value.toScriptFunction());
+			GLuaScriptFunction * luaFunc = static_cast<GLuaScriptFunction *>(
+				static_cast<ImplScriptFunction *>(func.get())->getUnderlying()
+			);
+			luaFunc->toLua();
+			break;
+		}
+		
+		case GScriptValue::typeScriptArray: {
+			GScopedInterface<IScriptArray> array(value.toScriptArray());
+			GLuaScriptArray * luaArray = static_cast<GLuaScriptArray *>(
+				static_cast<ImplScriptArray *>(array.get())->getUnderlying()
+			);
+			luaArray->toLua();
+			break;
+		}
 	}
 	
 	return true;
+}
+
+GScriptValue doScriptToValue(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData)
+{
+	lua_State * L = getLuaState(context);
+
+	int type = lua_type(L, index);
+
+	switch(type) {
+	case LUA_TNIL:
+		return GScriptValue::fromNull();
+
+	case LUA_TNUMBER:
+		return GScriptValue::fromPrimary(lua_tonumber(L, index));
+
+	case LUA_TBOOLEAN:
+		return GScriptValue::fromPrimary(bool(lua_toboolean(L, index) != 0));
+
+	case LUA_TSTRING:
+		return GScriptValue::fromPrimary(createStringVariant(lua_tostring(L, index)));
+
+	case LUA_TUSERDATA:
+		return luaUserDataToScriptValue(context, index, outputGlueData);
+
+	case LUA_TFUNCTION: {
+		const bool ok = (lua_getupvalue(L, index, 1) != NULL);
+		if(ok && ! lua_isnil(L, -1)) {
+			void * rawUserData = lua_touserdata(L, -1);
+			GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(rawUserData);
+
+			if(dataWrapper != nullptr) {
+				GScriptValue scriptValue = glueDataToScriptValue(dataWrapper->getData());
+				if(! scriptValue.isNull()) {
+					return scriptValue;
+				}
+			}
+		}
+
+		if(ok) {
+			// Remove the up value from stack to make stack balance
+			lua_pop(L, 1);
+		}
+
+		GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(context, index), true));
+		return GScriptValue::fromScriptFunction(func.get());
+	}
+		break;
+
+	case LUA_TLIGHTUSERDATA:
+		break;
+
+	case LUA_TTABLE: {
+		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GLuaScriptObject(context->getService(), L, index), true));
+		return GScriptValue::fromScriptObject(scriptObject.get());
+	}
+
+	case LUA_TTHREAD:
+		break;
+	}
+
+	return GScriptValue();
 }
 
 void setMetaTableGC(lua_State * L)
@@ -1265,7 +1318,12 @@ void GLuaScopeGuard::rawGet(const char * name)
 
 
 // function is on stack top
-GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant const * const * params, size_t paramCount, const char * name)
+GScriptValue invokeLuaFunctionIndirectly(
+		const GContextPointer & context,
+		GVariant const * const * params,
+		const size_t paramCount,
+		const char * name
+	)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1279,7 +1337,15 @@ GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVaria
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(context, *params[i], GBindValueFlags(bvfAllowRaw), nullptr)) {
+			if(! doValueToScript(
+					context,
+					nullptr,
+					doCreateScriptValueFromVariant(context, *params[i], false),
+					ScriptValueToScriptData(),
+					nullptr
+				)
+			)
+			{
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
@@ -1299,7 +1365,7 @@ GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVaria
 			}
 			else {
 				if(resultCount > 0) {
-					return luaToScriptValue(context, -1, nullptr);
+					return doScriptToValue(context, -1, nullptr);
 				}
 			}
 		}
@@ -1337,11 +1403,16 @@ GScriptValue GLuaScriptFunction::invoke(const GVariant * params, size_t paramCou
 
 GScriptValue GLuaScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
+	this->toLua();
+
+	return invokeLuaFunctionIndirectly(this->getBindingContext(), params, paramCount, "");
+}
+
+void GLuaScriptFunction::toLua()
+{
 	lua_State * L = getLuaState(this->getBindingContext());
 
 	getRefObject(L, this->ref);
-
-	return invokeLuaFunctionIndirectly(this->getBindingContext(), params, paramCount, "");
 }
 
 
@@ -1376,7 +1447,7 @@ GScriptValue GLuaScriptArray::getValue(size_t index)
 	getRefObject(L, this->ref);
 	lua_rawgeti(L, -1, (int)(index + 1));
 	
-	return luaToScriptValue(this->getBindingContext(), -1, nullptr);
+	return doScriptToValue(this->getBindingContext(), -1, nullptr);
 }
 
 void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
@@ -1387,8 +1458,7 @@ void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
 	else {
 		lua_State * L = getLuaState(this->getBindingContext());
 		getRefObject(L, this->ref);
-		bool shouldSet = helperBindValue(this->getBindingContext(), "", value,
-			makeCallback(this->scriptObject, &GLuaScriptObject::getGlobalAccessor));
+		bool shouldSet = doValueToScript(this->getBindingContext(), this->scriptObject, value, ScriptValueToScriptData());
 		if(shouldSet) {
 			lua_rawseti(L, -2, (int)(index + 1));
 		}
@@ -1402,6 +1472,7 @@ bool GLuaScriptArray::maybeIsScriptArray(size_t index)
 	lua_rawgeti(L, -1, (int)(index + 1));
 	return lua_type(L, -1) == LUA_TTABLE;
 }
+
 GScriptValue GLuaScriptArray::getAsScriptArray(size_t index)
 {
 	lua_State * L = getLuaState(this->getBindingContext());
@@ -1416,6 +1487,7 @@ GScriptValue GLuaScriptArray::getAsScriptArray(size_t index)
 		return GScriptValue();
 	}
 }
+
 GScriptValue GLuaScriptArray::createScriptArray(size_t index)
 {
 	lua_State * L = getLuaState(this->getBindingContext());
@@ -1427,13 +1499,20 @@ GScriptValue GLuaScriptArray::createScriptArray(size_t index)
 	return GScriptValue::fromScriptArray(scriptArray.get());
 }	
 
-GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
-	: super(GContextPointer(new GLuaBindingContext(service, config, L)), config), luaState(L), ref(LUA_NOREF)
+void GLuaScriptArray::toLua()
+{
+	lua_State * L = getLuaState(this->getBindingContext());
+	getRefObject(L, this->ref);
+}
+
+
+GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L)
+	: super(GContextPointer(new GLuaBindingContext(service, L))), luaState(L), ref(LUA_NOREF)
 {
 }
 
-GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex)
-	: super(GContextPointer(new GLuaBindingContext(service, config, L)), config), luaState(L), ref(LUA_NOREF)
+GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, int objectIndex)
+	: super(GContextPointer(new GLuaBindingContext(service, L))), luaState(L), ref(LUA_NOREF)
 {
 	this->ref = refLua(this->luaState, objectIndex);
 }
@@ -1476,16 +1555,14 @@ GScriptValue GLuaScriptObject::doGetValue(const char * name)
 	
 	scopeGuard.get(name);
 
-	return luaToScriptValue(this->getBindingContext(), -1, nullptr);
+	return doScriptToValue(this->getBindingContext(), -1, nullptr);
 }
 
 void GLuaScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
 	GLuaScopeGuard scopeGuard(this);
 
-	bool shouldSet = helperBindValue(this->getBindingContext(), name, value,
-		makeCallback(this, &GLuaScriptObject::getGlobalAccessor));
-
+	bool shouldSet = doValueToScript(this->getBindingContext(), this, value, ScriptValueToScriptData(), name);
 	if(shouldSet) {	
 		scopeGuard.set(name);
 	}
@@ -1628,14 +1705,14 @@ GScriptValue GLuaScriptObject::createScriptArray(const char * name)
 } // unnamed namespace
 
 
-GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
+GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L)
 {
-	return new GLuaScriptObject(service, L, config);
+	return new GLuaScriptObject(service, L);
 }
 
-IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config)
+IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L)
 {
-	return new ImplScriptObject(new GLuaScriptObject(service, L, config), true);
+	return new ImplScriptObject(new GLuaScriptObject(service, L), true);
 }
 
 

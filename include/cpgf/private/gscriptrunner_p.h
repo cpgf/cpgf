@@ -26,6 +26,11 @@ public:
 
 protected:
 	void setScripeObject(IScriptObject * scriptObject);
+	// The derived class should clean up (such as shutting down the 
+	// script engine) in its dtor after calling finalize() before exit the dtor,
+	// because TestScriptContext needs to cleanup the script objects before
+	// the underlying script engine is destroyed.
+	void finalize();
 
 private:
 	GScopedInterface<IMetaService> service;

@@ -11,7 +11,6 @@ string makeObject(const string & name, TestScriptContext * context)
 		return "" + name + (name == "" ? "" : " = ") + " { myInt = 20 }";
 	}
 	if(context->isV8() || context->isSpiderMonkey()) {
-//		return "function " + name + "() { this.myInt = 20; }";
 		return "function xxx() { this.myInt = 20; }; " + name + " = new xxx();";
 	}
 	if(context->isPython()) {

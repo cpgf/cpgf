@@ -2,6 +2,7 @@
 #include "unittestbase.h"
 
 #include <iostream>
+#include <stdio.h>
 
 int main()
 {
@@ -10,6 +11,8 @@ int main()
 	_CrtSetDbgFlag (_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 #endif
+
+//	printf("Press any key to start..."); getchar();
 
 	int result = UnitTest::RunAllTests();
 

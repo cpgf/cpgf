@@ -313,7 +313,7 @@ GVariant GMetaConstructor::execute(void * /*instance*/, const GVariant * params,
 	return this->baseData->invoke(nullptr, variantPointers, paramCount);
 }
 
-GVariant GMetaConstructor::executeByData(void * instance, const GVariantData * * params, size_t paramCount) const
+GVariant GMetaConstructor::executeByData(void * /*instance*/, const GVariantData * * params, size_t paramCount) const
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 

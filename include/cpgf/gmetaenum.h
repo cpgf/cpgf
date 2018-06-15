@@ -11,9 +11,7 @@ class GMetaEnum;
 
 class GMetaEnumDataImplement;
 
-GMAKE_FINAL(GMetaEnum)
-
-class GMetaEnum : public GMetaTypedItem, GFINAL_BASE(GMetaEnum)
+class GMetaEnum final : public GMetaTypedItem
 {
 private:
 	typedef GMetaTypedItem super;
@@ -22,7 +20,7 @@ public:
 	GMetaEnum(const char * name, const GMetaType & itemType);
 	virtual ~GMetaEnum();
 
-	virtual size_t getTypeSize() const;
+	virtual size_t getTypeSize() const override;
 	size_t getCount() const;
 	const char * getKey(size_t index) const;
 	GVariant getValue(size_t index) const;
@@ -30,14 +28,14 @@ public:
 
 	GMetaEnum & operator () (const char * key, const GVariant & value);
 
-	virtual void * createInstance() const;
-	virtual void * createInplace(void * placement) const;
-	virtual void * cloneInstance(const void * instance) const;
-	virtual void * cloneInplace(const void * instance, void * placement) const;
-	virtual void destroyInstance(void * instance) const;
-	virtual void destroyInplace(void * instance) const;
+	virtual void * createInstance() const override;
+	virtual void * createInplace(void * placement) const override;
+	virtual void * cloneInstance(const void * instance) const override;
+	virtual void * cloneInplace(const void * instance, void * placement) const override;
+	virtual void destroyInstance(void * instance) const override;
+	virtual void destroyInplace(void * instance) const override;
 	
-	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const override;
 
 private:
 	void addEnum(const char * key, const GVariant & value);

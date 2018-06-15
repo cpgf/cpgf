@@ -16,6 +16,14 @@ struct GMetaTraitsCreateSharedPointerTraits <boost::shared_ptr<T>, void >
 	}
 };
 
+template <typename T>
+struct GMetaTraitsCreateSharedPointerTraits <const boost::shared_ptr<T>, void >
+{
+	static IMetaSharedPointerTraits * createSharedPointerTraits(const GMetaTraitsParam &) {
+		return new gmetasharedptrtraits_internal::GMetaTraitsCreateSharedPointerTraitsGeneral<T, boost::shared_ptr<T> >();
+	}
+};
+
 
 } // namespace cpgf
 

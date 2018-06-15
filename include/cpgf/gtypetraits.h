@@ -705,6 +705,40 @@ struct IsCallable
 };
 
 
+template <typename T>
+struct ArrayToPointers
+{
+	typedef T Result;
+
+	G_STATIC_CONSTANT(bool, IsArray = false);
+};
+
+#define DEF_ARRAY_TO_PTR(CV) \
+	template <typename T> struct ArrayToPointers <CV T[]> { typedef CV typename ArrayToPointers<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); }; \
+	template <typename T> struct ArrayToPointers <CV T (*) []> { typedef CV typename ArrayToPointers<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); };
+
+DEF_ARRAY_TO_PTR(GPP_EMPTY())
+DEF_ARRAY_TO_PTR(const)
+DEF_ARRAY_TO_PTR(volatile)
+DEF_ARRAY_TO_PTR(const volatile)
+
+#undef DEF_ARRAY_TO_PTR
+
+#ifndef G_COMPILER_CPPBUILDER
+#define DEF_ARRAY_TO_PTR(CV) \
+	template <typename T, unsigned int N> struct ArrayToPointers <CV T[N]> { typedef CV typename ArrayToPointers<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); }; \
+	template <typename T, unsigned int N> struct ArrayToPointers <CV T (*) [N]> { typedef CV typename ArrayToPointers<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); }; \
+	template <typename T, unsigned int N> struct ArrayToPointers <CV T (&) [N]> { typedef CV typename ArrayToPointers<T>::Result * Result; G_STATIC_CONSTANT(bool, IsArray = true); };
+
+DEF_ARRAY_TO_PTR(GPP_EMPTY())
+DEF_ARRAY_TO_PTR(const)
+DEF_ARRAY_TO_PTR(volatile)
+DEF_ARRAY_TO_PTR(const volatile)
+
+#undef DEF_ARRAY_TO_PTR
+#endif
+
+
 } // namespace cpgf
 
 

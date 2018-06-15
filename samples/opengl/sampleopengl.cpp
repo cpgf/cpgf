@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
 	;
 
 	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
-	scriptHelper.borrowScriptObject()->bindClass("gl", glMetaClass.get());
+	scriptSetValue(scriptHelper.borrowScriptObject(), "gl", GScriptValue::fromClass(glMetaClass.get()));
 	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));
 	scriptHelper.borrowScriptObject()->bindMethod("exitDemo", NULL, method.get());
 	

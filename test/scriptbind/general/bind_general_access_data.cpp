@@ -13,7 +13,7 @@ void doTestAccessData(T * binding, TestScriptContext * context)
 
 	TestObject * obj;
 	
-	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	obj->data.x = 38;
 	obj->data.name = "blah";
 
@@ -23,7 +23,7 @@ void doTestAccessData(T * binding, TestScriptContext * context)
 	QDO(a.data.x = 5)
 	QDO(a.data.name = "script")
 
-	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	GCHECK(obj->data.x == 5);
 	GCHECK(obj->data.name == "script");
 
@@ -32,7 +32,7 @@ void doTestAccessData(T * binding, TestScriptContext * context)
 	QDO(b.name = "what")
 	QDO(a.data = b)
 
-	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	GCHECK(obj->data.x == 96);
 	GCHECK(obj->data.name == "what");
 }
@@ -68,7 +68,7 @@ void doTestRefData(T * binding, TestScriptContext * context)
 	QVAR(b = a.refData())
 	QVAR(c = a.constRefData())
 	
-	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	obj->data.x = 38;
 	obj->data.name = "blah";
 
@@ -83,7 +83,7 @@ void doTestRefData(T * binding, TestScriptContext * context)
 	QDO(b = a.pointerData())
 	QDO(c = a.constPointerData())
 	
-	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	GCHECK(obj->data.x == 96);
 	GCHECK(obj->data.name == "what");
 	
@@ -97,7 +97,7 @@ void doTestRefData(T * binding, TestScriptContext * context)
 	QASSERT(c.x == 18)
 	QASSERT(c.name == "how")
 
-	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	GCHECK(obj->data.x == 18);
 	GCHECK(obj->data.name == "how");
 
@@ -135,7 +135,7 @@ void doTestDataConstness(T * binding, TestScriptContext * context)
 
 	TestObject * obj;
 	
-	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
+	obj = static_cast<TestObject *>(scriptGetValue(binding, "a").toObjectAddress(nullptr, nullptr, nullptr));
 	obj->data.x = 38;
 	obj->data.name = "blah";
 

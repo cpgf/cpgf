@@ -1,7 +1,7 @@
 #ifndef CPGF_REFLECT_COMMON_H
 #define CPGF_REFLECT_COMMON_H
 
-#include "cpgf/gtestutil.h"
+#include "../gtestutil.h"
 
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"

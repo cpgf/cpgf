@@ -27,9 +27,7 @@ struct GMetaTypeData
 #pragma pack(pop)
 
 
-GMAKE_FINAL(GTypeInfo)
-
-class GTypeInfo : GFINAL_BASE(GTypeInfo)
+class GTypeInfo final
 {
 public:
 	GTypeInfo() : typeInfo(nullptr) {
@@ -81,9 +79,7 @@ GTypeInfo gTypeId()
 #include "cpgf/private/gmetatype_p.h"
 
 
-GMAKE_FINAL(GMetaType)
-
-class GMetaType : GFINAL_BASE(GMetaType)
+class GMetaType final
 {
 //	GASSERT_STATIC(sizeof(GMetaTypeData) == 8);
 

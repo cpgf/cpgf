@@ -1,8 +1,13 @@
 /build/bin/
 /build/temp_*
 /build/project_*
+/build/android/libs
+/build/android/obj
 /lib/
 /test/metagen/xml/
 /tools/metagen/tool/bin/
 /tools/metagen/js.jar
 /tools/metagen/metagen.jar
+/tools/metagen/*/xml/
+org.eclipse.jdt.core.prefs
+*.so

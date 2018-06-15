@@ -3,6 +3,8 @@
 
 #include "cpgf/tween/gtweencommon.h"
 
+#include <cmath>
+
 namespace cpgf {
 
 struct ElasticEase

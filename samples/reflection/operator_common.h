@@ -4,7 +4,7 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
-#include "cpgf/gtestutil.h"
+#include "../gtestutil.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaapiutil.h"
 

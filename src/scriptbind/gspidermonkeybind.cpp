@@ -1,10 +1,11 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gstringmap.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gstringutil.h"
 
-#include "../pinclude/gbindcommon.h"
-#include "../pinclude/gscriptbindapiimpl.h"
-#include "../pinclude/gstaticuninitializerorders.h"
+#include "gbindcommon.h"
+#include "gbindapiimpl.h"
+#include "../gstaticuninitializerorders.h"
 
 #include <string>
 
@@ -140,12 +141,6 @@ private:
 	JSObject  * jsObject;
 };
 
-class SpiderMonkeyScriptObjectCacheData : public GScriptObjectCacheData {
-public:
-	GSharedJsObject jsObject;
-	SpiderMonkeyScriptObjectCacheData(GSharedJsObject jsObject) : jsObject(jsObject) {}
-};
-
 class JsClassUserData : public GUserData
 {
 private:
@@ -202,8 +197,8 @@ private:
 	typedef GBindingContext super;
 
 public:
-	GSpiderBindingContext(IMetaService * service, const GScriptConfig & config, JSContext * jsContext, JSObject  * jsObject)
-		: super(service, config), jsContext(jsContext), jsObject(jsObject)
+	GSpiderBindingContext(IMetaService * service, JSContext * jsContext, JSObject  * jsObject)
+		: super(service), jsContext(jsContext), jsObject(jsObject)
 	{
 	}
 
@@ -272,7 +267,7 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GSpiderMonkeyScriptObject(IMetaService * service, const GScriptConfig & config, JSContext *jsContext, JSObject  * jsObject);
+	GSpiderMonkeyScriptObject(IMetaService * service, JSContext *jsContext, JSObject  * jsObject);
 	GSpiderMonkeyScriptObject(const GSpiderMonkeyScriptObject & other, JSContext *jsContext, JSObject  * jsObject);
 	virtual ~GSpiderMonkeyScriptObject();
 
@@ -310,7 +305,7 @@ JsValue helperBindClass(const GSpiderContextPointer & context, JSObject * owner,
 JsValue helperBindMethodList(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList);
 JSFunction * createJsFunction(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList);
 JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData,
-				 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData);
+				 const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData);
 JsValue variantToSpider(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 JsValue rawToSpider(const GSpiderContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData);
 JSObject * createEnumBinding(const GSpiderContextPointer & context, IMetaEnum * metaEnum);
@@ -451,7 +446,7 @@ struct GSpiderMethods
 	typedef JsValue ResultType;
 
 	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+		const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 	{
 		return objectToSpider(sharedStaticCast<GSpiderBindingContext>(context), classData, instance, flags, cv, outputGlueData);
 	}
@@ -480,8 +475,8 @@ struct GSpiderMethods
 
 	static ResultType doWideStringToScript(const GContextPointer & context, const wchar_t * ws)
 	{
-		GScopedArray<char> s(wideStringToString(ws));
-		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.get());
+		std::string s(wideStringToString(ws));
+		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.c_str());
 		return StringValue(jsString);
 	}
 
@@ -504,7 +499,7 @@ struct GSpiderMethods
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
 			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-			GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get());
+			GMethodGlueDataPointer glueData = context->newMethodGlueData(metaList.get());
 			data = new GMapItemMethodData(glueData);
 			mapItem->setUserData(data);
 		}
@@ -527,7 +522,7 @@ JsValue variantToSpider(const GContextPointer & context, const GVariant & data, 
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
 
-	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
+	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 
 	if(vtIsEmpty(vt)) {
 		return JSVAL_NULL;
@@ -549,16 +544,8 @@ JsValue variantToSpider(const GContextPointer & context, const GVariant & data, 
 		return JSVAL_NULL;
 	}
 
-	if(variantIsString(value)) {
-		char * s = fromVariant<char *>(value);
-		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s);
-		return StringValue(jsString);
-	}
-
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		GScopedArray<char> s(wideStringToString(ws));
-		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.get());
+	if(variantIsAnyString(value)) {
+		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), stringFromVariant(value).c_str());
 		return StringValue(jsString);
 	}
 
@@ -597,7 +584,7 @@ GScriptValue spiderUserDataToScriptValue(const GSpiderContextPointer & context, 
 				return GScriptValue::fromScriptFunction(func.get());
 			}
 			else {
-				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GSpiderMonkeyScriptObject(context->getService(), context->getConfig(), context->getJsContext(), object), true));
+				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GSpiderMonkeyScriptObject(context->getService(), context->getJsContext(), object), true));
 
 				return GScriptValue::fromScriptObject(scriptObject.get());
 			}
@@ -614,11 +601,11 @@ GScriptValue spiderToScriptValue(const GSpiderContextPointer & context, JsValue 
 	}
 
 	if(value.isBoolean()) {
-		return GScriptValue::fromFundamental(bool(value.toBoolean()));
+		return GScriptValue::fromPrimary(bool(value.toBoolean()));
 	}
 
 	if(value.isInt32()) {
-		return GScriptValue::fromFundamental(value.toInt32());
+		return GScriptValue::fromPrimary(value.toInt32());
 	}
 
 	if(value.isNull()) {
@@ -626,17 +613,17 @@ GScriptValue spiderToScriptValue(const GSpiderContextPointer & context, JsValue 
 	}
 
 	if(value.isNumber()) {
-		return GScriptValue::fromFundamental(value.toNumber());
+		return GScriptValue::fromPrimary(value.toNumber());
 	}
 
 	if(value.isDouble()) {
-		return GScriptValue::fromFundamental(value.toDouble());
+		return GScriptValue::fromPrimary(value.toDouble());
 	}
 
 	if(value.isString()) {
 		JSString * jsString = value.toString();
 		GScopedArray<char> s(jsStringToString(context->getJsContext(), jsString));
-		return GScriptValue::fromAndCopyString(s.get());
+		return GScriptValue::fromPrimary(createStringVariant(s.get()));
 	}
 
 	if(value.isObject()) {
@@ -721,7 +708,7 @@ JsValue helperBindMethodList(const GSpiderContextPointer & context, const GClass
 
 JSFunction * createJsFunction(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList)
 {
-	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, context->getGlueDataWrapperPool());
 
 	JSContext * jsContext = context->getJsContext();
@@ -734,17 +721,12 @@ JSFunction * createJsFunction(const GSpiderContextPointer & context, const GClas
 }
 
 JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData,
-				 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+				 const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
 
 	if(instanceAddress == nullptr) {
 		return JSVAL_NULL;
-	}
-
-	SpiderMonkeyScriptObjectCacheData *sharedJsObject = context->getScriptObjectCache()->findScriptObject<SpiderMonkeyScriptObjectCacheData>(instance, classData, cv);
-	if(sharedJsObject != nullptr) {
-		return ObjectValue(*(sharedJsObject->jsObject.getJsObject()));
 	}
 
 	GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, flags, cv);
@@ -760,9 +742,6 @@ JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDa
 
 	JSObject * object = JS_NewObject(context->getJsContext(), classUserData->getJsClass(), nullptr, nullptr);
 	setObjectPrivateData(object, objectWrapper);
-
-	context->getScriptObjectCache()->addScriptObject(instance, classData, cv,
-		new SpiderMonkeyScriptObjectCacheData(GSharedJsObject(context->getJsContext(), object)));
 
 	return ObjectValue(*object);
 }
@@ -1013,9 +992,6 @@ JSBool objectConstructor(JSContext * jsContext, unsigned int argc, jsval * value
 			GGlueDataPointer objectData;
 			JsValue object = objectToSpider(context, classData, instance, GBindValueFlags(bvfAllowGC), opcvNone, &objectData);
 			JS_SET_RVAL(jsContext, valuePointer, object);
-
-			context->getScriptObjectCache()->addScriptObject(sharedStaticCast<GObjectGlueData>(objectData)->getInstance(),
-				classData, opcvNone, new SpiderMonkeyScriptObjectCacheData(GSharedJsObject(context->getJsContext(), &object.toObject())));
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1109,8 +1085,8 @@ JsValue helperBindValue(const GSpiderContextPointer & context, JSObject * jsObje
 			result = JSVAL_NULL;
 			break;
 
-		case GScriptValue::typeFundamental:
-			result = variantToSpider(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr);
+		case GScriptValue::typePrimary:
+			result = variantToSpider(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr);
 			break;
 
 		case GScriptValue::typeString: {
@@ -1129,12 +1105,13 @@ JsValue helperBindValue(const GSpiderContextPointer & context, JSObject * jsObje
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			const GVariant instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			result = objectToSpider(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
+			result = objectToSpider(context, context->getClassData(metaClass), instance, flags, cv, nullptr);
 			break;
 		}
 
@@ -1439,8 +1416,8 @@ GScriptValue GSpiderScriptArray::createScriptArray(size_t index)
 	return value;
 }
 
-GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(IMetaService * service, const GScriptConfig & config, JSContext * jsContext, JSObject  * jsObject)
-	: super(GContextPointer(new GSpiderBindingContext(service, config, jsContext, getOrCreateGlobalJsObject(jsContext, jsObject))), config), jsContext(jsContext)
+GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject)
+	: super(GContextPointer(new GSpiderBindingContext(service, jsContext, getOrCreateGlobalJsObject(jsContext, jsObject)))), jsContext(jsContext)
 {
 	this->jsObject.reset(jsContext, sharedStaticCast<GSpiderBindingContext>(this->getBindingContext())->getJsGlobalObject());
 }
@@ -1623,14 +1600,14 @@ JSObject * createSpiderMonkeyGlobaObject(JSContext * jsContext)
 	return getOrCreateGlobalJsObject(jsContext, nullptr);
 }
 
-GScriptObject * createSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject, const GScriptConfig & config)
+GScriptObject * createSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject)
 {
-	return new GSpiderMonkeyScriptObject(service, config, jsContext, jsObject);
+	return new GSpiderMonkeyScriptObject(service, jsContext, jsObject);
 }
 
-IScriptObject * createSpiderMonkeyScriptInterface(IMetaService * service, JSContext *jsContext, JSObject  * jsObject, const GScriptConfig & config)
+IScriptObject * createSpiderMonkeyScriptInterface(IMetaService * service, JSContext *jsContext, JSObject  * jsObject)
 {
-	return new ImplScriptObject(new GSpiderMonkeyScriptObject(service, config, jsContext, jsObject), true);
+	return new ImplScriptObject(new GSpiderMonkeyScriptObject(service, jsContext, jsObject), true);
 }
 
 

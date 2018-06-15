@@ -6,33 +6,35 @@
 #include "cpgf/goutmain.h"
 
 #include <iostream>
+#include <memory>
+#include <type_traits>
 
 namespace Test_Temp { namespace {
 
 using namespace cpgf;
 using namespace std;
 
-class TestOperator
+class TestObject
 {
 public:
-	TestOperator() : value(0) {
+	TestObject() : value(0) {
 	}
 	
-	TestOperator(int value) : value(value) {
+	TestObject(int value) : value(value) {
 	}
 	
-	TestOperator(const TestOperator & other) : value(other.value) {
+	TestObject(const TestObject & other) : value(other.value) {
 	}
 
 #define M(OP, RET) \
 	RET operator OP (int other) const {	return this->value OP other; } \
-	RET operator OP (const TestOperator & other) const { return this->value OP other.value; }
+	RET operator OP (const TestObject & other) const { return this->value OP other.value; }
 	
-	M(+, TestOperator)
-	M(-, TestOperator)
-	M(*, TestOperator)
-	M(/, TestOperator)
-	M(%, TestOperator)
+	M(+, TestObject)
+	M(-, TestObject)
+	M(*, TestObject)
+	M(/, TestObject)
+	M(%, TestObject)
 
 	M(==, bool)
 	M(<, bool)
@@ -40,11 +42,11 @@ public:
 
 #undef M
 
-	TestOperator operator - () const {
+	TestObject operator - () const {
 		return -this->value;
 	}
 
-	TestOperator operator () (const std::string & s, int n) const {
+	TestObject operator () (const std::string & s, int n) const {
 		return this->value + (int)s.length() + n * 2;
 	}
 
@@ -73,31 +75,31 @@ public:
 
 void TestScriptBindMetaData3()
 {
-	GDefineMetaClass<TestOperator>
-		::define("testscript::TestOperator")
+	GDefineMetaClass<TestObject>
+		::define("testscript::TestObject")
 
-		._constructor<void * (const TestOperator &)>()
+		._constructor<void * (const TestObject &)>()
 		._constructor<void * (int)>()
 		
-		._field("value", &TestOperator::value)
+		._field("value", &TestObject::value)
 		
-		._method("getVar", &TestOperator::getVar)
-		._method("testParam", &TestOperator::testParam)
-//		._method("testCallback", &TestOperator::testCallback)
+		._method("getVar", &TestObject::getVar)
+		._method("testParam", &TestObject::testParam)
+//		._method("testCallback", &TestObject::testCallback)
 
-		._operator<TestOperator (const GMetaSelf)>(-mopHolder)
-		._operator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
+		._operator<TestObject (const GMetaSelf)>(-mopHolder)
+		._operator<TestObject (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
 		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))
 #define M(OP, RET) \
 		._operator<RET (const GMetaSelf, int)>(mopHolder OP mopHolder) \
-		._operator<RET (const GMetaSelf, const TestOperator &)>(mopHolder OP mopHolder) \
+		._operator<RET (const GMetaSelf, const TestObject &)>(mopHolder OP mopHolder) \
 //		._operator<RET (const GMetaSelf, const TestObject &)>(mopHolder OP mopHolder)
 	
-		M(+, TestOperator)
-		M(-, TestOperator)
-		M(*, TestOperator)
-		M(/, TestOperator)
-		M(%, TestOperator)
+		M(+, TestObject)
+		M(-, TestObject)
+		M(*, TestObject)
+		M(/, TestObject)
+		M(%, TestObject)
 
 		M(==, bool)
 		M(<, bool)
@@ -109,22 +111,26 @@ void TestScriptBindMetaData3()
 
 typedef int (*&FuncPtr)();
 
-void doIt(const GVariant & b)
+typedef std::shared_ptr<TestObject> SP;
+
+int doIt(const SP & obj)
 {
-	cout << b.refData().typeData.vt << "  " << fromVariant<int>(b) << endl;
+	cout << obj->value << endl;
+	return obj->value;
 }
 
 GTEST(TestTemp)
 {
-	GVariant a = createTypedVariant(GVariant(38), createMetaType<int>());
-	doIt(fromVariantData<const GVariant &, VarantCastCopyConstRef>(a.refData()));
+	std::shared_ptr<void> p(new TestObject(58));
+	GVariant a(p);
+	doIt(fromVariant<const SP &>(a));
 return;
 
 	TestLuaContext context;
-	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestOperator"));
-	context.getBinding()->setValue("TestOperator", GScriptValue::fromClass(metaClass.get()));
+	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestObject"));
+	context.getBinding()->setValue("TestObject", GScriptValue::fromClass(metaClass.get()));
 
-	context.doString("a = TestOperator(99)");
+	context.doString("a = TestObject(99)");
 	context.doString("b = a.getVar()");
 	context.doString("print(b)");
 }

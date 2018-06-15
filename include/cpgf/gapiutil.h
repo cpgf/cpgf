@@ -90,9 +90,9 @@ class GImplMemoryAllocator : public GImplObject, public IMemoryAllocator
 	G_INTERFACE_IMPL_OBJECT
 
 protected:
-	virtual void * G_API_CC allocate(uint32_t size);
-	virtual void G_API_CC free(void * p);
-	virtual void * G_API_CC reallocate(void * p, uint32_t size);
+	virtual void * G_API_CC allocate(uint32_t size) override;
+	virtual void G_API_CC free(void * p) override;
+	virtual void * G_API_CC reallocate(void * p, uint32_t size) override;
 };
 
 

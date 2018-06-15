@@ -5,13 +5,11 @@
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
 
+#include <type_traits>
 
 namespace cpgf {
-
-
-extern int Error_Meta_ReadDenied;
-extern int Error_Meta_WriteDenied;
 
 namespace meta_internal {
 
@@ -50,13 +48,14 @@ protected:
 	GMetaFieldDataVirtual * virtualFunctions;
 };
 
-
-template <typename FT, typename Policy>
-class GMetaFieldDataGlobal : public GMetaFieldDataBase
+template <typename Accessor>
+class GMetaFieldDataAccessor : public GMetaFieldDataBase
 {
 private:
-	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsConst<FT>::Result));
+	static constexpr bool Readable = Accessor::Readable;
+	static constexpr bool Writable = Accessor::Writable;
+	
+	typedef typename Accessor::ValueType ValueType;
 
 private:
 	static bool virtualCanGet() {
@@ -67,31 +66,55 @@ private:
 		return Writable;
 	}
 
+	template <typename U>
+	static GVariant doGet(U self, const void * instance, typename std::enable_if<Readable, U>::type * = 0) {
+		return createVariant<ValueType>(static_cast<const GMetaFieldDataAccessor *>(self)->accessor.get(instance), true);
+	}
+
+	template <typename U>
+	static GVariant doGet(U /*self*/, const void * /*instance*/, typename std::enable_if<! Readable, U>::type * = 0) {
+		raiseCoreException(Error_Meta_ReadDenied);
+		return GVariant();
+	}
+
 	static GVariant virtualGet(const void * self, const void * instance) {
-		return static_cast<const GMetaFieldDataGlobal *>(self)->doGet<void>(instance);
+		return doGet(self, instance);
+	}
+
+	template <typename U>
+	static void doSet(U self, void * instance, const GVariant & value, typename std::enable_if<Writable, U>::type * = 0) {
+		static_cast<const GMetaFieldDataAccessor *>(self)->accessor.set(
+			instance,
+			(const typename Accessor::SetterType::PassType &)fromVariant<ValueType>(value)
+		);
+	}
+
+	template <typename U>
+	static void doSet(U /*self*/, void * /*instance*/, const GVariant & /*value*/, typename std::enable_if<! Writable, U>::type * = 0) {
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 	static void virtualSet(const void * self, void * instance, const GVariant & value) {
-		static_cast<const GMetaFieldDataGlobal *>(self)->doSet<void>(instance, value);
+		doSet(self, instance, value);
 	}
 
 	static size_t virtualGetFieldSize() {
-		return sizeof(FT);
+		return sizeof(ValueType);
 	}
 
-	static void * virtualGetFieldAddress(const void * self, const void * /*instance*/) {
-		return (void *)(static_cast<const GMetaFieldDataGlobal *>(self)->field);
+	static void * virtualGetFieldAddress(const void * self, const void * instance) {
+		return static_cast<const GMetaFieldDataAccessor *>(self)->accessor.getAddress(instance);
 	}
 	
 	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
 	{
-		return createMetaExtendType<FT>(flags, metaItem);
+		return createMetaExtendType<ValueType>(flags, metaItem);
 	}
 
 public:
-	GMetaFieldDataGlobal(FT * field) : field(field) {
+	GMetaFieldDataAccessor(const Accessor & accessor) : accessor(accessor) {
 		static GMetaFieldDataVirtual thisFunctions = {
-			&virtualBaseMetaDeleter<GMetaFieldDataGlobal>,
+			&virtualBaseMetaDeleter<GMetaFieldDataAccessor>,
 			&virtualCanGet,
 			&virtualCanSet,
 			&virtualGet,
@@ -103,107 +126,8 @@ public:
 		this->virtualFunctions = &thisFunctions;
 	}
 
-private:	
-	template <typename T>
-	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * /*instance*/) const {
-		return createVariant<FT>(*(this->field), true);
-	}
-
-	template <typename T>
-	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		raiseCoreException(Error_Meta_ReadDenied);
-		
-		return GVariant();
-	}
-
-	template <typename T>
-	void doSet(typename GEnableIf<Writable && !IsArray<FT>::Result, T>::Result * /*instance*/, const GVariant & value) const {
-		*(this->field) = fromVariant<FT>(value);
-	}
-
-	template <typename T>
-	void doSet(typename GDisableIf<Writable && !IsArray<FT>::Result, T>::Result * /*instance*/, const GVariant & /*value*/) const {
-		raiseCoreException(Error_Meta_WriteDenied);
-	}
-
 private:
-	mutable FT * field;
-};
-
-template <typename OT, typename FT, typename Policy>
-class GMetaFieldDataMember : public GMetaFieldDataBase
-{
-private:
-	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsConst<FT>::Result));
-
-private:
-	static bool virtualCanGet() {
-		return Readable;
-	}
-
-	static bool virtualCanSet() {
-		return Writable;
-	}
-
-	static GVariant virtualGet(const void * self, const void * instance) {
-		return static_cast<const GMetaFieldDataMember *>(self)->doGet<void>(instance);
-	}
-
-	static void virtualSet(const void * self, void * instance, const GVariant & value) {
-		static_cast<const GMetaFieldDataMember *>(self)->doSet<void>(instance, value);
-	}
-
-	static size_t virtualGetFieldSize() {
-		return sizeof(FT);
-	}
-
-	static void * virtualGetFieldAddress(const void * self, const void * instance) {
-		return (void *)(&(static_cast<OT *>(const_cast<void *>(instance))->*(static_cast<const GMetaFieldDataMember *>(self)->field)));
-	}
-	
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
-	{
-		return createMetaExtendType<FT>(flags, metaItem);
-	}
-
-public:
-	GMetaFieldDataMember(FT OT::* field) : field(field) {
-		static GMetaFieldDataVirtual thisFunctions = {
-			&virtualBaseMetaDeleter<GMetaFieldDataMember>,
-			&virtualCanGet, &virtualCanSet,
-			&virtualGet, &virtualSet,
-			&virtualGetFieldSize, &virtualGetFieldAddress,
-			&virtualGetItemExtendType
-		};
-		this->virtualFunctions = &thisFunctions;
-	}
-
-private:
-	template <typename T>
-	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
-		return createVariant<FT>(static_cast<const OT *>(instance)->*(this->field), true);
-	}
-
-	template <typename T>
-	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		raiseCoreException(Error_Meta_ReadDenied);
-		
-		return GVariant();
-	}
-
-	template <typename T>
-	void doSet(typename GEnableIf<Writable && !IsArray<FT>::Result, T>::Result * instance, const GVariant & value) const {
-		static_cast<OT *>(instance)->*(this->field) = fromVariant<FT>(value);
-	}
-
-	template <typename T>
-	void doSet(typename GDisableIf<Writable && !IsArray<FT>::Result, T>::Result * /*instance*/, const GVariant & /*value*/) const {
-		raiseCoreException(Error_Meta_WriteDenied);
-	}
-
-private:
-	mutable FT OT::* field;
+	mutable Accessor accessor;
 };
 
 

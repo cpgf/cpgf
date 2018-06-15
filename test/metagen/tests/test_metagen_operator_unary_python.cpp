@@ -1,8 +1,8 @@
+#if ENABLE_PYTHON
+
 #include "testmetagen.h"
 
-
 namespace {
-
 
 void metagenTest_Operators_Python_Plus(TestScriptContext * context)
 {
@@ -33,7 +33,6 @@ void metagenTest_Operators_Python_Minus(TestScriptContext * context)
 #define CASE metagenTest_Operators_Python_Minus
 #include "do_testcase_python.h"
 
-
-
-
 }
+
+#endif

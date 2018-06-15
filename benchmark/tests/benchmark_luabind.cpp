@@ -19,6 +19,11 @@ struct TestObject
 		return this->x;
 	}
 	
+	int addVar(const GVariant & delta) {
+		this->x += fromVariant<int>(delta);
+		return this->x;
+	}
+	
 	int add5(const int a, const float b, const double c, const unsigned int d, const long long e)
 	{
 		this->x += (int)a + (int)b + (int)c + (int)d + (int)e;
@@ -56,6 +61,18 @@ void doBenchmarkLuaBind()
 		)";
 
 		BenchmarkTimer timer("Script binding");
+		context.doString(code.c_str());
+	}
+
+	{
+		std::string code = R"(
+			a = TestObject()
+			for i = 1, 1000000 do
+				a.addVar(5)
+			end
+		)";
+
+		BenchmarkTimer timer("Script binding: variant");
 		context.doString(code.c_str());
 	}
 
@@ -125,6 +142,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		._constructor<void * ()>()
 		._method("addX", &TestObject::addX)
+		._method("addVar", &TestObject::addVar)
 		._method("add5", &TestObject::add5)
 		._field("x", &TestObject::x)
 	;

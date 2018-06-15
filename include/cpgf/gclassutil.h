@@ -6,15 +6,6 @@
 	cls(const cls &); \
 	cls & operator = (const cls &);
 
-#define GMAKE_FINAL(cls)  \
-	class MakeFinal_ ## cls { \
-		private: \
-			~MakeFinal_ ## cls() {} \
-			friend class cls; \
-	}; 
-
-#define GFINAL_BASE(cls) virtual public MakeFinal_ ## cls
-
 
 namespace cpgf {
 

@@ -15,20 +15,20 @@ void doTest()
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestData"));
 	testCheckAssert(metaClass);
 	
-	context.getBinding()->bindClass("TestData", metaClass.get());
+	scriptSetValue(context.getBinding(), "TestData", GScriptValue::fromClass(metaClass.get()));
 
 	GScopedPointer<TestData> data(new TestData);
 	data->x = 10;
 	data->name = "abc";
 
-	context.getBinding()->bindObject("data", data.get(), metaClass.get(), false);
+	scriptSetValue(context.getBinding(), "data", GScriptValue::fromObject(data.get(), metaClass.get(), false, GScriptInstanceCv::sicvNone));
 	context.doString("assert(data.x == 10)");
 	context.doString("assert(data.name == \"abc\")");
 
 	context.doString("data.x = data.x + 1");
 	testCheckAssert(data->x == 11);
 	
-	context.getBinding()->nullifyValue("data");
+	scriptSetValue(context.getBinding(), "data", GScriptValue::fromNull());
 	context.doString("assert(data == nil)");
 }
 

@@ -7,10 +7,7 @@
 
 namespace cpgf {
 
-
-GMAKE_FINAL(GMetaFundamental)
-
-class GMetaFundamental : public GMetaTypedItem, GFINAL_BASE(GMetaFundamental)
+class GMetaFundamental final : public GMetaTypedItem
 {
 private:
 	typedef GMetaTypedItem super;

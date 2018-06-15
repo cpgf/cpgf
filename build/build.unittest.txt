@@ -1,5 +1,5 @@
 set(TARGET_UNITTEST tests)
-set(OUTNAME_UNITTEST test)
+set(OUTNAME_UNITTEST tests)
 
 if(GCC_LIKE)
 	if(TEST_GCOV)

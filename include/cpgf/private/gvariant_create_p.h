@@ -27,7 +27,7 @@ struct GVariantCreatingType
 	static constexpr bool rvalueRef = std::is_rvalue_reference<A>::value;
 	
 	typedef typename std::decay<
-		typename ArrayToPointer<
+		typename ArrayToPointers<
 			A
 		>::Result
 	>::type B;
@@ -43,6 +43,12 @@ struct GVariantCreatingType
 	>::type U;
 	
 	typedef typename GVariantEnumSelector<U, std::is_enum<U>::value>::Result Result;
+
+	typedef typename std::conditional<
+		std::is_array<typename std::remove_reference<T>::type>::value,
+		const U,
+		const U &
+	>::type ValueResult;
 };
 
 template <typename T>
@@ -353,12 +359,24 @@ struct GVariantDeducer <T, false, false, true>
 	}
 };
 
+struct VariantDeduceTag {};
+struct VariantDeduceTag_Interface : VariantDeduceTag {};
+
+template <typename T>
+struct VariantDeduceTagTraits
+{
+	typedef typename std::conditional<
+		std::is_convertible<T, const volatile cpgf::IObject *>::value,
+		VariantDeduceTag_Interface,
+		VariantDeduceTag
+	>::type Tag;
+};
 
 template <typename T, typename V>
-void variantDeduceAndSet(
+void doVariantDeduceAndSet(
 	GVariantData * data,
 	const V & value,
-	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+	VariantDeduceTag
 )
 {
 	typedef typename GVariantCreatingType<T>::Result U;
@@ -367,20 +385,20 @@ void variantDeduceAndSet(
 		std::is_pointer<U>::value,
 		std::is_lvalue_reference<U>::value,
 		std::is_rvalue_reference<U>::value
-	>::template deduceAndSet(data, (const U &)value);
+	>::template deduceAndSet(data, (const U &)(typename GVariantCreatingType<T>::ValueResult)value);
 
 	constexpr uint16_t pointers = cpgf::PointerDimension<U>::Result;
 	vtSetPointers(data->typeData, pointers);
 }
 
 template <typename T, typename V>
-void variantDeduceAndSet(
+void doVariantDeduceAndSet(
 	GVariantData * data,
 	const V & value,
-	typename std::enable_if<std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+	VariantDeduceTag_Interface
 )
 {
-	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
+	data->typeData.vt = (GVtType)GVariantType::vtInterface;
 	constexpr uint16_t size = sizeof(cpgf::IObject *);
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
 	vtSetSizeAndPointers(data->typeData, size, pointers);
@@ -391,11 +409,20 @@ void variantDeduceAndSet(
 	}
 }
 
+template <typename T, typename V>
+void variantDeduceAndSet(
+	GVariantData * data,
+	const V & value
+)
+{
+	doVariantDeduceAndSet<T, V>(data, value, typename VariantDeduceTagTraits<T>::Tag());
+}
+
 
 template <typename T>
-void variantDeduceType(
+void doVariantDeduceType(
 	GVariantData * data,
-	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+	VariantDeduceTag
 )
 {
 	typedef typename GVariantCreatingType<T>::Result U;
@@ -411,15 +438,22 @@ void variantDeduceType(
 }
 
 template <typename T>
-void variantDeduceType(
+void doVariantDeduceType(
 	GVariantData * data,
-	typename std::enable_if<std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+	VariantDeduceTag_Interface
 )
 {
-	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
+	data->typeData.vt = (GVtType)GVariantType::vtInterface;
 	constexpr uint16_t size = sizeof(cpgf::IObject *);
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
 	vtSetSizeAndPointers(data->typeData, size, pointers);
+}
+
+
+template <typename T>
+void variantDeduceType(GVariantData * data)
+{
+	doVariantDeduceType<T>(data, typename VariantDeduceTagTraits<T>::Tag());
 }
 
 

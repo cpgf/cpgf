@@ -18,12 +18,12 @@ void testCreateScriptObject(TestScriptContext * context)
 		GCHECK(bindingLib->getValue("nso").isNull());
 		GScopedInterface<IScriptObject> firstScriptObject(bindingLib->createScriptObject("nso").toScriptObject());
 		GVariant v = 38;
-		scriptSetValue(firstScriptObject.get(), "ix", GScriptValue::fromFundamental(v));
+		scriptSetValue(firstScriptObject.get(), "ix", GScriptValue::fromPrimary(v));
 		
 		GCHECK(bindingLib->getValue("sec.third.fourth").isNull());
 		GScopedInterface<IScriptObject> secondScriptObject(bindingLib->createScriptObject("sec.third.fourth").toScriptObject());
 		v = 6;
-		scriptSetValue(secondScriptObject.get(), "iy", GScriptValue::fromFundamental(v));
+		scriptSetValue(secondScriptObject.get(), "iy", GScriptValue::fromPrimary(v));
 	}
 	if(bindingApi != NULL) {
 		GScopedInterface<IScriptObject> existScriptObject(scriptCreateScriptObject(bindingApi, "existObj").toScriptObject());
@@ -32,12 +32,12 @@ void testCreateScriptObject(TestScriptContext * context)
 		GCHECK(scriptGetValue(bindingApi, "nso").isNull());
 		GScopedInterface<IScriptObject> newScriptObject(scriptCreateScriptObject(bindingApi, "nso").toScriptObject());
 		GVariant v = 38;
-		scriptSetValue(newScriptObject.get(), "ix", GScriptValue::fromFundamental(v));
+		scriptSetValue(newScriptObject.get(), "ix", GScriptValue::fromPrimary(v));
 
 		GCHECK(scriptGetValue(bindingApi, "sec.third.fourth").isNull());
 		GScopedInterface<IScriptObject> secondScriptObject(scriptCreateScriptObject(bindingApi, "sec.third.fourth").toScriptObject());
 		v = 6;
-		scriptSetValue(secondScriptObject.get(), "iy", GScriptValue::fromFundamental(v));
+		scriptSetValue(secondScriptObject.get(), "iy", GScriptValue::fromPrimary(v));
 	}
 
 	QASSERT(nso.ix == 38);
@@ -45,20 +45,20 @@ void testCreateScriptObject(TestScriptContext * context)
 
 	if(bindingLib != NULL) {
 		GScopedInterface<IScriptObject> firstScriptObject(bindingLib->createScriptObject("nso").toScriptObject());
-		GCHECK(fromVariant<int>(scriptGetValue(firstScriptObject.get(), "ix").toFundamental()) == 38);
+		GCHECK(fromVariant<int>(scriptGetValue(firstScriptObject.get(), "ix").toPrimary()) == 38);
 		
 		GScopedInterface<IScriptObject> secondScriptObject(bindingLib->createScriptObject("sec.third.fourth").toScriptObject());
-		GCHECK(fromVariant<int>(scriptGetValue(secondScriptObject.get(), "iy").toFundamental()) == 6);
+		GCHECK(fromVariant<int>(scriptGetValue(secondScriptObject.get(), "iy").toPrimary()) == 6);
 	}
 	if(bindingApi != NULL) {
 		GVariant v;
 		GScopedInterface<IScriptObject> newScriptObject(scriptCreateScriptObject(bindingApi, "nso").toScriptObject());
-		v = scriptGetValue(newScriptObject.get(), "ix").toFundamental();
+		v = scriptGetValue(newScriptObject.get(), "ix").toPrimary();
 		GCHECK(fromVariant<int>(v) == 38);
 
 		GScopedInterface<IScriptObject> secondScriptObject(scriptCreateScriptObject(bindingApi, "sec.third.fourth").toScriptObject());
 		v = 0;
-		v = scriptGetValue(secondScriptObject.get(), "iy").toFundamental();
+		v = scriptGetValue(secondScriptObject.get(), "iy").toPrimary();
 		GCHECK(fromVariant<int>(v) == 6);
 	}
 }
@@ -97,18 +97,18 @@ void testGetScriptObject(TestScriptContext * context)
 
 		GScopedInterface<IScriptObject> newScriptObject(bindingLib->createScriptObject("scope").toScriptObject());
 		v = GVariant();
-		v = scriptGetValue(newScriptObject.get(), "i").toFundamental();
+		v = scriptGetValue(newScriptObject.get(), "i").toPrimary();
 		GCHECK(fromVariant<int>(v) == 5);
-		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(NULL, NULL);
+		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(nullptr, nullptr, nullptr);
 	}
 	if(bindingApi != NULL) {
 		GScopedInterface<IScriptObject> existScriptObject(scriptCreateScriptObject(bindingApi, "existObj").toScriptObject());
 //		GCHECK(! existScriptObject);
 
 		GScopedInterface<IScriptObject> newScriptObject(scriptCreateScriptObject(bindingApi, "scope").toScriptObject());
-		v = scriptGetValue(newScriptObject.get(), "i").toFundamental();
+		v = scriptGetValue(newScriptObject.get(), "i").toPrimary();
 		GCHECK(fromVariant<int>(v) == 5);
-		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(NULL, NULL);
+		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(nullptr, nullptr, nullptr);
 	}
 	
 	GCHECK(instance != NULL);

@@ -22,45 +22,40 @@ struct IMetaTypedItem;
 struct IScriptObject;
 struct IScriptFunction;
 struct IScriptArray;
-
-struct IScriptValueBindApi : public IObject
-{
-	virtual void G_API_CC discardOwnership() = 0;
-	virtual bool G_API_CC isOwnershipTransferred() = 0;
-};
+enum class GScriptInstanceCv;
 
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GScriptValueData
 {
-	uint32_t type;
+	uint8_t type;
+	uint8_t transferOwnership; // boolean
+	uint8_t cv; // GScriptInstanceCv
+	uint8_t padding;
 	GVariantData value;
 	IMetaItem * metaItem;
-	IScriptValueBindApi * bindApi;
 };
 #pragma pack(pop)
 
-GMAKE_FINAL(GScriptValue)
-
-class GScriptValue : GFINAL_BASE(GScriptValue)
+class GScriptValue final
 {
 public:
 	enum Type {
 		typeNull = 0,
-		typeFundamental = 1, typeString = 2,
-		typeClass = 3, typeObject = 4,
-		typeMethod = 5, typeOverloadedMethods = 6,
-		typeEnum = 7,
-		typeRaw = 8,
-		typeAccessible = 9,
+		typePrimary = 1,
+		typeClass = 2, typeObject = 3,
+		typeMethod = 4, typeOverloadedMethods = 5,
+		typeEnum = 6,
+		typeRaw = 7,
+		typeAccessible = 8,
 
-		typeScriptObject = 10,
-		typeScriptFunction = 11,
-		typeScriptArray = 12
+		typeScriptObject = 9,
+		typeScriptFunction = 10,
+		typeScriptArray = 11
 	};
 
 private:
-	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueBindApi * bindApi);
+	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, const bool transferOwnership, const GScriptInstanceCv cv);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
 	explicit GScriptValue(const GScriptValueData & data);
@@ -73,12 +68,10 @@ public:
 	Type getType() const { return this->type; }
 
 	static GScriptValue fromNull();
-	static GScriptValue fromFundamental(const GVariant & fundamental);
-	static GScriptValue fromString(const char * s); // reference to s and s should not be freed
-	static GScriptValue fromAndCopyString(const char * s); // duplicate s and s can be freed
+	// primary is boolean, integer, float point, string, wide string
+	static GScriptValue fromPrimary(const GVariant & primary);
 	static GScriptValue fromClass(IMetaClass * metaClass);
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueBindApi * bindApi); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, const bool transferOwnership, const GScriptInstanceCv cv);
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverloadedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
@@ -89,11 +82,10 @@ public:
 	static GScriptValue fromScriptArray(IScriptArray * scriptArray);
 
 	void * toNull() const;
-	GVariant toFundamental() const;
-	std::string toString() const;
+	GVariant toPrimary() const;
 	IMetaClass * toClass() const;
-	GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
-	void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
+	GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership, GScriptInstanceCv * outCv) const;
+	void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership, GScriptInstanceCv * outCv) const;
 	IMetaMethod * toMethod(void ** outInstance) const;
 	IMetaList * toOverloadedMethods() const;
 	IMetaEnum * toEnum() const;
@@ -104,8 +96,7 @@ public:
 	IScriptArray * toScriptArray() const;
 
 	bool isNull() const { return this->type == typeNull; }
-	bool isFundamental() const { return this->type == typeFundamental; }
-	bool isString() const { return this->type == typeString; }
+	bool isPrimary() const { return this->type == typePrimary; }
 	bool isClass() const { return this->type == typeClass; }
 	bool isObject() const { return this->type == typeObject; }
 	bool isMethod() const { return this->type == typeMethod; }
@@ -124,12 +115,12 @@ public:
 	// The result must be passed to another GScriptValue or GScriptValueDataScopedGuard to avoid memory leak
 	GScriptValueData getData() const;
 
-	void discardOwnership();
 private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
-	GSharedInterface<IScriptValueBindApi> bindApi;
+	bool transferOwnership;
+	GScriptInstanceCv cv;
 
 private:
 	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);

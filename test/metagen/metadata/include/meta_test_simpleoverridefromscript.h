@@ -46,7 +46,8 @@ public:
         if(func)
         {
             cpgf::GScriptValue ret = cpgf::invokeScriptFunctionOnObject(func.get(), this);
-            ret.discardOwnership();
+            cpgf::GScopedInterface<cpgf::IScriptContext> scriptContext(this->getScriptContext());
+            scriptContext->setAllowGC(&ret.getValue().refData(), false);
             return cpgf::fromVariant<SimpleOverrideHelperData * >(ret.getValue());
         }
         return SimpleOverride::createHelperData();

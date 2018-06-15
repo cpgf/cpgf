@@ -59,7 +59,8 @@ GMetaClassTraveller::~GMetaClassTraveller()
 		it->metaClass->releaseReference();
 	}
 }
-	
+
+// Breadth-first walking through the inheritance hierarchy, from the bottom (current class) to root.
 IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDerived)
 {
 	if(outDerived != nullptr) {

@@ -1,18 +1,23 @@
 #if defined(_MSC_VER)
+#define _CRT_SECURE_NO_WARNINGS
+
 #pragma warning(push)
 #pragma warning(disable:4127) // warning C4127: conditional expression is constant
 #endif
 
+// Include cmath to avoid error: '::hypot' has not been declared
+#include <cmath>
 #include "Python.h"
 
 #include "cpgf/scriptbind/gpythonbind.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gstringmap.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gstringutil.h"
 
-#include "../pinclude/gbindcommon.h"
-#include "../pinclude/gscriptbindapiimpl.h"
-#include "../pinclude/gstaticuninitializerorders.h"
+#include "gbindcommon.h"
+#include "gbindapiimpl.h"
+#include "../gstaticuninitializerorders.h"
 
 #include <stdexcept>
 
@@ -50,8 +55,6 @@ GGlueDataWrapperPool * getPythonDataWrapperPool()
 	return pythonDataWrapperPool;
 }
 
-class GPythonObject;
-
 class GPythonNative : public GGlueDataWrapper
 {
 public:
@@ -61,6 +64,10 @@ public:
 
 	virtual GGlueDataPointer getData() const;
 	virtual PyObject * toPythonObject() = 0;
+	
+	void resetData() {
+		this->glueData.reset();
+	}
 
 private:
 	GGlueDataPointer glueData;
@@ -117,20 +124,14 @@ private:
 	void initType();
 };
 
-class PythonScriptObjectCacheData : public GScriptObjectCacheData {
-public:
-	GPythonNative * pythonObject;
-	PythonScriptObjectCacheData(GPythonNative *pythonObject) : pythonObject(pythonObject) {}
-};
-
 class GPythonBindingContext : public GBindingContext, public GShareFromBase
 {
 private:
 	typedef GBindingContext super;
 
 public:
-	GPythonBindingContext(IMetaService * service, const GScriptConfig & config)
-		: super(service, config)
+	explicit GPythonBindingContext(IMetaService * service)
+		: super(service)
 	{
 	}
 };
@@ -148,6 +149,10 @@ public:
 
 	virtual GScriptValue invoke(const GVariant * params, size_t paramCount);
 	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount);
+	
+	PyObject * getPythonObject() const {
+		return this->func;
+	}
 
 private:
 	PyObject * func;
@@ -170,6 +175,10 @@ public:
 	virtual GScriptValue getAsScriptArray(size_t index);
 	virtual GScriptValue createScriptArray(size_t index);
 
+	PyObject * getPythonObject() const {
+		return this->listObject;
+	}
+
 private:
 	PyObject * listObject;
 };
@@ -180,7 +189,7 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
+	GPythonScriptObject(IMetaService * service, PyObject * object);
 	virtual ~GPythonScriptObject();
 
 	virtual GScriptObject * doCreateScriptObject(const char * name);
@@ -202,6 +211,10 @@ public:
 
 public:
 	PyObject * getObject() const {
+		return this->object;
+	}
+
+	PyObject * getPythonObject() const {
 		return this->object;
 	}
 
@@ -270,7 +283,20 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * 
 PyObject * callbackStaticObjectDescriptorGet(PyObject * self, PyObject * obj, PyObject * type);
 int callbackStaticObjectDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
+PyObject * variantToPython(const GContextPointer & context, const GVariant & data);
+
+PyObject * doValueToScript(
+	const GContextPointer & context,
+	const GScriptValue & value,
+	const ScriptValueToScriptData & data,
+	const bool onlyBindAccessibleValue = true
+);
+
+GScriptValue doScriptToValue(
+	const GContextPointer & context,
+	PyObject * value,
+	GGlueDataPointer * outputGlueData
+);
 
 PyTypeObject functionType = {
 	PyVarObject_HEAD_INIT(nullptr, 0)
@@ -843,10 +869,42 @@ PyTypeObject * getTypeObject(const GGlueDataPointer & glueData)
 	return typeObject;
 }
 
+class GPythonUserData : public GGlueUserData
+{
+public:
+	explicit GPythonUserData(GPythonNative * pythonObject)
+		: pythonObject(pythonObject)
+	{}
+
+	GPythonNative * getPythonNative() const {
+		return this->pythonObject;
+	}
+
+private:
+	GPythonNative * pythonObject;
+};
+
+PyObject * pyAddRef(PyObject * obj)
+{
+	Py_XINCREF(obj);
+
+	return obj;
+}
+
 GPythonObject * createPythonObject(const GGlueDataPointer & glueData)
 {
-	GPythonObject * object = new GPythonObject(glueData);
-	getPythonDataWrapperPool()->dataWrapperCreated(object);
+	GPythonUserData * userData = glueData->getUserDataAs<GPythonUserData>();
+	GPythonObject * object;
+	if(userData == nullptr) {
+		object = new GPythonObject(glueData);
+		userData = new GPythonUserData(object);
+		glueData->setUserData(userData, false);
+		getPythonDataWrapperPool()->dataWrapperCreated(object);
+	}
+	else {
+		object = static_cast<GPythonObject *>(userData->getPythonNative());
+		pyAddRef(object);
+	}
 	return object;
 
 //	GPythonObject * obj = PyObject_New(GPythonObject, getTypeObject(glueData));
@@ -863,10 +921,14 @@ GPythonObject * createEmptyPythonObject()
 
 void deletePythonObject(GPythonNative * object)
 {
-	if (object->getData()->isValid()) {
-		object->getData()->getBindingContext()->getScriptObjectCache()->freeScriptObject(object);
+	const GGlueDataPointer & glueData = object->getData();
+	if(glueData->isValid()) {
+		glueData->setUserData(nullptr);
 	}
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
+	
+	object->resetData();
+
 	delete object;
 }
 
@@ -1041,70 +1103,14 @@ void error(const char * message)
 	PyErr_SetString(PyExc_RuntimeError, message);
 }
 
-PyObject * pyAddRef(PyObject * obj)
-{
-	Py_XINCREF(obj);
-
-	return obj;
-}
-
-GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * value, GGlueDataPointer * outputGlueData)
-{
-	if(value == nullptr) {
-		return GScriptValue();
-	}
-
-	if(value == Py_None) {
-		return GScriptValue::fromNull();
-	}
-
-	if(PyNumber_Check(value)) {
-		if(PyBool_Check(value)) {
-			return GScriptValue::fromFundamental(bool(PyInt_AsLong(value) != 0));
-		}
-
-		if(PyInt_Check(value)) {
-			return GScriptValue::fromFundamental(PyInt_AsLong(value));
-		}
-
-		if(PyLong_Check(value)) {
-			return GScriptValue::fromFundamental(PyLong_AsLong(value));
-		}
-
-		if(PyFloat_Check(value)) {
-			return GScriptValue::fromFundamental(PyFloat_AsDouble(value));
-		}
-
-	}
-	else if(PyString_Check(value)) {
-		return GScriptValue::fromAndCopyString(PyString_AsString(value));
-	}
-	else {
-		GPythonNative * object = tryCastFromPython(value);
-		if(object != nullptr) {
-			GGlueDataPointer glueData = object->getData();
-			if(outputGlueData != nullptr) {
-				*outputGlueData = glueData;
-			}
-			return glueDataToScriptValue(glueData);
-		}
-
-		if(PyCallable_Check(value)) {
-			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GPythonScriptFunction(context, value), true));
-
-			return GScriptValue::fromScriptFunction(func.get());
-		}
-
-		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GPythonScriptObject(context->getService(), value, context->getConfig()), true));
-
-		return GScriptValue::fromScriptObject(scriptObject.get());
-	}
-
-	return GScriptValue();
-}
-
-PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData,
-						  const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+PyObject * objectToPython(
+		const GContextPointer & context,
+		const GClassGlueDataPointer & classData,
+		const GVariant & instance,
+		const bool allowGC,
+		const GScriptInstanceCv cv,
+		GGlueDataPointer * outputGlueData
+	)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
 
@@ -1112,40 +1118,26 @@ PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataP
 		return pyAddRef(Py_None);
 	}
 
-	PythonScriptObjectCacheData * cachedPythonObject = context->getScriptObjectCache()->findScriptObject<PythonScriptObjectCacheData>(instance, classData, cv);
-	if(cachedPythonObject) {
-		return pyAddRef(cachedPythonObject->pythonObject->toPythonObject());
-	}
-
-	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
 	if(outputGlueData != nullptr) {
 		*outputGlueData = objectData;
 	}
-	GPythonObject * object = createPythonObject(objectData);
-	context->getScriptObjectCache()->addScriptObject(instance, classData, cv, new PythonScriptObjectCacheData(object));
-	return object;
+	return createPythonObject(objectData);
 }
 
-PyObject * rawToPython(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
+PyObject * rawToPython(const GContextPointer & context, const GVariant & value)
 {
-	if(context->getConfig().allowAccessRawData()) {
-		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		if(outputGlueData != nullptr) {
-			*outputGlueData = rawData;
-		}
-		PyObject * rawObject = createPythonObject(rawData);
+	GRawGlueDataPointer rawData(context->newRawGlueData(value));
+	PyObject * rawObject = createPythonObject(rawData);
 
-		return rawObject;
-	}
-
-	return nullptr;
+	return rawObject;
 }
 
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass)
 {
-	return createPythonObject(context->newClassData(metaClass));
+	return createPythonObject(context->getClassData(metaClass));
 
-//	GPythonClass * object = new GPythonClass(context->newClassData(metaClass));
+//	GPythonClass * object = new GPythonClass(context->getClassData(metaClass));
 //	getPythonDataWrapperPool()->dataWrapperCreated(object);
 //	return object->toPythonObject();
 
@@ -1166,7 +1158,7 @@ PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaC
 	if(typeObject->tp_dict == nullptr) {
 		typeObject->tp_dict = PyDict_New();
 	}
-	bindClassItems(typeObject->tp_dict, context->newClassData(metaClass));
+	bindClassItems(typeObject->tp_dict, context->getClassData(metaClass));
 
 	PyObject_INIT(typeObject, &PyType_Type);
 	return ooo;
@@ -1176,39 +1168,6 @@ PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaC
 struct GPythonMethods
 {
 	typedef PyObject * ResultType;
-
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
-	{
-		return objectToPython(context, classData, instance, flags, cv, outputGlueData);
-	}
-
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
-	{
-		return variantToPython(context, value, flags, outputGlueData);
-	}
-
-	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
-	{
-		return rawToPython(context, value, outputGlueData);
-	}
-
-	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
-	{
-		PyObject * classObject = createClassObject(context, metaClass);
-		return classObject;
-	}
-
-	static ResultType doStringToScript(const GContextPointer & /*context*/, const char * s)
-	{
-		return PyString_FromString(s);
-	}
-
-	static ResultType doWideStringToScript(const GContextPointer & /*context*/, const wchar_t * ws)
-	{
-		GScopedArray<char> s(wideStringToString(ws));
-		return PyString_FromString(s.get());
-	}
 
 	static bool isSuccessResult(const ResultType & result)
 	{
@@ -1220,37 +1179,23 @@ struct GPythonMethods
 		return ResultType();
 	}
 
-	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
-		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
+	static ResultType doScriptValueToScript(
+		const GContextPointer & context,
+		const GScriptValue & scriptValue,
+		const ScriptValueToScriptData & data
+	)
 	{
-		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
-		GContextPointer context = classData->getBindingContext();
-		if(data == nullptr) {
-			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
-
-			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
-			data = new GMapItemMethodData(context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get()));
-
-			mapItem->setUserData(data);
-		}
-
-		return createPythonObject(context->newObjectAndMethodGlueData(objectData, data->getMethodData()));
+		return doValueToScript(context, scriptValue, data);
 	}
 
-	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
-	{
-		GContextPointer context = classData->getBindingContext();
-		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-		return createPythonObject(context->newEnumGlueData(metaEnum.get()));
-	}
 };
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
+PyObject * variantToPython(const GContextPointer & /*context*/, const GVariant & data)
 {
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
 
-	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
+	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 
 	if(vtIsEmpty(vt)) {
 		return pyAddRef(Py_None);
@@ -1272,17 +1217,11 @@ PyObject * variantToPython(const GContextPointer & context, const GVariant & dat
 		return pyAddRef(Py_None);
 	}
 
-	if(variantIsString(value)) {
-		return PyString_FromString(fromVariant<char *>(value));
+	if(variantIsAnyString(value)) {
+		return PyString_FromString(stringFromVariant(value).c_str());
 	}
 
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		GScopedArray<char> s(wideStringToString(ws));
-		return PyString_FromString(s.get());
-	}
-
-	return complexVariantToScript<GPythonMethods>(context, value, type, flags, outputGlueData);
+	return nullptr;
 }
 
 PyObject * methodResultToPython(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * result)
@@ -1302,7 +1241,7 @@ void loadCallableParam(const GContextPointer & context, PyObject * args, InvokeC
 
 	for(int i = 0; i < paramCount; ++i) {
 		PyObject * c = PyTuple_GetItem(args, i);
-		callableParam->params[i].value = pythonToScriptValue(context, c, &callableParam->params[i].paramGlueData);
+		callableParam->params[i].value = doScriptToValue(context, c, &callableParam->params[i].paramGlueData);
 	}
 }
 
@@ -1341,7 +1280,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != nullptr) {
-		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone));
+		return createPythonObject(context->newObjectGlueData(classUserData, instance, true, GScriptInstanceCv::sicvNone));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1386,7 +1325,7 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 
 	GGlueDataPointer valueGlueData;
 
-	GScriptValue v = pythonToScriptValue(nativeObject->getData()->getBindingContext(), value, &valueGlueData);
+	GScriptValue v = doScriptToValue(nativeObject->getData()->getBindingContext(), value, &valueGlueData);
 	if(setValueOnNamedMember(nativeObject->getData(), name, v, valueGlueData)) {
 		return 0;
 	}
@@ -1408,7 +1347,7 @@ PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 
 	int32_t index = userData->getMetaEnum()->findKey(name);
 	if(index >= 0) {
-		return variantToPython(userData->getBindingContext(), metaGetEnumValue(userData->getMetaEnum(), index), GBindValueFlags(), nullptr);
+		return variantToPython(userData->getBindingContext(), metaGetEnumValue(userData->getMetaEnum(), index));
 	}
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
@@ -1450,7 +1389,7 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 
 	GAccessibleGlueDataPointer userData = cppObject->getAs<GAccessibleGlueData>();
 
-	GVariant v = pythonToScriptValue(userData->getBindingContext(), value, nullptr).getValue();
+	GVariant v = doScriptToValue(userData->getBindingContext(), value, nullptr).getValue();
 	metaSetValue(userData->getAccessible(), userData->getInstanceAddress(), v);
 
 	return 0;
@@ -1486,7 +1425,7 @@ int callbackStaticObjectDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObj
 
 	GGlueDataPointer valueGlueData;
 
-	GScriptValue v = pythonToScriptValue(nativeObject->getData()->getBindingContext(), value, &valueGlueData);
+	GScriptValue v = doScriptToValue(nativeObject->getData()->getBindingContext(), value, &valueGlueData);
 	if(setValueOnNamedMember(nativeObject->getData(), nativeObject->getFieldName().c_str(), v, valueGlueData)) {
 		return 0;
 	}
@@ -1517,7 +1456,14 @@ int callbackAnyObjectSetAttribute(PyObject * object, PyObject * attrName, PyObje
 	LEAVE_PYTHON(return -1)
 }
 
-GScriptValue invokePythonFunctionIndirectly(const GContextPointer & context, PyObject * object, PyObject * func, GVariant const * const * params, size_t paramCount, const char * name)
+GScriptValue invokePythonFunctionIndirectly(
+		const GContextPointer & context,
+		PyObject * object,
+		PyObject * func,
+		GVariant const * const * params,
+		const size_t paramCount,
+		const char * name
+	)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1537,7 +1483,12 @@ GScriptValue invokePythonFunctionIndirectly(const GContextPointer & context, PyO
 			PyTuple_SetItem(args.get(), 0, object);
 		}
 		for(size_t i = 0; i < paramCount; ++i) {
-			GPythonScopedPointer arg(variantToPython(context, *params[i], GBindValueFlags(bvfAllowRaw), nullptr));
+			GPythonScopedPointer arg(doValueToScript(
+				context,
+				doCreateScriptValueFromVariant(context, *params[i], false),
+				ScriptValueToScriptData(),
+				true
+			));
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1548,7 +1499,7 @@ GScriptValue invokePythonFunctionIndirectly(const GContextPointer & context, PyO
 
 		result.reset(PyObject_Call(func, args.get(), nullptr));
 
-		return pythonToScriptValue(context, result.get(), nullptr);
+		return doScriptToValue(context, result.get(), nullptr);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
@@ -1592,11 +1543,14 @@ void setObjectSignature(PyObject * obj)
 	setObjectAttr(obj, signatureName, PyString_FromString(signatureValue));
 }
 
-PyObject * helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
+PyObject * helperBindMethodList(
+		const GContextPointer & context,
+		const GObjectGlueDataPointer & objectData,
+		const GMethodGlueDataPointer & methodData
+	)
 {
-	GMethodGlueDataPointer data = context->newMethodGlueData(GClassGlueDataPointer(), methodList);
-	GObjectAndMethodGlueDataPointer methodData = context->newObjectAndMethodGlueData(GObjectGlueDataPointer(), data);
-	return createPythonObject(methodData);
+	GObjectAndMethodGlueDataPointer objectAndMethodData = context->newObjectAndMethodGlueData(objectData, methodData);
+	return createPythonObject(objectAndMethodData);
 }
 
 PyObject * helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
@@ -1614,7 +1568,12 @@ PyObject * helperBindAccessible(const GContextPointer & context, void * instance
 	return createPythonObject(context->newAccessibleGlueData(instance, accessible));
 }
 
-PyObject * helperBindValue(const GContextPointer & context, const GScriptValue & value)
+PyObject * doValueToScript(
+		const GContextPointer & context,
+		const GScriptValue & value,
+		const ScriptValueToScriptData & data,
+		const bool onlyBindAccessibleValue
+	)
 {
 	PyObject * result = nullptr;
 
@@ -1623,12 +1582,8 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 			result = Py_None;
 			break;
 
-		case GScriptValue::typeFundamental:
-			result = variantToPython(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr);
-			break;
-
-		case GScriptValue::typeString:
-			result = PyString_FromString(value.toString().c_str());
+		case GScriptValue::typePrimary:
+			result = variantToPython(context, value.toPrimary());
 			break;
 
 		case GScriptValue::typeClass: {
@@ -1640,33 +1595,23 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			const GVariant instance = value.toObject(&metaClass, &transferOwnership, &cv);
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 
-			GBindValueFlags flags;
-			flags.setByBool(bvfAllowGC, transferOwnership);
-			result = objectToPython(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
+			result = objectToPython(context, context->getClassData(metaClass), instance, transferOwnership, cv, data.outputGlueData);
 			break;
 		}
 
 		case GScriptValue::typeMethod: {
-			void * instance;
-			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
-
-			if(method->isStatic()) {
-				instance = nullptr;
-			}
-
-			GScopedInterface<IMetaList> methodList(createMetaList());
-			methodList->add(method.get(), instance);
-
-			result = helperBindMethodList(context, methodList.get());
+			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
+			result = helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}
 
 		case GScriptValue::typeOverloadedMethods: {
-			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
-			result = helperBindMethodList(context, methodList.get());
+			const GMethodGlueDataPointer methodData = context->newMethodGlueData(value);
+			result = helperBindMethodList(context, data.objectData, methodData);
 			break;
 		}
 
@@ -1677,19 +1622,114 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 		}
 
 		case GScriptValue::typeRaw:
-			result = rawToPython(context, value.toRaw(), nullptr);
+			result = rawToPython(context, value.toRaw());
 			break;
 
 		case GScriptValue::typeAccessible: {
 			void * instance;
 			GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
-			result = helperBindAccessible(context, instance, accessible.get());
+
+			bool instanceIsConst = false;
+
+			if(data.objectData) {
+				instance = data.objectData->getInstanceAddress();
+				instanceIsConst = (data.objectData->getCV() == GScriptInstanceCv::sicvConst);
+			}
+
+			if(onlyBindAccessibleValue) {
+				result = accessibleToScript<GPythonMethods>(context, accessible.get(), instance, instanceIsConst);
+			}
+			else {
+				result = helperBindAccessible(context, instance, accessible.get());
+			}
 			break;
 		}
 
+		case GScriptValue::typeScriptObject: {
+			GScopedInterface<IScriptObject> obj(value.toScriptObject());
+			GPythonScriptObject * pythonObj = static_cast<GPythonScriptObject *>(
+				static_cast<ImplScriptObject *>(obj.get())->getUnderlying()
+			);
+			return pyAddRef(pythonObj->getPythonObject());
+		}
+		
+		case GScriptValue::typeScriptFunction: {
+			GScopedInterface<IScriptFunction> func(value.toScriptFunction());
+			GPythonScriptFunction * pythonFunc = static_cast<GPythonScriptFunction *>(
+				static_cast<ImplScriptFunction *>(func.get())->getUnderlying()
+			);
+			return pyAddRef(pythonFunc->getPythonObject());
+		}
+		
+		case GScriptValue::typeScriptArray: {
+			GScopedInterface<IScriptArray> array(value.toScriptArray());
+			GPythonScriptArray * pythonArray = static_cast<GPythonScriptArray *>(
+				static_cast<ImplScriptArray *>(array.get())->getUnderlying()
+			);
+			return pyAddRef(pythonArray->getPythonObject());
+		}
 	}
 
 	return result;
+}
+
+GScriptValue doScriptToValue(
+		const GContextPointer & context,
+		PyObject * value,
+		GGlueDataPointer * outputGlueData
+	)
+{
+	if(value == nullptr) {
+		return GScriptValue();
+	}
+
+	if(value == Py_None) {
+		return GScriptValue::fromNull();
+	}
+
+	if(PyNumber_Check(value)) {
+		if(PyBool_Check(value)) {
+			return GScriptValue::fromPrimary(bool(PyInt_AsLong(value) != 0));
+		}
+
+		if(PyInt_Check(value)) {
+			return GScriptValue::fromPrimary(PyInt_AsLong(value));
+		}
+
+		if(PyLong_Check(value)) {
+			return GScriptValue::fromPrimary(PyLong_AsLong(value));
+		}
+
+		if(PyFloat_Check(value)) {
+			return GScriptValue::fromPrimary(PyFloat_AsDouble(value));
+		}
+
+	}
+	else if(PyString_Check(value)) {
+		return GScriptValue::fromPrimary(createStringVariant(PyString_AsString(value)));
+	}
+	else {
+		GPythonNative * object = tryCastFromPython(value);
+		if(object != nullptr) {
+			GGlueDataPointer glueData = object->getData();
+			if(outputGlueData != nullptr) {
+				*outputGlueData = glueData;
+			}
+			return glueDataToScriptValue(glueData);
+		}
+
+		if(PyCallable_Check(value)) {
+			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GPythonScriptFunction(context, value), true));
+
+			return GScriptValue::fromScriptFunction(func.get());
+		}
+
+		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GPythonScriptObject(context->getService(), value), true));
+
+		return GScriptValue::fromScriptObject(scriptObject.get());
+	}
+
+	return GScriptValue();
 }
 
 template <GMetaOpType op, bool allowRightSelf>
@@ -1723,9 +1763,9 @@ PyObject * binaryOperator(PyObject * a, PyObject * b)
 
 	InvokeCallableParam callableParam(2, context->borrowScriptContext());
 
-	callableParam.params[selfIndex].value = pythonToScriptValue(context, self, &callableParam.params[selfIndex].paramGlueData);
+	callableParam.params[selfIndex].value = doScriptToValue(context, self, &callableParam.params[selfIndex].paramGlueData);
 
-	callableParam.params[otherIndex].value = pythonToScriptValue(context, other, &callableParam.params[otherIndex].paramGlueData);
+	callableParam.params[otherIndex].value = doScriptToValue(context, other, &callableParam.params[otherIndex].paramGlueData);
 
 	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
 
@@ -1746,7 +1786,7 @@ PyObject * unaryOperator(PyObject * a)
 
 	InvokeCallableParam callableParam(1, context->borrowScriptContext());
 
-	callableParam.params[0].value = pythonToScriptValue(context, self, &callableParam.params[0].paramGlueData);
+	callableParam.params[0].value = doScriptToValue(context, self, &callableParam.params[0].paramGlueData);
 
 	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
 
@@ -1816,7 +1856,7 @@ GScriptValue GPythonScriptArray::getValue(size_t index)
 	PyObject * obj = PyList_GetItem(this->listObject, index); // borrowed reference!
 
 	if(obj != nullptr) {
-		return pythonToScriptValue(this->getBindingContext(), obj, nullptr);
+		return doScriptToValue(this->getBindingContext(), obj, nullptr);
 	}
 	else {
 		return GScriptValue();
@@ -1835,7 +1875,7 @@ void GPythonScriptArray::setValue(size_t index, const GScriptValue & value)
 			PyList_Append(this->listObject, Py_None);
 			++length;
 		}
-		PyObject * valueObject = helperBindValue(this->getBindingContext(), value);
+		PyObject * valueObject = doValueToScript(this->getBindingContext(), value, ScriptValueToScriptData());
 		GASSERT(valueObject != nullptr);
 
 		PyList_SetItem(this->listObject, index, valueObject);
@@ -1888,8 +1928,8 @@ GScriptValue GPythonScriptArray::createScriptArray(size_t index)
 	return GScriptValue();
 }
 
-GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
-	: super(GContextPointer(new GPythonBindingContext(service, config)), config), object(object)
+GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object)
+	: super(GContextPointer(new GPythonBindingContext(service))), object(object)
 {
 }
 
@@ -1907,7 +1947,7 @@ GScriptValue GPythonScriptObject::doGetValue(const char * name)
 	GPythonScopedPointer obj(getObjectAttr(this->object, name));
 
 	if(obj) {
-		return pythonToScriptValue(this->getBindingContext(), obj.get(), nullptr);
+		return doScriptToValue(this->getBindingContext(), obj.get(), nullptr);
 	}
 	else {
 		return GScriptValue();
@@ -1916,7 +1956,7 @@ GScriptValue GPythonScriptObject::doGetValue(const char * name)
 
 void GPythonScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
-	PyObject * valueObject = helperBindValue(this->getBindingContext(), value);
+	PyObject * valueObject = doValueToScript(this->getBindingContext(), value, ScriptValueToScriptData(), false);
 	GASSERT(valueObject != nullptr);
 
 	setObjectAttr(this->object, name, valueObject);
@@ -2038,14 +2078,14 @@ GScriptValue GPythonScriptObject::createScriptArray(const char * name)
 } // unamed namespace
 
 
-GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
+GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object)
 {
-	return new GPythonScriptObject(service, object, config);
+	return new GPythonScriptObject(service, object);
 }
 
-IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object, const GScriptConfig & config)
+IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object)
 {
-	return new ImplScriptObject(new GPythonScriptObject(service, object, config), true);
+	return new ImplScriptObject(new GPythonScriptObject(service, object), true);
 }
 
 

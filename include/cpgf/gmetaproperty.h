@@ -7,9 +7,7 @@
 namespace cpgf {
 
 
-GMAKE_FINAL(GMetaProperty)
-
-class GMetaProperty : public GMetaAccessible, GFINAL_BASE(GMetaProperty)
+class GMetaProperty final : public GMetaAccessible
 {
 private:
 	typedef GMetaAccessible super;
@@ -20,19 +18,19 @@ public:
 		: super(name, meta_internal::createPropertyType<Getter, Setter, Policy>(), mcatProperty), baseData(new meta_internal::GMetaPropertyData<Getter, Setter, Policy>(getter, setter)) {
 	}
 
-	virtual bool canGet() const;
-	virtual bool canSet() const;
+	virtual bool canGet() const override;
+	virtual bool canSet() const override;
 
-	virtual GVariant get(const void * instance) const;
-	virtual void set(void * instance, const GVariant & value) const;
+	virtual GVariant get(const void * instance) const override;
+	virtual void set(void * instance, const GVariant & value) const override;
 
-	virtual void * getAddress(const void * instance) const;
+	virtual void * getAddress(const void * instance) const override;
 
-	virtual size_t getSize() const;
+	virtual size_t getSize() const override;
 
-	virtual const GMetaType & getItemType() const;
+	virtual const GMetaType & getItemType() const override;
 
-	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const override;
 
 private:
 	GScopedPointer<meta_internal::GMetaPropertyDataBase,

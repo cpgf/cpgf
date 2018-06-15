@@ -198,9 +198,6 @@ public class MetaInfo {
 
 	public CppClass findClassByName(String name) {
 		String re = ".*\\b" + name + "$";
-if(name.indexOf('{') >= 0) {
-	name = name;
-}
 		for(CppClass cppClass : this.allClassList) {
 			if(cppClass.getQualifiedName().matches(re)) {
 				return cppClass;

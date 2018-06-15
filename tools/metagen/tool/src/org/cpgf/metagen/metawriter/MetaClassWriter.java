@@ -109,6 +109,21 @@ public class MetaClassWriter {
 		return this.skipItem() || ! Util.allowMetaData(this.config, item) || item.isTemplate();
 	}
 
+	private boolean shouldSkipItemAllowTemplate(ParameteredItem item)
+	{
+		return this.skipItem() || ! Util.allowMetaData(this.config, item);
+	}
+	
+	private void doWriteRawCode()
+	{
+		List<String> rawCodeList = this.callbackData.getRawCodeList();
+		if(rawCodeList != null) {
+			for(String code : rawCodeList) {
+				this.codeWriter.writeLine(code);
+			}
+		}
+	}
+
 	public void write() {
 		if(this.allowedMetaData(EnumCategory.Constructor)) {
 			this.writeConstructors();
@@ -225,13 +240,29 @@ public class MetaClassWriter {
 
 			this.doCallback(item);
 
-			if(this.shouldSkipItem(item)) {
+			if(this.shouldSkipItemAllowTemplate(item)) {
 				continue;
 			}
 
 			usePrototype = usePrototype || this.cppClass.isGlobal() || item.getUseFullPrototype();
 
-			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, usePrototype);
+			if(! item.isTemplate()) {
+				WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, usePrototype);
+			}
+			
+			List<String> aliasList = this.callbackData.getAliasList();
+			if(aliasList != null) {
+				for(int i = 0; i < aliasList.size(); i += 2) {
+					String n = aliasList.get(i);
+					String proto = aliasList.get(i + 1);
+					if(proto == null) {
+						proto = name;
+					}
+					WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, n, proto, usePrototype);
+				}
+			}
+			
+			this.doWriteRawCode();
 		}
 	}
 

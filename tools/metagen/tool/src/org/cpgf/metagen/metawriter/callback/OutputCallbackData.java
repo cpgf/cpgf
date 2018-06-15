@@ -13,6 +13,8 @@ public class OutputCallbackData {
 	private String sourceCode;
 	private ClassWrapperConfig wrapperConfig;
 	private List<String> headerIncludeList;
+	private List<String> aliasList;
+	private List<String> rawCodeList;
 	
 	public OutputCallbackData() {
 		this.skipBind = false;
@@ -84,5 +86,32 @@ public class OutputCallbackData {
 		}
 		this.headerIncludeList.add(include);
 	}
+
+	public List<String> getAliasList() {
+		return this.aliasList;
+	}
 	
+	public void addAlias(String alias, String proto) {
+		if(this.aliasList == null) {
+			this.aliasList = new ArrayList<String>();
+		}
+		this.aliasList.add(alias);
+		this.aliasList.add(proto);
+	}
+	
+	public void addAlias(String alias) {
+		this.addAlias(alias, null);
+	}
+	
+	public List<String> getRawCodeList() {
+		return this.rawCodeList;
+	}
+	
+	public void addRawCode(String code) {
+		if(this.rawCodeList == null) {
+			this.rawCodeList = new ArrayList<String>();
+		}
+		
+		this.rawCodeList.add(code);
+	}
 }

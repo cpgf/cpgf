@@ -132,7 +132,8 @@ template <typename T>
 struct GReturnEmptyValue
 {
 	static T invoke() {
-		return T();
+		return (T)(*(typename std::conditional<std::is_void<T>::value, int, T>::type *)0);
+		//return T(); // this causes compile error if T has no default constructor
 	}
 };
 
@@ -474,7 +475,7 @@ private:
 			this->base->virtuals->destroy(this->base);
 
 			if(this->base != (void *)this->buffer) {
-				delete reinterpret_cast<char *>(this->base);
+				delete[] reinterpret_cast<char *>(this->base);
 			}
 
 			this->base = nullptr;

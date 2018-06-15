@@ -72,12 +72,14 @@ void GV8ScriptRunnerImplement::init()
 	Local<Object> global = localContext->Global();
 
 	GScopedInterface<IMetaService> metaService(getService());
-	GScopedInterface<IScriptObject> scriptObject(createV8ScriptInterface(metaService.get(), global, GScriptConfig()));
+	GScopedInterface<IScriptObject> scriptObject(createV8ScriptInterface(metaService.get(), global));
 	setScripeObject(scriptObject.get());
 }
 
 GV8ScriptRunnerImplement::~GV8ScriptRunnerImplement()
 {
+	this->finalize();
+
 	delete this->contextScope;
 
 	this->context.Reset();

@@ -3,14 +3,12 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 
-
 #include "lua.hpp"
-
 
 namespace cpgf {
 
-GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
-IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config);
+GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L);
+IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L);
 
 
 

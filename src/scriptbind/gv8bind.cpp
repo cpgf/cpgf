@@ -3,10 +3,11 @@
 #include "cpgf/scriptbind/gv8runner.h"
 #include "cpgf/gstringmap.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gstringutil.h"
 
-#include "../pinclude/gbindcommon.h"
-#include "../pinclude/gscriptbindapiimpl.h"
-#include "../pinclude/gstaticuninitializerorders.h"
+#include "gbindcommon.h"
+#include "gbindapiimpl.h"
+#include "../gstaticuninitializerorders.h"
 
 #include <stdexcept>
 #include <memory>
@@ -56,20 +57,14 @@ GGlueDataWrapperPool * getV8DataWrapperPool()
 // Declarations
 //*********************************************
 
-class V8ScriptObjectCacheData : public GScriptObjectCacheData {
-public:
-	GSharedPointer<Persistent<Object> > v8Object;
-	V8ScriptObjectCacheData(GSharedPointer<Persistent<Object> > v8Object) : v8Object(v8Object) {}
-};
-
 class GV8BindingContext : public GBindingContext, public GShareFromBase
 {
 private:
 	typedef GBindingContext super;
 
 public:
-	GV8BindingContext(IMetaService * service, const GScriptConfig & config)
-		: super(service, config)
+	explicit GV8BindingContext(IMetaService * service)
+		: super(service)
 	{
 	}
 
@@ -138,7 +133,7 @@ private:
 	typedef GScriptObjectBase super;
 
 public:
-	GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config);
+	GV8ScriptObject(IMetaService * service, Local<Object> object);
 	virtual ~GV8ScriptObject();
 
 	virtual GScriptObject * doCreateScriptObject(const char * name);
@@ -354,7 +349,7 @@ GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Cont
 			}
 			else {
 				GScopedInterface<IScriptObject> scriptObject(
-					new ImplScriptObject(new GV8ScriptObject(context->getService(), obj, context->getConfig()), true)
+					new ImplScriptObject(new GV8ScriptObject(context->getService(), obj), true)
 				);
 
 				return GScriptValue::fromScriptObject(scriptObject.get());
@@ -372,11 +367,11 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 	}
 
 	if(value->IsBoolean()) {
-		return GScriptValue::fromFundamental(value->BooleanValue());
+		return GScriptValue::fromPrimary(value->BooleanValue());
 	}
 
 	if(value->IsInt32()) {
-		return GScriptValue::fromFundamental(value->Int32Value());
+		return GScriptValue::fromPrimary(value->Int32Value());
 	}
 
 	if(value->IsNull()) {
@@ -384,16 +379,16 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 	}
 
 	if(value->IsNumber()) {
-		return GScriptValue::fromFundamental(value->NumberValue());
+		return GScriptValue::fromPrimary(value->NumberValue());
 	}
 
 	if(value->IsString()) {
 		String::Utf8Value s(value);
-		return GScriptValue::fromAndCopyString(*s);
+		return GScriptValue::fromPrimary(createStringVariant(*s));
 	}
 
 	if(value->IsUint32()) {
-		return GScriptValue::fromFundamental(value->Uint32Value());
+		return GScriptValue::fromPrimary(value->Uint32Value());
 	}
 
 	if(value->IsFunction() || value->IsObject()) {
@@ -404,7 +399,7 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 }
 
 Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData,
-						 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+						 const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
 
@@ -412,16 +407,11 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		return Handle<Value>();
 	}
 
-	V8ScriptObjectCacheData * cachedObject = context->getScriptObjectCache()->findScriptObject<V8ScriptObjectCacheData>(instance, classData, cv);
-	if(cachedObject != nullptr) {
-		return Local<Object>::New(getV8Isolate(), *(cachedObject->v8Object.get()));
-	}
-
 	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, classData);
 	Handle<Value> external = External::New(getV8Isolate(), &signatureKey);
 	Local<Object> object = functionTemplate->GetFunction()->NewInstance(1, &external);
 
-	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 
 	object->SetAlignedPointerInInternalField(0, dataWrapper);
@@ -433,31 +423,25 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		*outputGlueData = objectData;
 	}
 
-	context->getScriptObjectCache()->addScriptObject(instance, classData, cv, new V8ScriptObjectCacheData(self->getPersistent()));
-
 	return self->createLocal();
 }
 
 Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 {
-	if(context->getConfig().allowAccessRawData()) {
-		Local<Object> object = sharedStaticCast<GV8BindingContext>(context)->getRawObject();
-		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, getV8DataWrapperPool());
+	Local<Object> object = sharedStaticCast<GV8BindingContext>(context)->getRawObject();
+	GRawGlueDataPointer rawData(context->newRawGlueData(value));
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, getV8DataWrapperPool());
 
-		if(outputGlueData != nullptr) {
-			*outputGlueData = rawData;
-		}
-
-		object->SetAlignedPointerInInternalField(0, dataWrapper);
-		setObjectSignature(&object);
-
-		PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), object, dataWrapper);
-
-		return self->createLocal();
+	if(outputGlueData != nullptr) {
+		*outputGlueData = rawData;
 	}
 
-	return Handle<Value>();
+	object->SetAlignedPointerInInternalField(0, dataWrapper);
+	setObjectSignature(&object);
+
+	PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), object, dataWrapper);
+
+	return self->createLocal();
 }
 
 struct GV8Methods
@@ -465,7 +449,7 @@ struct GV8Methods
 	typedef Handle<Value> ResultType;
 
 	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
-		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
+		const GVariant & instance, const GBindValueFlags & flags, const GScriptInstanceCv cv, GGlueDataPointer * outputGlueData)
 	{
 		return objectToV8(context, classData, instance, flags, cv, outputGlueData);
 	}
@@ -493,8 +477,8 @@ struct GV8Methods
 
 	static ResultType doWideStringToScript(const GContextPointer & /*context*/, const wchar_t * ws)
 	{
-		GScopedArray<char> s(wideStringToString(ws));
-		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.get());
+		std::string s(wideStringToString(ws));
+		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.c_str());
 	}
 
 	static bool isSuccessResult(const ResultType & result)
@@ -546,7 +530,7 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
 
-	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
+	GVariantType vt = static_cast<GVariantType>((GVtType)value.getType() & ~(GVtType)GVariantType::maskByReference);
 
 	if(vtIsEmpty(vt)) {
 		return Handle<Value>();
@@ -568,14 +552,8 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 		return Null(getV8Isolate());
 	}
 
-	if(variantIsString(value)) {
-		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )fromVariant<char *>(value));
-	}
-
-	if(variantIsWideString(value)) {
-		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		GScopedArray<char> s(wideStringToString(ws));
-		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )s.get());
+	if(variantIsAnyString(value)) {
+		return String::NewFromOneByte(getV8Isolate(), (const unsigned char * )stringFromVariant(value).c_str());
 	}
 
 	return complexVariantToScript<GV8Methods>(context, value, type, flags, outputGlueData);
@@ -651,7 +629,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
 	const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
 	Handle<FunctionTemplate> classTemplate)
 {
-	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
 	PersistentObjectWrapper<External> *data = new PersistentObjectWrapper<External>(getV8Isolate(), External::New(getV8Isolate(), dataWrapper), dataWrapper);
@@ -768,8 +746,8 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 			result = Null(getV8Isolate());
 			break;
 
-		case GScriptValue::typeFundamental:
-			result = variantToV8(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr);
+		case GScriptValue::typePrimary:
+			result = variantToV8(context, value.toPrimary(), GBindValueFlags(bvfAllowRaw), nullptr);
 			break;
 
 		case GScriptValue::typeString:
@@ -785,12 +763,13 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 		case GScriptValue::typeObject: {
 			IMetaClass * metaClass;
 			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScriptInstanceCv cv;
+			const GVariant instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership, &cv));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			result = objectToV8(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
+			result = objectToV8(context, context->getClassData(metaClass), instance, flags, cv, nullptr);
 			break;
 		}
 
@@ -883,7 +862,6 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			setObjectSignature(&localSelf);
 
 			PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), localSelf, objectWrapper);
-			objectData->getBindingContext()->getScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, new V8ScriptObjectCacheData(self->getPersistent()));
 
 			args.GetReturnValue().Set( self->createLocal() );
 		}
@@ -1293,8 +1271,8 @@ GScriptValue GV8ScriptArray::createScriptArray(size_t index)
 	return v8CreateScriptArray(this->getBindingContext(), (uint32_t)index, localObject);
 }
 
-GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
-	: super(GContextPointer(new GV8BindingContext(service, config)), config), object(getV8Isolate(), object)
+GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object)
+	: super(GContextPointer(new GV8BindingContext(service))), object(getV8Isolate(), object)
 {
 }
 
@@ -1466,14 +1444,14 @@ GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)
 } // unnamed namespace
 
 
-GScriptObject * createV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
+GScriptObject * createV8ScriptObject(IMetaService * service, Local<Object> object)
 {
-	return new GV8ScriptObject(service, object, config);
+	return new GV8ScriptObject(service, object);
 }
 
-IScriptObject * createV8ScriptInterface(IMetaService * service, Local<Object> object, const GScriptConfig & config)
+IScriptObject * createV8ScriptInterface(IMetaService * service, Local<Object> object)
 {
-	return new ImplScriptObject(new GV8ScriptObject(service, object, config), true);
+	return new ImplScriptObject(new GV8ScriptObject(service, object), true);
 }
 
 void clearV8DataPool()

@@ -5,7 +5,7 @@
 
 
 #include "test_reflection_common.h"
-
+#include "cpgf/gstringutil.h"
 
 #define CLASS TestClass_Annotation
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
@@ -16,25 +16,6 @@ using namespace cpgf;
 
 
 namespace Test_Annotation { namespace {
-
-std::wstring stringToWString(const std::string & s)
-{
-    std::wstring temp(s.length(),L' ');
-
-    std::copy(s.begin(), s.end(), temp.begin());
-
-    return temp;
-}
-
-
-std::string wstringToString(const std::wstring & s)
-{
-    std::string temp(s.length(), ' ');
-
-    std::copy(s.begin(), s.end(), temp.begin());
-
-    return temp;
-}
 
 class TestData
 {
@@ -154,7 +135,7 @@ void testItem(const cpgf::GMetaItem * item)
 			GEQUAL(std::string(anno->getNameAt(0)), "name");
 			GEQUAL(anno->getValueAt(0), value);
 			GCHECK(value->canToWideString());
-			GEQUAL(value->toWideString(), stringToWString(item->getName()));
+			GEQUAL(value->toWideString(), stringToWideString(item->getName()));
 
 			value = anno->getValue("cat"); GCHECK(value != NULL);
 			GEQUAL(std::string(anno->getNameAt(1)), "cat");
@@ -203,7 +184,7 @@ void testItem(cpgf::IMetaItem * item)
 
 			value.reset(anno->getValue("name")); GCHECK(value);
 			GCHECK(!! value->canToWideString());
-			GEQUAL(value->toWideString(), stringToWString(item->getName()));
+			GEQUAL(value->toWideString(), stringToWideString(item->getName()));
 
 			value.reset(anno->getValue("cat")); GCHECK(value);
 			GCHECK(!! value->canToInt());

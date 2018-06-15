@@ -1,4 +1,4 @@
-#include "cpgf/gtestutil.h"
+#include "gtestutil.h"
 
 int main()
 {

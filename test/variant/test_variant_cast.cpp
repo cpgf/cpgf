@@ -112,16 +112,16 @@ GTEST(TestVariant_CastFromFloat)
 
 	float a = 5.0f;
 	value = &a;
-	value.refData().typeData.vt = (uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtFloat;
+	value.refData().typeData.vt = (GVtType)GVariantType::byLvalueReference | (GVtType)GVariantType::vtFloat;
 
-	GCHECK((uint16_t)value.getType() == ((uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtFloat));
+	GCHECK((GVtType)value.getType() == ((GVtType)GVariantType::byLvalueReference | (GVtType)GVariantType::vtFloat));
 
 	casted = (float)fromVariant<double>(value);
 	GCHECK(casted > 4.9f && casted < 5.1f);
 
 	int b = 3;
 	value = &b;
-	value.refData().typeData.vt = (uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtSignedInt;
+	value.refData().typeData.vt = (GVtType)GVariantType::byLvalueReference | (GVtType)GVariantType::vtSignedInt;
 	CAN_FROM(void *, value);
 	CAN_FROM(const void *, value);
 	CAN_FROM(const void * const, value);
@@ -130,11 +130,21 @@ GTEST(TestVariant_CastFromFloat)
 
 GTEST(TestVariant_CastFromArray)
 {
-	GVariant value;
 	int a[] = { 1, 2, 3 };
 
-	value = a;
+	GVariant value = a;
 	int * casted = fromVariant<int *>(value);
+	GCHECK(casted[0] == 1);
+	GCHECK(casted[1] == 2);
+	GCHECK(casted[2] == 3);
+}
+
+GTEST(TestVariant_CastFromArray2)
+{
+	int a[] = { 1, 2, 3 };
+
+	GVariant value = createVariant<int [3]>(a);
+	int * casted = fromVariant<int []>(value);
 	GCHECK(casted[0] == 1);
 	GCHECK(casted[1] == 2);
 	GCHECK(casted[2] == 3);

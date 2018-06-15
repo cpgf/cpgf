@@ -15,6 +15,15 @@ struct GMetaTraitsCreateSharedPointerTraits <GSharedPointer<T>, void >
 	}
 };
 
+template <typename T>
+struct GMetaTraitsCreateSharedPointerTraits <const GSharedPointer<T>, void >
+{
+	static IMetaSharedPointerTraits * createSharedPointerTraits(const cpgf::GMetaTraitsParam &) {
+		return new gmetasharedptrtraits_internal::GMetaTraitsCreateSharedPointerTraitsGeneral<T, GSharedPointer<T> >();
+	}
+};
+
+
 } // namespace cpgf
 
 
