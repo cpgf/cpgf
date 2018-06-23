@@ -28,6 +28,7 @@ none: needcmake
 	$(ECHO) "  mingw        Generate MinGW makefile and then use mingw32-make to build (release version)."
 	$(ECHO) "  mingw_debug  Generate MinGW makefile and then use mingw32-make to build (debug version)."
 	$(ECHO) "  linux        Generate Linux/Unix makefile and then use GCC make to build."
+	$(ECHO) "  vc17         Generate project files for Microsoft VC 2017. No auto build. You need to open the project in VC IDE then build."
 	$(ECHO) "  vc15         Generate project files for Microsoft VC 2015. No auto build. You need to open the project in VC IDE then build."
 	$(ECHO) "  cb_mingw     Generate project files for Code::Blocks using MinGW g++ compiler, release version. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_mingw_debug     Generate project files for Code::Blocks using MinGW g++ compiler, debug version. No auto build. You need to open the project in Code::Blocks IDE then build."
@@ -82,6 +83,11 @@ linux: needcmake
 	$(MK_CACHE)_linux
 	$(CH_DIR) $(CACHE_DIR)_linux $(CMAKE) -G"Unix Makefiles"
 	$(EXEC_BUILD)_linux make $(TARGET)
+
+vc17: needcmake
+	$(MK_DIR) $(PROJECT_PREFIX)_vc17
+	$(CH_DIR) $(PROJECT_PREFIX)_vc17 $(CMAKE) -G"Visual Studio 15 2017 Win64"
+	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc17 in VC IDE.
 
 vc15: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_vc15

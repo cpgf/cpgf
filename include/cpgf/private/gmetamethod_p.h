@@ -128,7 +128,7 @@ private:
 	static GMetaType virtualGetParamType(size_t index) {
 		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
 		return GTypeSelector<CallbackT::TraitsType::Arity>::template select<GMetaType, GetParamTypeSelector>(
-			index,
+			(unsigned int)index,
 			typename CallbackT::TraitsType::ArgTypeList()
 		);
 	}
@@ -160,7 +160,7 @@ private:
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
 		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
 		return GTypeSelector<CallbackT::TraitsType::Arity>::template select<GMetaExtendType, GetParamExtendTypeSelector>(
-			index,
+			(unsigned int)index,
 			GetParamExtendTypeSelectorParam<typename CallbackT::TraitsType::ArgTypeList>{ flags }
 		);
 	}
@@ -232,7 +232,7 @@ private:
 		}
 
 		return GTypeSelector<CallbackT::TraitsType::Arity>::template select<bool, CheckParamSelector>(
-			paramIndex,
+			(unsigned int)paramIndex,
 			CheckParamSelectorParam<typename CallbackT::TraitsType::ArgTypeList>{ param }
 		);
 

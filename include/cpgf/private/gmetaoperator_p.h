@@ -692,7 +692,7 @@ private:
 	static GMetaType virtualGetParamType(size_t index) {
 		if((int)index < static_cast<int>(FT::Arity)) {
 			return GTypeSelector<FT::Arity>::template select<GMetaType, GetParamTypeSelector>(
-				index,
+				(unsigned int)index,
 				typename FT::ArgTypeList()
 			);
 		}
@@ -732,7 +732,7 @@ private:
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
 		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
 		return GTypeSelector<FT::Arity>::template select<GMetaExtendType, GetParamExtendTypeSelector>(
-			index,
+			(unsigned int)index,
 			GetParamExtendTypeSelectorParam<typename FT::ArgTypeList>{ flags }
 		);
 	}
@@ -773,7 +773,7 @@ private:
 		}
 
 		return GTypeSelector<FT::Arity>::template select<bool, CheckParamSelector>(
-			paramIndex,
+			(unsigned int)paramIndex,
 			CheckParamSelectorParam<typename FT::ArgTypeList>{ param }
 		);
 	}
