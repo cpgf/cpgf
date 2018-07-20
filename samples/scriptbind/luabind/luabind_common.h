@@ -27,6 +27,8 @@ public:
 	}
 
 	~TestLuaContext() {
+		binding.reset();
+		service.reset();
 		lua_close(this->luaState);
 	}
 
