@@ -24,6 +24,10 @@ class TestObject
 public:
 	TestObject() : value(Magic1) {
 	}
+
+	~TestObject() {
+		value = 0;
+	}
 	
 	TestObject(const TestObject & other) : value(Magic2) {
 		(void)other;

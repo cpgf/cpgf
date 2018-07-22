@@ -319,13 +319,37 @@ const GMetaOpType metaOpTypes[] = {
 const char * metaTableSignature = "cpgf_suPer_mEta_Table";
 const lua_Integer metaTableSigValue = 0x1eabeef;
 const char * classMetaTablePrefix = "cpgf_cLaSs_mEta_Table";
+int weakTableUserData;
+int strongTableUserData;
 
+void getRefTable(lua_State* L, const bool weakReference)
+{
+	int * userData = (weakReference ? &weakTableUserData : &strongTableUserData);
+	lua_pushlightuserdata(L, userData);
+	lua_rawget(L, LUA_REGISTRYINDEX);
+
+	if(lua_isnil(L, -1)) {
+		lua_pop(L, 1);
+		lua_newtable(L);
+		lua_newtable(L);
+		if(weakReference) {
+			lua_pushliteral(L, "__mode");
+			lua_pushliteral(L, "v");
+			lua_rawset(L, -3);
+		}
+		lua_setmetatable(L, -2);
+
+		lua_pushlightuserdata(L, userData);
+		lua_pushvalue(L, -2);
+		lua_rawset(L, LUA_REGISTRYINDEX);
+	}
+}
 
 class GLuaRefUserData : public GGlueUserData
 {
 public:
-	explicit GLuaRefUserData(lua_State * luaState)
-		: luaState(luaState), ref(LUA_NOREF)
+	explicit GLuaRefUserData(lua_State * luaState, const bool weakReference)
+		: luaState(luaState), weakReference(weakReference), ref(LUA_NOREF)
 	{}
 
 	~GLuaRefUserData()
@@ -336,7 +360,12 @@ public:
 	void retain(const int objectIndex)
 	{
 		this->release();
-		this->ref = refLua(this->luaState, objectIndex);
+
+		getRefTable(this->luaState, weakReference);
+
+		lua_pushvalue(this->luaState, objectIndex - 1);
+		this->ref = luaL_ref(this->luaState, -2);
+		lua_pop(this->luaState, 1);
 	}
 
 	void retainAndPop()
@@ -350,16 +379,21 @@ public:
 
 	void release()
 	{
-		unrefLua(this->luaState, this->ref);
+		getRefTable(this->luaState, weakReference);
+		luaL_unref(this->luaState, -1, this->ref);
+		lua_pop(this->luaState, 1);
 	}
 
 	void get()
 	{
-		getRefObject(this->luaState, this->ref);
+		getRefTable(this->luaState, weakReference);
+		lua_rawgeti(this->luaState, -1, this->ref);
+		lua_remove(this->luaState, -2);
 	}
 
 private:
 	lua_State * luaState;
+	bool weakReference;
 	int ref;
 };
 
@@ -406,45 +440,53 @@ void objectToLua(
 	}
 
 	GLuaRefUserData * glueUserData = objectData->getUserDataAs<GLuaRefUserData>();
-	if(glueUserData == nullptr) {
-		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
-		newGlueDataWrapper(userData, objectData);
-
-		IMetaClass * metaClass = classData->getMetaClass();
-
-		const char * className = metaClass->getName();
-	
-		GASSERT_MSG(strlen(className) < 1000, "Meta class name is too long");
-
-		char metaTableName[1100];
-
-		strcpy(metaTableName, classMetaTablePrefix);
-		strcat(metaTableName, className);
-
-		lua_getfield(L, LUA_REGISTRYINDEX, metaTableName);
-		if(lua_isnil(L, -1)) {
-			lua_pop(L, 1);
-
-			lua_newtable(L);
-			setMetaTableSignature(L);
-
-			setMetaTableGC(L);
-	
-			initObjectMetaTable(L);
-
-			lua_pushvalue(L, -1); // duplicate the meta table
-			lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
-	
-			helperBindAllOperators(context, objectData, metaClass, false);
+	if(glueUserData != nullptr) {
+		glueUserData->get();
+		if(! lua_isnil(L, -1)) {
+			return;
 		}
-		helperBindAllOperators(context, objectData, metaClass, true);
-	
-		lua_setmetatable(L, -2);
 
-		glueUserData = new GLuaRefUserData(L);
-		objectData->setUserData(glueUserData);
-		glueUserData->retainAndPop();
+		// The ref has been garbage collected
+		lua_pop(L, 1);
 	}
+
+	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
+	newGlueDataWrapper(userData, objectData);
+
+	IMetaClass * metaClass = classData->getMetaClass();
+
+	const char * className = metaClass->getName();
+	
+	GASSERT_MSG(strlen(className) < 1000, "Meta class name is too long");
+
+	char metaTableName[1100];
+
+	strcpy(metaTableName, classMetaTablePrefix);
+	strcat(metaTableName, className);
+
+	lua_getfield(L, LUA_REGISTRYINDEX, metaTableName);
+	if(lua_isnil(L, -1)) {
+		lua_pop(L, 1);
+
+		lua_newtable(L);
+		setMetaTableSignature(L);
+
+		setMetaTableGC(L);
+	
+		initObjectMetaTable(L);
+
+		lua_pushvalue(L, -1); // duplicate the meta table
+		lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
+	
+		helperBindAllOperators(context, objectData, metaClass, false);
+	}
+	helperBindAllOperators(context, objectData, metaClass, true);
+	
+	lua_setmetatable(L, -2);
+
+	glueUserData = new GLuaRefUserData(L, allowGC);
+	objectData->setUserData(glueUserData);
+	glueUserData->retainAndPop();
 
 	glueUserData->get();
 }
@@ -863,23 +905,29 @@ void helperBindOperator(const GContextPointer & context, const GObjectGlueDataPo
 		if(metaOpTypes[i] == op) {
 			GOperatorGlueDataPointer operatorData(context->newOperatorGlueData(objectData, metaClass, op));
 			GLuaRefUserData * glueUserData = operatorData->getUserDataAs<GLuaRefUserData>();
-			if(glueUserData == nullptr) {
-				lua_pushstring(L, luaOperators[i]);
-				void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GOperatorGlueData>());
-				newGlueDataWrapper(userData, operatorData);
-
-				lua_newtable(L);
-				setMetaTableSignature(L);
-				setMetaTableGC(L);
-				lua_setmetatable(L, -2);
-
-				lua_pushcclosure(L, &UserData_operator, 1);
-				lua_rawset(L, -3);
-
-				glueUserData = new GLuaRefUserData(L);
-				operatorData->setUserData(glueUserData);
-				glueUserData->retainAndPop();
+			if(glueUserData != nullptr) {
+				glueUserData->get();
+				if(! lua_isnil(L, -1)) {
+					return;
+				}
+				lua_pop(L, 1);
 			}
+
+			lua_pushstring(L, luaOperators[i]);
+			void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GOperatorGlueData>());
+			newGlueDataWrapper(userData, operatorData);
+
+			lua_newtable(L);
+			setMetaTableSignature(L);
+			setMetaTableGC(L);
+			lua_setmetatable(L, -2);
+
+			lua_pushcclosure(L, &UserData_operator, 1);
+			lua_rawset(L, -3);
+
+			glueUserData = new GLuaRefUserData(L, false);
+			operatorData->setUserData(glueUserData);
+			glueUserData->retainAndPop();
 
 			glueUserData->get();
 
@@ -917,24 +965,30 @@ void helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
 
 	GClassGlueDataPointer classData(context->getClassData(metaClass));
 	GLuaRefUserData * glueUserData = classData->getUserDataAs<GLuaRefUserData>();
-	if(glueUserData == nullptr) {
-		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GClassGlueData>());
-		newGlueDataWrapper(userData, classData);
-
-		lua_newtable(L);
-
-		setMetaTableSignature(L);
-		setMetaTableGC(L);
-		setMetaTableCall(L, userData);
-
-		initObjectMetaTable(L);
-
-		lua_setmetatable(L, -2);
-
-		glueUserData = new GLuaRefUserData(L);
-		classData->setUserData(glueUserData);
-		glueUserData->retainAndPop();
+	if(glueUserData != nullptr) {
+		glueUserData->get();
+		if(! lua_isnil(L, -1)) {
+			return;
+		}
+		lua_pop(L, 1);
 	}
+
+	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GClassGlueData>());
+	newGlueDataWrapper(userData, classData);
+
+	lua_newtable(L);
+
+	setMetaTableSignature(L);
+	setMetaTableGC(L);
+	setMetaTableCall(L, userData);
+
+	initObjectMetaTable(L);
+
+	lua_setmetatable(L, -2);
+
+	glueUserData = new GLuaRefUserData(L, false);
+	classData->setUserData(glueUserData);
+	glueUserData->retainAndPop();
 
 	glueUserData->get();
 }
@@ -949,22 +1003,28 @@ void helperBindMethods(
 
 	GObjectAndMethodGlueDataPointer objectAndMethodData(context->newObjectAndMethodGlueData(objectData, methodData));
 	GLuaRefUserData * glueUserData = objectAndMethodData->getUserDataAs<GLuaRefUserData>();
-	if(glueUserData == nullptr) {
-		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectAndMethodGlueData>());
-		newGlueDataWrapper(userData, objectAndMethodData);
-
-		lua_newtable(L);
-	
-		setMetaTableSignature(L);
-		setMetaTableGC(L);
-		lua_setmetatable(L, -2);
-	
-		lua_pushcclosure(L, &callbackInvokeMethodList, 1);
-
-		glueUserData = new GLuaRefUserData(L);
-		objectAndMethodData->setUserData(glueUserData);
-		glueUserData->retainAndPop();
+	if(glueUserData != nullptr) {
+		glueUserData->get();
+		if(! lua_isnil(L, -1)) {
+			return;
+		}
+		lua_pop(L, 1);
 	}
+
+	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectAndMethodGlueData>());
+	newGlueDataWrapper(userData, objectAndMethodData);
+
+	lua_newtable(L);
+	
+	setMetaTableSignature(L);
+	setMetaTableGC(L);
+	lua_setmetatable(L, -2);
+	
+	lua_pushcclosure(L, &callbackInvokeMethodList, 1);
+
+	glueUserData = new GLuaRefUserData(L, false);
+	objectAndMethodData->setUserData(glueUserData);
+	glueUserData->retainAndPop();
 
 	glueUserData->get();
 }

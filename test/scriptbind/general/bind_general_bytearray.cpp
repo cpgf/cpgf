@@ -41,6 +41,4 @@ void testByteArrayInScriptWriteVariadic(TestScriptContext * context)
 #define CASE testByteArrayInScriptWriteVariadic
 #include "../bind_testcase.h"
 
-
-
 }

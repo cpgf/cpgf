@@ -318,8 +318,9 @@ GOperatorGlueDataPointer GBindingPool::newOperatorGlueData(
 void GBindingPool::objectInstanceAdded(const GObjectInstancePointer & objectData)
 {
 	void * instance = objectAddressFromVariant(objectData->getInstance());
-	if(this->instanceMap.find(instance) == this->instanceMap.end()) {
-		this->instanceMap[instance] = objectData;
+	auto it = this->instanceMap.find(instance);
+	if(it == this->instanceMap.end() || it->second.expired()) {
+		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 	}
 }
 
@@ -333,7 +334,7 @@ GObjectInstancePointer GBindingPool::findObjectInstance(const GVariant & instanc
 {
 	auto it = this->instanceMap.find(objectAddressFromVariant(instance));
 
-	if(it != this->instanceMap.end() && it->second) {
+	if(it != this->instanceMap.end() && ! it->second.expired()) {
 		GObjectInstancePointer data(it->second);
 		return data;
 	}

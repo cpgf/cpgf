@@ -125,7 +125,7 @@ private:
 
 	std::map<MethodKey, GWeakMethodGlueDataPointer> methodMap;
 	std::map<ObjectKey, GWeakObjectGlueDataPointer> objectMap;
-	std::map<void *, GObjectInstancePointer> instanceMap;
+	std::map<void *, GWeakObjectInstancePointer> instanceMap;
 	std::map<IMetaClass *, GClassGlueDataPointer> classMap;
 	std::map<ObjectAndMethodKey, GWeakObjectAndMethodGlueDataPointer> objectAndMethodMap;
 	std::map<IMetaEnum *, GWeakEnumGlueDataPointer> enumMap;

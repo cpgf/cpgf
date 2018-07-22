@@ -16,12 +16,6 @@ using namespace std;
 
 namespace testscript {
 
-void TestScriptBindMetaData1();
-void TestScriptBindMetaData2();
-void TestScriptBindMetaData3();
-void TestScriptBindMetaData4();
-void TestScriptBindMetaData5();
-
 int TestObject::staticValue = 0;
 
 int testAdd2(int a, int b)
@@ -119,6 +113,8 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindClass(script, service, "testscript::DeriveE", "DeriveE");
 	bindClass(script, service, "testscript::ScriptOverride", "ScriptOverride");
 
+	bindClass(script, service, "testscript::TestObjectLeak", "TestObjectLeak");
+
 	bindClass(script, service, REG_NAME_BasicA, "BasicA");
 	
 	scriptSetValue(script, "testString", GScriptValue::fromPrimary(testString));
@@ -210,6 +206,13 @@ void scriptNot(bool b)
 	}
 }
 
+void TestScriptBindMetaData1();
+void TestScriptBindMetaData2();
+void TestScriptBindMetaData3();
+void TestScriptBindMetaData4();
+void TestScriptBindMetaData5();
+void TestScriptBindMetaData6();
+
 G_AUTO_RUN_BEFORE_MAIN()
 {
 	TestScriptBindMetaData1();
@@ -217,6 +220,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 	TestScriptBindMetaData3();
 	TestScriptBindMetaData4();
 	TestScriptBindMetaData5();
+	TestScriptBindMetaData6();
 }
 
 
