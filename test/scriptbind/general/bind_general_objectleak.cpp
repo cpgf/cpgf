@@ -25,6 +25,15 @@ void testObjectLeak(TestScriptContext * context)
 		QDO(collectgarbage("collect"))
 		GCHECK(TestObjectLeak::instanceCount == 0);
 	}
+
+	if(context->isPython()) {
+		QDO(a = None)
+		QDO(b = None)
+		QDO(c = None)
+		QDO(d = None)
+		QDO(e = None)
+		GCHECK(TestObjectLeak::instanceCount == 0);
+	}
 }
 
 #define CASE testObjectLeak
