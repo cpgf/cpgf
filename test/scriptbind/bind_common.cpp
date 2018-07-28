@@ -442,7 +442,7 @@ public:
 public:
 	JSRuntime * jsRuntime;
 };
-static GScopedPointer<SpiderMonkeyRuntime> spiderMonkeyRuntime;
+static std::unique_ptr<SpiderMonkeyRuntime> spiderMonkeyRuntime;
 
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
@@ -482,7 +482,7 @@ public:
 	JSObject  * jsGlobal;
 };
 
-static GScopedPointer<SpiderMonkeyEnv> spiderMonkeyEnv;
+static std::unique_ptr<SpiderMonkeyEnv> spiderMonkeyEnv;
 
 const char * const SpiderMonkeyNullObjects[] = {
 	"nso", "methodConst", "incStaticValue", "add", "Inner"

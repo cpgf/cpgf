@@ -1,11 +1,11 @@
 #include "test_misc_common.h"
 
-#include "cpgf/gscopedptr.h"
 #include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/gvariant.h"
 
-using namespace cpgf;
+#include <memory>
 
+using namespace cpgf;
 
 namespace Test_ByteArray { namespace {
 
@@ -108,7 +108,7 @@ void testByteArray(T * byteArray)
 
 GTEST(TestByteArray)
 {
-	GScopedPointer<GMetaByteArray> byteArray(new GMetaByteArray);
+	std::unique_ptr<GMetaByteArray> byteArray(new GMetaByteArray);
 
     testByteArray(byteArray.get());
 }

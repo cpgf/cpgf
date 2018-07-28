@@ -22,7 +22,7 @@ public:
 	uint32_t getCount() const;
 
 private:
-	GScopedPointer<GMetaObjectArrayImplement> implement;
+	std::unique_ptr<GMetaObjectArrayImplement> implement;
 };
 
 

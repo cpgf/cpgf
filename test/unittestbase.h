@@ -1,8 +1,7 @@
 #ifndef CPGF_UNITTESTBASE_H
 #define CPGF_UNITTESTBASE_H
 
-
-#include "UnitTest++.h"
+#include "catch.hpp"
 
 #include "cpgf/gpp.h"
 #include "cpgf/gtypetraits.h"
@@ -17,22 +16,22 @@
 #endif
 
 
-#define GTEST TEST
+#define GTEST(name) TEST_CASE(GPP_STRINGIZE(name) ## GPP_STRINGIZE(__) ## GPP_STRINGIZE(__FILE__) ## GPP_STRINGIZE(__LINE__))
 
-#define GFAIL(...) CHECK(false)
+#define GFAIL(...) REQUIRE(false)
 
-#define GCHECK(...) CHECK(bool(__VA_ARGS__))
+#define GCHECK(...) REQUIRE(bool(__VA_ARGS__))
 
-#define GEQUAL(a, b) GCHECK(a == b)
+#define GEQUAL(a, b) REQUIRE(a == b)
 
-#define GEQUAL_NOTNULL(a, b) GCHECK(a); GCHECK(a == b)
+#define GEQUAL_NOTNULL(a, b) REQUIRE(a); REQUIRE(a == b)
 
-#define GDIFF(a, b) GCHECK(!(a == b))
+#define GDIFF(a, b) REQUIRE(!(a == b))
 
-#define GNEAR(a, b, t) CHECK_CLOSE(a, b, t)
+#define GNEAR(a, b, t) REQUIRE(std::fabs(a - b) <= t)
 
 #define GBEGIN_EXCEPTION try {
-#define GEND_EXCEPTION(e) GCHECK(false); } catch(e) {}
+#define GEND_EXCEPTION(e) REQUIRE(false); } catch(e) {}
 
 #define FEQUAL(a, b) (fabs((a) - (b)) < 0.001)
 #define GFEQUAL(a, b) GNEAR(a, b, 0.001)

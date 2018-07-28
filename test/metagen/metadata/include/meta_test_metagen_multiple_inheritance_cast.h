@@ -22,10 +22,10 @@ void buildMetaClass_Global_metagen_multiple_inheritance_cast(D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastD", (MultipleInheritanceCastD * (*) ())&getMultipleInheritanceCastD);
-    _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDSharedPointer", (cpgf::GSharedPointer< MultipleInheritanceCastD > (*) ())&getMultipleInheritanceCastDSharedPointer);
+    _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDSharedPointer", (std::shared_ptr< MultipleInheritanceCastD > (*) ())&getMultipleInheritanceCastDSharedPointer);
     _d.CPGF_MD_TEMPLATE _method("checkMultipleInheritanceCastDAsR", (bool (*) (MultipleInheritanceCastR *))&checkMultipleInheritanceCastDAsR);
     _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDAsR", (MultipleInheritanceCastR * (*) ())&getMultipleInheritanceCastDAsR);
-    _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDAsRSharedPointer", (cpgf::GSharedPointer< MultipleInheritanceCastR > (*) ())&getMultipleInheritanceCastDAsRSharedPointer);
+    _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDAsRSharedPointer", (std::shared_ptr< MultipleInheritanceCastR > (*) ())&getMultipleInheritanceCastDAsRSharedPointer);
     _d.CPGF_MD_TEMPLATE _method("checkMultipleInheritanceCastRAsD", (bool (*) (MultipleInheritanceCastD *))&checkMultipleInheritanceCastRAsD);
 }
 

@@ -3,7 +3,8 @@
 
 
 #include "cpgf/scriptbind/gscriptbind.h"
-#include "cpgf/gsharedptr.h"
+
+#include <memory>
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -23,9 +24,6 @@ v8::Isolate *getV8Isolate();
 
 class v8RuntimeException : public std::runtime_error
 {
-private:
-	GSharedPointer<v8::Persistent<v8::Value> > error;
-	GSharedPointer<v8::Persistent<v8::Message> > message;
 public:
 	v8RuntimeException(v8::Local<v8::Value> error, v8::Local<v8::Message> message)
 		:
@@ -44,6 +42,10 @@ public:
 	{
 		return v8::Local<v8::Message>::New(getV8Isolate(), *message.get());
 	}
+
+private:
+	std::shared_ptr<v8::Persistent<v8::Value> > error;
+	std::shared_ptr<v8::Persistent<v8::Message> > message;
 };
 
 

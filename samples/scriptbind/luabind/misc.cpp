@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <memory>
 
 using namespace std;
 using namespace cpgf;
@@ -232,23 +232,24 @@ void doTest()
 	luaL_openlibs(L);
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> globalClass(metaGetGlobalMetaClass(service.get(), 0));
-	testCheckAssert(globalClass);
+	testCheckAssert((bool)globalClass);
 
-	GScopedPointer<GScriptObject> binding(createLuaScriptObject(service.get(), L));
+	std::unique_ptr<GScriptObject> binding(createLuaScriptObject(service.get(), L));
 
 	GScopedInterface<IScriptObject> scope(binding->createScriptObject("myscope").toScriptObject());
 
 	GScopedInterface<IMetaMethod> method;
 
-	method.reset(globalClass->getMethod("addNumber")); testCheckAssert(method);
+	method.reset(globalClass->getMethod("addNumber"));
+	testCheckAssert((bool)method);
 
 	scriptSetValue(scope.get(), "addNumber", GScriptValue::fromMethod(NULL, method.get()));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	
 	scriptSetValue(binding.get(), "TestObject", GScriptValue::fromClass(metaClass.get()));
 	

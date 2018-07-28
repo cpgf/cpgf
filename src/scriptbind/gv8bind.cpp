@@ -236,7 +236,7 @@ static void weakHandleCallback(const WeakCallbackData<T, P>& data);
 template <class P>
 class PersistentObjectWrapper {
 private:
-	GSharedPointer<Persistent<P> > persistent;
+	std::shared_ptr<Persistent<P> > persistent;
 	GGlueDataWrapper * dataWrapper;
 public:
 	PersistentObjectWrapper(v8::Isolate *isolate, v8::Handle<P> v8Data, GGlueDataWrapper *dataWrapper)
@@ -253,7 +253,7 @@ public:
 		persistent->Reset();
 	}
 
-	GSharedPointer<Persistent<P> > getPersistent() {
+	std::shared_ptr<Persistent<P> > getPersistent() {
 		return persistent;
 	}
 
@@ -428,7 +428,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 
 Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 {
-	Local<Object> object = sharedStaticCast<GV8BindingContext>(context)->getRawObject();
+	Local<Object> object = std::static_pointer_cast<GV8BindingContext>(context)->getRawObject();
 	GRawGlueDataPointer rawData(context->newRawGlueData(value));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, getV8DataWrapperPool());
 

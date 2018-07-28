@@ -2,7 +2,6 @@
 #define CPGF_GMEMORYPOOL_H
 
 #include "cpgf/gassert.h"
-#include "cpgf/gscopedptr.h"
 #include "cpgf/gclassutil.h"
 
 #include <limits>

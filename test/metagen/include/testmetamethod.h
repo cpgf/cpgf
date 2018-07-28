@@ -2,7 +2,6 @@
 #define CPGF_TESTMETAMETHOD_H
 
 #include "cpgf/gcompiler.h"
-#include "cpgf/gsharedptr.h"
 
 #include <string>
 
@@ -42,8 +41,8 @@ public:
 		return this->refString;
 	}
 
-	cpgf::GSharedPointer<TestMethodMethodData> func_return_data() const {
-		return cpgf::GSharedPointer<TestMethodMethodData>(new TestMethodMethodData());
+	std::shared_ptr<TestMethodMethodData> func_return_data() const {
+		return std::shared_ptr<TestMethodMethodData>(new TestMethodMethodData());
 	}
 	
 private:

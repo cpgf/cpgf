@@ -123,7 +123,7 @@ public:
 	std::string name;
 	std::string qualifiedName;
 	GMetaType itemType;
-	GScopedPointer<AnnotationListType> annotationList;
+	std::unique_ptr<AnnotationListType> annotationList;
 };
 
 

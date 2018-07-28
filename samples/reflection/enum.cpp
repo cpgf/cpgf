@@ -72,22 +72,22 @@ void doTestAPI()
 	using namespace cpgf;
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("enum::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
 	GScopedInterface<IMetaEnum> metaEnum;
 
 	{
-		metaEnum.reset(metaClass->getEnum("WindowStyle")); testCheckAssert(metaEnum);
+		metaEnum.reset(metaClass->getEnum("WindowStyle")); testCheckAssert((bool)metaEnum);
 		checkEnum(metaEnum, "ws");
 	}
 
 	{
-		metaEnum.reset(metaClass->getEnum("BorderStyle")); testCheckAssert(metaEnum);
+		metaEnum.reset(metaClass->getEnum("BorderStyle")); testCheckAssert((bool)metaEnum);
 		checkEnum(metaEnum, "bs");
 	}
 

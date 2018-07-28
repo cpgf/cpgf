@@ -146,7 +146,7 @@ private:
 private:
 	lua_State * luaState;
 	int ref;
-	GScopedPointer<GLuaGlobalAccessor> globalAccessor;
+	std::unique_ptr<GLuaGlobalAccessor> globalAccessor;
 
 private:
 	friend class GLuaScopeGuard;
@@ -157,7 +157,7 @@ private:
 };
 
 
-class GLuaBindingContext : public GBindingContext, public GShareFromBase
+class GLuaBindingContext : public GBindingContext
 {
 private:
 	typedef GBindingContext super;

@@ -475,7 +475,7 @@ private:
 	GMetaSuperListItem * doAdd(const GMetaSuperListItem & item);
 
 private:
-	GScopedPointer<GMetaSuperListImplement> implement;
+	std::unique_ptr<GMetaSuperListImplement> implement;
 };
 
 class GMetaItemListImplement;

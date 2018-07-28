@@ -65,8 +65,8 @@ private:
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaStorageWriter> writer;
 	uint32_t currentArchiveID;
-	GScopedPointer<GMetaArchiveWriterPointerTracker> pointerSolver;
-	GScopedPointer<GMetaArchiveWriterClassTypeTracker> classTypeTracker;
+	std::unique_ptr<GMetaArchiveWriterPointerTracker> pointerSolver;
+	std::unique_ptr<GMetaArchiveWriterClassTypeTracker> classTypeTracker;
 	GClassSerializeHeader serializeHeader;
 	GMetaArchiveConfigMap configMap;
 };
@@ -500,7 +500,7 @@ uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * 
 					this->getClassTypeTracker()->addClassType(typeName, classTypeID);
 					this->writer->writeMetaClass(classTypeID, castedMetaClass.get());
 				}
-				*outCastedMetaClass = castedMetaClass.take();
+				*outCastedMetaClass = castedMetaClass.release();
 			}
 		}
 		

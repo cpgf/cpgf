@@ -1,4 +1,3 @@
-#include "cpgf/gscopedptr.h"
 #include "cpgf/gexception.h"
 
 #include "cpgf/gmetadefine.h"
@@ -9,7 +8,7 @@
 
 #include <string>
 #include <iostream>
-
+#include <memory>
 
 using namespace cpgf;
 using namespace std;

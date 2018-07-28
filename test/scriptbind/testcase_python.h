@@ -11,7 +11,7 @@
 
 GTEST(MK(CASE, _Python_Lib))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslPython, tsaLib));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslPython, tsaLib));
 
 	TEST_BIND(context->getBindingLib(), context->getService());
 
@@ -20,7 +20,7 @@ GTEST(MK(CASE, _Python_Lib))
 
 GTEST(MK(CASE, _Python_Api))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslPython, tsaApi));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslPython, tsaApi));
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 

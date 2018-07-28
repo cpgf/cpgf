@@ -10,8 +10,8 @@ void doTestGlobal(T * binding, TestScriptContext * context)
 	GScopedInterface<IMetaClass> metaClass(context->getService()->findClassByName(REG_NAME_TestData));
 	GCHECK(metaClass);
 
-	GScopedPointer<TestData> dataLib(new TestData);
-	GScopedPointer<TestData> dataApi(new TestData);
+	std::unique_ptr<TestData> dataLib(new TestData);
+	std::unique_ptr<TestData> dataApi(new TestData);
 	dataLib->x = 10;
 	dataLib->name = "abc";
 	dataApi->x = 10;

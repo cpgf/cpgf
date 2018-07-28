@@ -85,8 +85,8 @@ private:
 class GMetaModuleImplement
 {
 public:
-	GScopedPointer<GMetaTypedItemList> classList;
-	GScopedPointer<GMetaTypedItemList> enumList;
+	std::unique_ptr<GMetaTypedItemList> classList;
+	std::unique_ptr<GMetaTypedItemList> enumList;
 };
 
 GMetaModule::GMetaModule()
@@ -102,7 +102,7 @@ GMetaModule::~GMetaModule()
 void GMetaModule::unregisterAll()
 {
 	if(this->implement->classList) {
-		GScopedPointer<GMetaTypedItemList> tempClassList(this->implement->classList.take());
+		std::unique_ptr<GMetaTypedItemList> tempClassList(this->implement->classList.release());
 		for(GMetaTypedItemList::MapType::const_iterator it = tempClassList->getItemMap()->begin(); it != tempClassList->getItemMap()->end(); ++it) {
 			this->unregisterMetaClass(static_cast<const GMetaClass *>(it->second));
 			static_cast<const GMetaClass *>(it->second)->setModule(nullptr);

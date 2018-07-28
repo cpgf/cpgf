@@ -3,10 +3,10 @@
 
 
 #include "cpgf/scriptbind/gscriptbind.h"
-#include "cpgf/gscopedptr.h"
 
 #include "Python.h"
 
+#include <memory>
 
 namespace cpgf {
 
@@ -16,12 +16,12 @@ IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * o
 template <typename T>
 struct GPythonScopedPointerDeleter
 {
-	static inline void Delete(T * p) {
+	inline void operator() (T * p) const {
 		Py_XDECREF(p);
 	}
 };
 
-typedef GScopedPointer<PyObject, GPythonScopedPointerDeleter<PyObject> > GPythonScopedPointer;
+typedef std::unique_ptr<PyObject, GPythonScopedPointerDeleter<PyObject> > GPythonScopedPointer;
 
 
 

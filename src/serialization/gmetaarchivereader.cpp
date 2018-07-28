@@ -59,8 +59,8 @@ protected:
 private:
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaStorageReader> reader;
-	GScopedPointer<GMetaArchiveReaderPointerTracker> pointerSolver;
-	GScopedPointer<GMetaArchiveReaderClassTypeTracker> classTypeTracker;
+	std::unique_ptr<GMetaArchiveReaderPointerTracker> pointerSolver;
+	std::unique_ptr<GMetaArchiveReaderClassTypeTracker> classTypeTracker;
 	GScopedInterface<IMemoryAllocator> allocator;
 	GClassSerializeHeader serializeHeader;
 	GMetaArchiveConfigMap configMap;
@@ -482,7 +482,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 						void * castedPtr;
 						GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(ptr, metaClass.get(), &castedPtr));
 						ptr = castedPtr;
-						metaClass.reset(castedMetaClass.take());
+						metaClass.reset(castedMetaClass.release());
 					}
 					this->readObjectHelper(name, ptr, metaType, metaClass.get(), nullptr);
 				}

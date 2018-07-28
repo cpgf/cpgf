@@ -10,23 +10,6 @@ endif()
 
 ### unit test
 
-if((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
-	set(HAS_UNITTEST 0)
-endif((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
-
-if(${HAS_UNITTEST})
-	find_file(UTEST_EXIST
-		NAMES "UnitTest++.h"
-		PATHS ${UNIT_TEST_DIR}/src NO_DEFAULT_PATH
-	)
-
-	if(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
-		set(HAS_UNITTEST 0)
-
-		message(WARNING "Can't find UnitTest++ in ${UNIT_TEST_DIR}")
-	endif(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
-endif(${HAS_UNITTEST})
-
 macro(globAndAppendFiles fileList)
 	set(globAndAppendFiles_patterns ${ARGN})
 	file(GLOB tempFileList ${globAndAppendFiles_patterns})
@@ -65,7 +48,7 @@ macro(partUnitTest target)
 	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endmacro()
 
-if(${HAS_UNITTEST})
+if(${ENABLE_UNITTEST})
 	set(GLOB_TEST_LUA )
 	set(GLOB_METATEST_LUA )
 	if(HAS_LUA)
@@ -267,5 +250,5 @@ if(${HAS_UNITTEST})
 		COMPILE_DEFINITIONS "ENABLE_LUA=${HAS_LUA};ENABLE_V8=${HAS_V8};ENABLE_PYTHON=${HAS_PYTHON};ENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY};ENABLE_BOOST=${HAS_BOOST}"
 	)
 
-endif(${HAS_UNITTEST})
+endif(${ENABLE_UNITTEST})
 

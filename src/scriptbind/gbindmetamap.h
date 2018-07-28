@@ -2,7 +2,6 @@
 #define GBINDMETAMAP_H
 
 #include "cpgf/gsharedinterface.h"
-#include "cpgf/gsharedptr.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gstringutil.h"
 #include "cpgf/scriptbind/gscriptvalue.h"
@@ -77,7 +76,7 @@ private:
 };
 
 class GMethodGlueData;
-typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
+typedef std::shared_ptr<GMethodGlueData> GMethodGlueDataPointer;
 
 
 } //namespace bind_internal

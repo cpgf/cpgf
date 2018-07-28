@@ -1,10 +1,8 @@
 #ifndef CPGF_TESTOBJECTARRAY_H
 #define CPGF_TESTOBJECTARRAY_H
 
-#include "cpgf/gsharedptr.h"
-
 #include <string>
-
+#include <memory>
 
 class OAData
 {
@@ -23,7 +21,7 @@ public:
 	std::string s;
 };
 
-typedef cpgf::GSharedPointer<OAData> OADataPointer;
+typedef std::shared_ptr<OAData> OADataPointer;
 
 class OAObject
 {

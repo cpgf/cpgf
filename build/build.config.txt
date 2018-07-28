@@ -1,5 +1,5 @@
 # set 1 to enable Lua binding, 0 to disable
-set(HAS_LUA	1)
+set(HAS_LUA	0)
 
 # !!! Don't set it to 1, V8 is broken.
 # set 1 to enable Google V8 binding, 0 to disable
@@ -13,25 +13,25 @@ set(HAS_PYTHON 0)
 set(HAS_SPIDERMONKEY 0)
 
 # set 1 to enable unit tests.
-# it requires UnitTest++ installed.
-set(HAS_UNITTEST 1)
+# it doesn't require any unit test framework.
+set(ENABLE_UNITTEST 1)
 
 # set 1 to enable Boost library, 0 to disable. This is only used in unit test.
 set(HAS_BOOST 0)
 
 # whether we have GLUT library
-set(HAS_GLUT 1)
+set(HAS_GLUT 0)
 
 ### Samples config
 
 # Whether we have Box2D library. It's only used in samples.
-set(HAS_BOX2D 1)
+set(HAS_BOX2D 0)
 
 # Whether we have SFML library. It's only used in samples.
-set(HAS_SFML 1)
+set(HAS_SFML 0)
 
 # Whether we have Irrlicht library. It's only used in samples.
-set(HAS_IRRLICHT 1)
+set(HAS_IRRLICHT 0)
 
 set(LIB_SHARED 0)
 
@@ -64,13 +64,6 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
-
-### Unit test config
-set(UNIT_TEST_DIR
-	E:/source/unittest++
-)
-
-
 ### Lua config
 if(${HAS_LUA})
 	find_package(Lua51)
@@ -83,7 +76,7 @@ if(${HAS_LUA})
 
 		message(STATUS "Using configured Lua settings")
 		set(LUA_DIR
-			E:/source/lua-5.3.4
+			/source/scripts/lua-5.3.4
 		)
 
 		set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
@@ -128,7 +121,7 @@ if(${HAS_PYTHON})
 		set(PYTHON_LIB ${PYTHON_LIBRARY})
 	else()
 		set(PYTHON_DIR
-			/source/Python27
+			/source/scripts/Python27
 		)
 
 		set(PYTHON_INC ${PYTHON_DIR}/include)

@@ -17,7 +17,7 @@ class GMetaItemImplement;
 template <typename T>
 struct GScopedPointerDeleter_BaseMeta
 {
-	static inline void Delete(T * p) {
+	inline void operator() (T * p) const {
 		p->deleteSelf();
 	}
 };

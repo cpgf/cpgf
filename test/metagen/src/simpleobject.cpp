@@ -75,12 +75,12 @@ bool metaClassIsSimpleObject(IMetaClass * metaClass)
 	return string(metaClass->getName()) == "SimpleObject";
 }
 
-cpgf::GSharedPointer<SimpleObject> createSharedSimpleObject()
+std::shared_ptr<SimpleObject> createSharedSimpleObject()
 {
-	return cpgf::GSharedPointer<SimpleObject>(new SimpleObject);
+	return std::shared_ptr<SimpleObject>(new SimpleObject);
 }
 
-SimpleObject * getSharedSimpleObject(cpgf::GSharedPointer<SimpleObject> sp)
+SimpleObject * getSharedSimpleObject(std::shared_ptr<SimpleObject> sp)
 {
 	return sp.get();
 }

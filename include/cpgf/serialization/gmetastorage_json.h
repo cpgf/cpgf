@@ -1,9 +1,8 @@
 #ifndef CPGF_GMETASTORAGE_JSON_H
 #define CPGF_GMETASTORAGE_JSON_H
 
-#include "cpgf/gscopedptr.h"
-
 #include <ostream>
+#include <memory>
 
 namespace cpgf {
 
@@ -29,7 +28,7 @@ public:
 	GMetaJsonStorageImplement * getImplement() const;
 
 private:
-	mutable GScopedPointer<GMetaJsonStorageImplement> implement;
+	mutable std::unique_ptr<GMetaJsonStorageImplement> implement;
 };
 
 

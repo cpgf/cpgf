@@ -1,11 +1,10 @@
 #include "cpgf/scriptbind/gscriptrunner.h"
 #include "cpgf/private/gscriptrunner_p.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
-
 #include "cpgf/gmetaapi.h"
 
 #include <fstream>
-
+#include <vector>
 
 using namespace std;
 
@@ -81,12 +80,12 @@ bool GScriptRunner::executeFile(const char * fileName)
 	stream.clear();
 	stream.seekg(0, ios::beg);
 	stream.clear();
-	GScopedArray<char> buffer(new char[len + 1]);
-	stream.read(buffer.get(), len);
+	std::vector<char> buffer(len + 1);
+	stream.read(buffer.data(), len);
 	stream.close();
 	buffer[len] = 0;
 
-	this->implement->executeString(buffer.get());
+	this->implement->executeString(buffer.data());
 	
 	return true;
 }

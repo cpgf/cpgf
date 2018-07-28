@@ -88,10 +88,10 @@ void doTestAPI()
 	using namespace cpgf;
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service.get(), 0));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
 	GScopedInterface<IMetaField> field;
@@ -99,7 +99,7 @@ void doTestAPI()
 
 	{
 		width = 0;
-		field.reset(metaClass->getField("width")); testCheckAssert(field);
+		field.reset(metaClass->getField("width")); testCheckAssert((bool)field);
 		metaSetValue(field.get(), NULL, 123);
 		testCheckEqual(width, 123);
 		testCheckEqual(width, fromVariant<int>(metaGetValue(field.get(), NULL)));
@@ -107,7 +107,7 @@ void doTestAPI()
 
 	{
 		name = "";
-		field.reset(metaClass->getField("name")); testCheckAssert(field);
+		field.reset(metaClass->getField("name")); testCheckAssert((bool)field);
 		metaSetValue(field.get(), NULL, "new name");
 		testCheckStringEqual(name, "new name");
 		std::string s = fromVariant<std::string>(metaGetValue(field.get(), NULL));
@@ -115,7 +115,7 @@ void doTestAPI()
 	}
 
 	{
-		field.reset(metaClass->getField("data")); testCheckAssert(field);
+		field.reset(metaClass->getField("data")); testCheckAssert((bool)field);
 		TestData localdata(3, "Fake dummy data");
 		metaSetValue(field.get(), NULL, localdata);
 		testCheckEqual(data, localdata);
@@ -124,14 +124,14 @@ void doTestAPI()
 
 	{
 		stats = 0;
-		field.reset(metaClass->getField("stats")); testCheckAssert(field);
+		field.reset(metaClass->getField("stats")); testCheckAssert((bool)field);
 		metaSetValue(field.get(), NULL, 567);
 		testCheckEqual(stats, 567);
 		testCheckEqual(stats, fromVariant<int>(metaGetValue(field.get(), NULL)));
 	}
 
 	{
-		method.reset(metaClass->getMethod("addNumber")); testCheckAssert(method);
+		method.reset(metaClass->getMethod("addNumber")); testCheckAssert((bool)method);
 		int n = fromVariant<int>(metaInvokeMethod(method.get(), NULL, 38888, 16888));
 		testCheckEqual(n, addNumber(38888, 16888));
 	}

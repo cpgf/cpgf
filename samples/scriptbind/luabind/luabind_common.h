@@ -10,8 +10,9 @@
 
 #include "../testscriptbind.h"
 
-#define LINE(...) # __VA_ARGS__ "\n"
+#include <memory>
 
+#define LINE(...) # __VA_ARGS__ "\n"
 
 namespace testscript {
 
@@ -54,7 +55,7 @@ public:
 private:
 	lua_State * luaState;
 	cpgf::GScopedInterface<cpgf::IMetaService> service;
-	cpgf::GScopedPointer<cpgf::GScriptObject> binding;
+	std::unique_ptr<cpgf::GScriptObject> binding;
 };
 
 }

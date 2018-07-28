@@ -1,9 +1,8 @@
 #include "cpgf/glifecycle.h"
-#include "cpgf/gscopedptr.h"
 
 #include <algorithm>
 #include <vector>
-
+#include <memory>
 
 using namespace std;
 
@@ -48,7 +47,7 @@ private:
 	ListType itemList;
 };
 
-GScopedPointer<GOrderedStaticUninitializerManager> orderedStaticUninitializerManager;
+std::unique_ptr<GOrderedStaticUninitializerManager> orderedStaticUninitializerManager;
 
 } // unnamed namespace
 

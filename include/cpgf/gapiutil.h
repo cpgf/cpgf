@@ -3,10 +3,9 @@
 
 
 #include "cpgf/gapi.h"
-#include "cpgf/gscopedptr.h"
 
 #include <string>
-
+#include <memory>
 
 #define G_INTERFACE_IMPL_OBJECT_DERIVED \
 protected: \
@@ -82,7 +81,7 @@ public:
 	const char * getErrorMessage();
 
 private:
-	GScopedPointer<ExtendObjectErrorInfo> errorInfo;
+	std::unique_ptr<ExtendObjectErrorInfo> errorInfo;
 };
 
 class GImplMemoryAllocator : public GImplObject, public IMemoryAllocator

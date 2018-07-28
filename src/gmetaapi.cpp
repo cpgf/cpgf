@@ -2072,7 +2072,7 @@ IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
 		GScopedInterface<IMetaTypedItem> item((*it)->findTypedItemByName(name));
 		if(item) {
-			return item.take();
+			return item.release();
 		}
 	}
 
@@ -2092,7 +2092,7 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
 		GScopedInterface<IMetaClass> item((*it)->findClassByName(name));
 		if(item) {
-			return item.take();
+			return item.release();
 		}
 	}
 

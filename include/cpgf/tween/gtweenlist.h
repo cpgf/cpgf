@@ -3,10 +3,9 @@
 
 #include "cpgf/tween/gtween.h"
 #include "cpgf/gmemorypool.h"
-#include "cpgf/gscopedptr.h"
 
 #include <list>
-
+#include <memory>
 
 namespace cpgf {
 
@@ -65,7 +64,7 @@ protected:
 protected:
 	GTweenList::ListType tweenList;
 	GObjectPool<GTween> tweenPool;
-	GScopedPointer<GObjectPool<GTimeline> > timelinePool;
+	std::unique_ptr<GObjectPool<GTimeline> > timelinePool;
 };
 
 

@@ -1,6 +1,5 @@
 #include "test_misc_common.h"
 
-#include "cpgf/gsharedptr.h"
 #include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/gvariant.h"
 
@@ -44,8 +43,8 @@ public:
 
 };
 
-typedef GSharedPointer<TestData> SP;
-typedef GSharedPointer<TestData2> SP2;
+typedef std::shared_ptr<TestData> SP;
+typedef std::shared_ptr<TestData2> SP2;
 
 class TestObject
 {
@@ -183,7 +182,7 @@ GTEST(TestSharedPointer_DifferentSP)
 		SP sp(new TestData2(&count));
 		GEQUAL(1, count);
 
-		SP2 sp2(sharedStaticCast<TestData2>(sp));
+		SP2 sp2(std::static_pointer_cast<TestData2>(sp));
 		GEQUAL(1, count);
 	}
 	GEQUAL(0, count);

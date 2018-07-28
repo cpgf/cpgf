@@ -7,6 +7,8 @@
 #include "cpgf/scriptbind/gluabind.h"
 #include "cpgf/gscopedinterface.h"
 
+#include <memory>
+
 class TestLuaContext
 {
 public:
@@ -43,7 +45,7 @@ public:
 private:
 	lua_State * luaState;
 	cpgf::GScopedInterface<cpgf::IMetaService> service;
-	cpgf::GScopedPointer<cpgf::GScriptObject> binding;
+	std::unique_ptr<cpgf::GScriptObject> binding;
 };
 
 

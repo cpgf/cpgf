@@ -9,7 +9,6 @@
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gglobal.h"
 #include "cpgf/gmetaoperatorop.h"
-#include "cpgf/gsharedptr.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gsharedinterface.h"
 

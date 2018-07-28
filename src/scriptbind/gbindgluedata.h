@@ -1,8 +1,6 @@
 #ifndef GBINDGLUEDATA_H
 #define GBINDGLUEDATA_H
 
-#include "cpgf/gsharedptr.h"
-#include "cpgf/gscopedptr.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gvariant.h"
 #include "cpgf/gflags.h"
@@ -29,19 +27,19 @@ When a value is passed from script to C++, cpgf uses the glue data internally.
 
 class GObjectInstance;
 
-typedef GSharedPointer<GObjectInstance> GObjectInstancePointer;
-typedef GWeakPointer<GObjectInstance> GWeakObjectInstancePointer;
+typedef std::shared_ptr<GObjectInstance> GObjectInstancePointer;
+typedef std::weak_ptr<GObjectInstance> GWeakObjectInstancePointer;
 
 class GObjectGlueData;
 
-typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
-typedef GWeakPointer<GObjectGlueData> GWeakObjectGlueDataPointer;
+typedef std::shared_ptr<GObjectGlueData> GObjectGlueDataPointer;
+typedef std::weak_ptr<GObjectGlueData> GWeakObjectGlueDataPointer;
 
 
 class GBindingContext;
 
-typedef GSharedPointer<GBindingContext> GContextPointer;
-typedef GWeakPointer<GBindingContext> GWeakContextPointer;
+typedef std::shared_ptr<GBindingContext> GContextPointer;
+typedef std::weak_ptr<GBindingContext> GWeakContextPointer;
 
 enum GGlueDataType {
 	gdtObject,
@@ -102,7 +100,7 @@ private:
 	void requireDataMap();
 
 private:
-	GScopedPointer<MapType> dataMap;
+	std::unique_ptr<MapType> dataMap;
 };
 
 class GGlueUserData
@@ -155,11 +153,11 @@ private:
 	GGlueUserData * userData;
 };
 
-typedef GSharedPointer<GGlueData> GGlueDataPointer;
-typedef GWeakPointer<GGlueData> GWeakGlueDataPointer;
+typedef std::shared_ptr<GGlueData> GGlueDataPointer;
+typedef std::weak_ptr<GGlueData> GWeakGlueDataPointer;
 
 
-class GClassGlueData : public GGlueData, public GShareFromThis<GClassGlueData>
+class GClassGlueData : public GGlueData, public std::enable_shared_from_this<GClassGlueData>
 {
 private:
 	typedef GGlueData super;
@@ -191,8 +189,8 @@ private:
 	friend class GBindingPool;
 };
 
-typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
-typedef GWeakPointer<GClassGlueData> GWeakClassGlueDataPointer;
+typedef std::shared_ptr<GClassGlueData> GClassGlueDataPointer;
+typedef std::weak_ptr<GClassGlueData> GWeakClassGlueDataPointer;
 
 
 /*
@@ -274,7 +272,7 @@ private:
 };
 
 
-class GObjectGlueData : public GGlueData, public GShareFromThis<GObjectGlueData>
+class GObjectGlueData : public GGlueData, public std::enable_shared_from_this<GObjectGlueData>
 {
 private:
 	typedef GGlueData super;
@@ -371,8 +369,8 @@ private:
 	friend class GBindingPool;
 };
 
-typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
-typedef GWeakPointer<GMethodGlueData> GWeakMethodGlueDataPointer;
+typedef std::shared_ptr<GMethodGlueData> GMethodGlueDataPointer;
+typedef std::weak_ptr<GMethodGlueData> GWeakMethodGlueDataPointer;
 
 
 class GEnumGlueData : public GGlueData
@@ -398,8 +396,8 @@ private:
 	friend class GBindingPool;
 };
 
-typedef GSharedPointer<GEnumGlueData> GEnumGlueDataPointer;
-typedef GWeakPointer<GEnumGlueData> GWeakEnumGlueDataPointer;
+typedef std::shared_ptr<GEnumGlueData> GEnumGlueDataPointer;
+typedef std::weak_ptr<GEnumGlueData> GWeakEnumGlueDataPointer;
 
 
 class GAccessibleGlueData : public GGlueData
@@ -434,8 +432,8 @@ private:
 	friend class GBindingPool;
 };
 
-typedef GSharedPointer<GAccessibleGlueData> GAccessibleGlueDataPointer;
-typedef GWeakPointer<GAccessibleGlueData> GWeakAccessibleGlueDataPointer;
+typedef std::shared_ptr<GAccessibleGlueData> GAccessibleGlueDataPointer;
+typedef std::weak_ptr<GAccessibleGlueData> GWeakAccessibleGlueDataPointer;
 
 
 class GRawGlueData : public GGlueData
@@ -471,8 +469,8 @@ private:
 	friend class GBindingPool;
 };
 
-typedef GSharedPointer<GRawGlueData> GRawGlueDataPointer;
-typedef GWeakPointer<GRawGlueData> GWeakRawGlueDataPointer;
+typedef std::shared_ptr<GRawGlueData> GRawGlueDataPointer;
+typedef std::weak_ptr<GRawGlueData> GWeakRawGlueDataPointer;
 
 
 // Used by Lua and Python binding
@@ -512,8 +510,8 @@ private:
 	friend class GBindingPool;
 };
 
-typedef GSharedPointer<GObjectAndMethodGlueData> GObjectAndMethodGlueDataPointer;
-typedef GWeakPointer<GObjectAndMethodGlueData> GWeakObjectAndMethodGlueDataPointer;
+typedef std::shared_ptr<GObjectAndMethodGlueData> GObjectAndMethodGlueDataPointer;
+typedef std::weak_ptr<GObjectAndMethodGlueData> GWeakObjectAndMethodGlueDataPointer;
 
 
 // Used by Lua and Python binding
@@ -554,8 +552,8 @@ private:
 	GMetaOpType op;
 };
 
-typedef GSharedPointer<GOperatorGlueData> GOperatorGlueDataPointer;
-typedef GWeakPointer<GOperatorGlueData> GWeakOperatorGlueDataPointer;
+typedef std::shared_ptr<GOperatorGlueData> GOperatorGlueDataPointer;
+typedef std::weak_ptr<GOperatorGlueData> GWeakOperatorGlueDataPointer;
 
 
 class GGlueDataWrapper
@@ -567,8 +565,8 @@ public:
 	virtual GGlueDataPointer getData() const = 0;
 
 	template <typename T>
-	GSharedPointer<T> getAs() const {
-		return sharedStaticCast<T>(this->getData());
+	std::shared_ptr<T> getAs() const {
+		return std::static_pointer_cast<T>(this->getData());
 	}
 };
 
@@ -592,7 +590,7 @@ public:
 	}
 
 	virtual GGlueDataPointer getData() const {
-		return sharedStaticCast<GGlueData>(this->dataPointer);
+		return std::static_pointer_cast<GGlueData>(this->dataPointer);
 	}
 
 private:
@@ -648,7 +646,7 @@ GGlueDataWrapper * newGlueDataWrapper(void * address, const T & p)
 template <typename T>
 size_t getGlueDataWrapperSize()
 {
-	return sizeof(GGlueDataWrapperImplement<GSharedPointer<T> >);
+	return sizeof(GGlueDataWrapperImplement<std::shared_ptr<T> >);
 }
 
 inline void destroyGlueDataWrapper(GGlueDataWrapper * p)

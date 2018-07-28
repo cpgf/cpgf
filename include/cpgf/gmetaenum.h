@@ -41,7 +41,7 @@ private:
 	void addEnum(const char * key, const GVariant & value);
 
 private:
-	GScopedPointer<GMetaEnumDataImplement> implement;
+	std::unique_ptr<GMetaEnumDataImplement> implement;
 };
 
 

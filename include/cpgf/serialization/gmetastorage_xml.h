@@ -2,8 +2,8 @@
 #define CPGF_GMETASTORAGE_XML_H
 
 #include "cpgf/serialization/gmetastreamfundamental.h"
-#include "cpgf/gscopedptr.h"
 
+#include <memory>
 
 namespace cpgf {
 
@@ -32,7 +32,7 @@ public:
 	GMetaXmlStorageImplement * getImplement() const;
 
 private:
-	mutable GScopedPointer<GMetaXmlStorageImplement> implement;
+	mutable std::unique_ptr<GMetaXmlStorageImplement> implement;
 };
 
 

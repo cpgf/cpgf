@@ -1,5 +1,6 @@
 #include "luabind_common.h"
 
+#include <memory>
 
 namespace {
 
@@ -13,11 +14,11 @@ void doTest()
 	context.doString("print(\"Global\")");
 
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestData"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	
 	scriptSetValue(context.getBinding(), "TestData", GScriptValue::fromClass(metaClass.get()));
 
-	GScopedPointer<TestData> data(new TestData);
+	std::unique_ptr<TestData> data(new TestData);
 	data->x = 10;
 	data->name = "abc";
 

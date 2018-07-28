@@ -13,7 +13,7 @@ void doTest()
 	context.doString("print(\"Constructor\")");
 
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	
 	scriptSetValue(context.getBinding(), "TestObject", GScriptValue::fromClass(metaClass.get()));
 

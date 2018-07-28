@@ -576,7 +576,7 @@ IMetaMethod * doGetCallableFromScriptValue(
 				const int weight = rankCallable(service, objectData, method.get(), callableParam, callableParam->backParamRanks);
 				if(weight >= 0) {
 					std::swap(callableParam->paramRanks, callableParam->backParamRanks);
-					return method.take();
+					return method.release();
 				}
 		}
 			break;
@@ -655,17 +655,17 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 	if(glueData) {
 		switch(glueData->getType()) {
 			case gdtClass: {
-				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;
+				GClassGlueDataPointer classData = std::static_pointer_cast<GClassGlueData>(glueData);;
 				return GScriptValue::fromClass(classData->getMetaClass());
 			}
 
 			case gdtObject: {
-				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
+				GObjectGlueDataPointer objectData = std::static_pointer_cast<GObjectGlueData>(glueData);
 				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), objectData->isAllowGC(), objectData->getCV());
 			}
 
 			case gdtRaw: {
-				GRawGlueDataPointer rawData = sharedStaticCast<GRawGlueData>(glueData);
+				GRawGlueDataPointer rawData = std::static_pointer_cast<GRawGlueData>(glueData);
 				return GScriptValue::fromRaw(rawData->getData());
 			}
 
@@ -673,17 +673,17 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 			case gdtObjectAndMethod: {
 				GMethodGlueDataPointer methodGlueData;
 				if(glueData->getType() == gdtMethod) {
-					methodGlueData = sharedStaticCast<GMethodGlueData>(glueData);
+					methodGlueData = std::static_pointer_cast<GMethodGlueData>(glueData);
 				}
 				else {
-					methodGlueData = sharedStaticCast<GObjectAndMethodGlueData>(glueData)->getMethodData();
+					methodGlueData = std::static_pointer_cast<GObjectAndMethodGlueData>(glueData)->getMethodData();
 				}
 				
 				return methodGlueData->getScriptValue();
 			}
 
 			case gdtEnum:
-				return GScriptValue::fromEnum(sharedStaticCast<GEnumGlueData>(glueData)->getMetaEnum());
+				return GScriptValue::fromEnum(std::static_pointer_cast<GEnumGlueData>(glueData)->getMetaEnum());
 
 			default:
 				break;
@@ -716,11 +716,11 @@ void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * 
 	GScriptDataHolder * dataHolder = nullptr;
 
 	if(glueData->getType() == gdtObject) {
-		dataHolder = sharedStaticCast<GObjectGlueData>(glueData)->getDataHolder().get();
+		dataHolder = std::static_pointer_cast<GObjectGlueData>(glueData)->getDataHolder().get();
 	}
 	else {
 		if(glueData->getType() == gdtClass) {
-			dataHolder = sharedStaticCast<GClassGlueData>(glueData)->getDataHolder().get();
+			dataHolder = std::static_pointer_cast<GClassGlueData>(glueData)->getDataHolder().get();
 		}
 	}
 
@@ -767,12 +767,12 @@ bool setValueOnNamedMember(
 	GClassGlueDataPointer classData;
 	GObjectGlueDataPointer objectData;
 	if(instanceGlueData->getType() == gdtObject) {
-		objectData = sharedStaticCast<GObjectGlueData>(instanceGlueData);
+		objectData = std::static_pointer_cast<GObjectGlueData>(instanceGlueData);
 		classData = objectData->getClassData();
 	}
 	else {
 		GASSERT(instanceGlueData->getType() == gdtClass);
-		classData = sharedStaticCast<GClassGlueData>(instanceGlueData);
+		classData = std::static_pointer_cast<GClassGlueData>(instanceGlueData);
 	}
 
 	GContextPointer context = classData->getBindingContext();

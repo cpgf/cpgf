@@ -6,7 +6,7 @@
 #include "cpgf/metatraits/gmetaserializer_array.h"
 #include "cpgf/metatraits/gmetaserializer_string.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
-#include "cpgf/metatraits/gmetasharedptrtraits_gsharedpointer.h"
+#include "cpgf/metatraits/gmetasharedptrtraits_cpp11_shared_ptr.h"
 #include "cpgf/metatraits/gmetaobjectlifemanager_iobject.h"
 
 

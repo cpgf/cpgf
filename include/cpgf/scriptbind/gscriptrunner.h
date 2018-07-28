@@ -1,10 +1,8 @@
 #ifndef CPGF_GSCRIPTRUNNER_H
 #define CPGF_GSCRIPTRUNNER_H
 
-
-#include "cpgf/gscopedptr.h"
-
 #include <string>
+#include <memory>
 
 namespace cpgf {
 
@@ -31,7 +29,7 @@ public:
 	IMetaService * getService();
 
 private:
-	GScopedPointer<GScriptRunnerImplement> implement;
+	std::unique_ptr<GScriptRunnerImplement> implement;
 
 private:
 	friend class GScriptRunnerImplement;

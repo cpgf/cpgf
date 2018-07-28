@@ -3,13 +3,8 @@
 
 #include "cpgf/private/gmetaannotation_p.h"
 
-#include "cpgf/gscopedptr.h"
-
 #include <string>
 #include <string.h>
-
-
-
 
 namespace cpgf {
 
@@ -68,7 +63,7 @@ public:
 	const GAnnotationValue * getValue() const;
 	
 private:
-	GScopedPointer<meta_internal::GAnnotationItemImplement> implement;
+	std::unique_ptr<meta_internal::GAnnotationItemImplement> implement;
 	GAnnotationValue value;
 };
 
@@ -111,7 +106,7 @@ private:
 	void doAddItem(GAnnotationItem * item);
 
 private:
-	GScopedPointer<meta_internal::GMetaAnnotationImplement> implement;
+	std::unique_ptr<meta_internal::GMetaAnnotationImplement> implement;
 	const GMetaItem * metaItem;
 
 private:

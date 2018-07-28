@@ -83,7 +83,7 @@ void GScriptContext::bindExternalObjectToClass(void * address, IMetaClass * meta
 }
 
 
-GBindingPool::GBindingPool(const GSharedPointer<GBindingContext> & context)
+GBindingPool::GBindingPool(const std::shared_ptr<GBindingContext> & context)
 	: context(context)
 {
 }
@@ -108,10 +108,10 @@ GMethodGlueDataPointer GBindingPool::newMethodGlueData(const GScriptValue & scri
 	GMethodGlueDataPointer result;
 	auto it = this->methodMap.find(key);
 	if(it != this->methodMap.end() && ! it->second.expired()) {
-		result = it->second.get();
+		result = it->second.lock();
 	}
 	if(! result) {
-		result = GMethodGlueDataPointer(new GMethodGlueData(this->context.get(), scriptValue));
+		result = GMethodGlueDataPointer(new GMethodGlueData(this->context.lock(), scriptValue));
 	}
 	return result;
 }
@@ -170,10 +170,10 @@ GObjectGlueDataPointer GBindingPool::newObjectGlueData(
 	GObjectGlueDataPointer result;
 	auto it = this->objectMap.find(key);
 	if(it != this->objectMap.end()) {
-		result = it->second.get();
+		result = it->second.lock();
 	}
 	if(! result) {
-		result = GObjectGlueDataPointer(new GObjectGlueData(this->context.get(), classData, objectInstance, cv));
+		result = GObjectGlueDataPointer(new GObjectGlueData(this->context.lock(), classData, objectInstance, cv));
 	}
 	return result;
 }
@@ -214,10 +214,10 @@ GObjectAndMethodGlueDataPointer GBindingPool::newObjectAndMethodGlueData(
 	GObjectAndMethodGlueDataPointer result;
 	auto it = this->objectAndMethodMap.find(key);
 	if(it != this->objectAndMethodMap.end()) {
-		result = it->second.get();
+		result = it->second.lock();
 	}
 	if(! result) {
-		result = GObjectAndMethodGlueDataPointer(new GObjectAndMethodGlueData(this->context.get(), objectData, methodData));
+		result = GObjectAndMethodGlueDataPointer(new GObjectAndMethodGlueData(this->context.lock(), objectData, methodData));
 	}
 	return result;
 }
@@ -237,10 +237,10 @@ GEnumGlueDataPointer GBindingPool::newEnumGlueData(IMetaEnum * metaEnum)
 	GEnumGlueDataPointer result;
 	auto it = this->enumMap.find(metaEnum);
 	if(it != this->enumMap.end()) {
-		result = it->second.get();
+		result = it->second.lock();
 	}
 	if(! result) {
-		result = GEnumGlueDataPointer(new GEnumGlueData(this->context.get(), metaEnum));
+		result = GEnumGlueDataPointer(new GEnumGlueData(this->context.lock(), metaEnum));
 	}
 	return result;
 }
@@ -263,10 +263,10 @@ GAccessibleGlueDataPointer GBindingPool::newAccessibleGlueData(void * instance, 
 	GAccessibleGlueDataPointer result;
 	auto it = this->accessibleMap.find(key);
 	if(it != this->accessibleMap.end()) {
-		result = it->second.get();
+		result = it->second.lock();
 	}
 	if(! result) {
-		result = GAccessibleGlueDataPointer(new GAccessibleGlueData(this->context.get(), instance, accessible));
+		result = GAccessibleGlueDataPointer(new GAccessibleGlueData(this->context.lock(), instance, accessible));
 	}
 	return result;
 }
@@ -281,7 +281,7 @@ void GBindingPool::glueDataRemoved(const GRawGlueDataPointer & /*glueData*/)
 
 GRawGlueDataPointer GBindingPool::newRawGlueData(const GVariant & data)
 {
-	return GRawGlueDataPointer(new GRawGlueData(this->context.get(), data));
+	return GRawGlueDataPointer(new GRawGlueData(this->context.lock(), data));
 }
 
 void GBindingPool::glueDataAdded(const GOperatorGlueDataPointer & glueData)
@@ -306,10 +306,10 @@ GOperatorGlueDataPointer GBindingPool::newOperatorGlueData(
 	GOperatorGlueDataPointer result;
 	auto it = this->operatorMap.find(key);
 	if(it != this->operatorMap.end()) {
-		result = it->second.get();
+		result = it->second.lock();
 	}
 	if(! result) {
-		result = GOperatorGlueDataPointer(new GOperatorGlueData(this->context.get(), objectData, metaClass, op));
+		result = GOperatorGlueDataPointer(new GOperatorGlueData(this->context.lock(), objectData, metaClass, op));
 	}
 
 	return result;
@@ -349,7 +349,7 @@ GClassGlueDataPointer GBindingPool::getClassData(IMetaClass * metaClass)
 		return it->second;
 	}
 
-	GClassGlueDataPointer result = GClassGlueDataPointer(new GClassGlueData(this->context.get(), metaClass, this->metaMap.getMetaClassMap(metaClass)));
+	GClassGlueDataPointer result = GClassGlueDataPointer(new GClassGlueData(this->context.lock(), metaClass, this->metaMap.getMetaClassMap(metaClass)));
 	this->classMap[metaClass] = result;
 	return result;
 }
@@ -405,7 +405,7 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(
 		const GScriptInstanceCv cv
 	)
 {
-	auto context = this->shareFromThis();
+	auto context = this->shared_from_this();
 	GObjectInstancePointer objectInstance(this->getBindingPool()->findObjectInstance(instance));
 
 	if(! objectInstance) {
@@ -448,7 +448,7 @@ GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(const GObjectGlueD
 GBindingPool * GBindingContext::getBindingPool()
 {
 	if(! this->bindingPool) {
-		this->bindingPool.reset(new GBindingPool(this->shareFromThis()));
+		this->bindingPool.reset(new GBindingPool(this->shared_from_this()));
 	}
 	
 	return this->bindingPool.get();

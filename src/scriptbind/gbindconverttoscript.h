@@ -127,11 +127,11 @@ typename Methods::ResultType sharedPointerTraitsToScript(
 	if(Methods::isSuccessResult(result) && glueData) {
 		switch(glueData->getType()) {
 			case gdtObject:
-				sharedStaticCast<GObjectGlueData>(glueData)->setSharedPointerTraits(sharedPointerTraits);
+				std::static_pointer_cast<GObjectGlueData>(glueData)->setSharedPointerTraits(sharedPointerTraits);
 				break;
 
 			case gdtRaw:
-				sharedStaticCast<GRawGlueData>(glueData)->setSharedPointerTraits(sharedPointerTraits);
+				std::static_pointer_cast<GRawGlueData>(glueData)->setSharedPointerTraits(sharedPointerTraits);
 				break;
 
 			default:
@@ -291,12 +291,12 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 	GClassGlueDataPointer classData;
 	GObjectGlueDataPointer objectData;
 	if(glueData->getType() == gdtObject) {
-		objectData = sharedStaticCast<GObjectGlueData>(glueData);
+		objectData = std::static_pointer_cast<GObjectGlueData>(glueData);
 		classData = objectData->getClassData();
 	}
 	else {
 		GASSERT(glueData->getType() == gdtClass);
-		classData = sharedStaticCast<GClassGlueData>(glueData);
+		classData = std::static_pointer_cast<GClassGlueData>(glueData);
 	}
 	
 	GContextPointer context = classData->getBindingContext();

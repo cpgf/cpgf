@@ -167,17 +167,17 @@ void doTestAPI()
 	using namespace cpgf;
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("operator_other::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
 	GScopedInterface<IMetaOperator> metaOperator;
 
 	{
-		metaOperator.reset(getOperator((mopHolder , mopHolder), metaClass, 0)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator((mopHolder , mopHolder), metaClass, 0)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator.get(), obj, 3));
@@ -186,7 +186,7 @@ void doTestAPI()
 	}
 
 	{
-		metaOperator.reset(getOperator(mopHolder[0], metaClass, 0)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator(mopHolder[0], metaClass, 0)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		std::string res = fromVariant<std::string>(metaInvokeOperatorBinary(metaOperator.get(), obj, 3));
@@ -195,7 +195,7 @@ void doTestAPI()
 	}
 
 	{
-		metaOperator.reset(getOperator(mopHolder->mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator(mopHolder->mopHolder, metaClass, 0)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		int * pn = fromVariant<int *>(metaInvokeOperatorUnary(metaOperator.get(), obj));
@@ -204,7 +204,7 @@ void doTestAPI()
 	}
 
 	{
-		metaOperator.reset(getOperator(mopHolder->*mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator(mopHolder->*mopHolder, metaClass, 0)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		int TestObject::* memPtr = &TestObject::value;
@@ -214,7 +214,7 @@ void doTestAPI()
 	}
 
 	{
-		metaOperator.reset(getOperator(mopHolder(), metaClass, 0)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator(mopHolder(), metaClass, 0)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		long n = fromVariant<int>(metaInvokeOperatorUnary(metaOperator.get(), obj));
@@ -223,7 +223,7 @@ void doTestAPI()
 	}
 
 	{
-		metaOperator.reset(getOperator(mopHolder(), metaClass, 1)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator(mopHolder(), metaClass, 1)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		std::string s = fromVariant<std::string>(metaInvokeOperatorUnary(metaOperator.get(), obj));
@@ -232,7 +232,7 @@ void doTestAPI()
 	}
 
 	{
-		metaOperator.reset(getOperator(mopHolder(mopHolder), metaClass, 0)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator(mopHolder(mopHolder), metaClass, 0)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		int n = fromVariant<int>(metaInvokeOperatorFunctor(metaOperator.get(), obj, "abc", 5));
@@ -241,7 +241,7 @@ void doTestAPI()
 	}
 
 	{
-		metaOperator.reset(getOperator(mopHolder(mopHolder), metaClass, 1)); testCheckAssert(metaOperator);
+		metaOperator.reset(getOperator(mopHolder(mopHolder), metaClass, 1)); testCheckAssert((bool)metaOperator);
 		void * obj = metaClass->createInstance();
 		int n = fromVariant<int>(metaInvokeOperatorFunctor(metaOperator.get(), obj, 1, 2, 3, 5, 6, 7, 8, 9));
 		testCheckEqual(n, 1 + 2 + 3 + 5 + 6 + 7 + 8 + 9);

@@ -1,9 +1,8 @@
 #ifndef CPGF_GMETADEFAULTPARAM_P_H
 #define CPGF_GMETADEFAULTPARAM_P_H
 
-#include "cpgf/gscopedptr.h"
-
 #include <vector>
+#include <memory>
 
 namespace cpgf {
 

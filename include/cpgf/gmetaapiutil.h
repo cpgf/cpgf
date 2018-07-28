@@ -3,10 +3,7 @@
 
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetacommon.h"
-#include "cpgf/gscopedptr.h"
 #include "cpgf/gexception.h"
-
-
 
 namespace cpgf {
 

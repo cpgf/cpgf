@@ -11,7 +11,7 @@
 
 GTEST(MK(CASE, _Lua_Lib))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
 
 	TEST_BIND(context->getBindingLib(), context->getService());
 
@@ -20,7 +20,7 @@ GTEST(MK(CASE, _Lua_Lib))
 
 GTEST(MK(CASE, _Lua_Api))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 

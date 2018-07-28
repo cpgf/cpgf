@@ -124,7 +124,7 @@ private:
 	void initType();
 };
 
-class GPythonBindingContext : public GBindingContext, public GShareFromBase
+class GPythonBindingContext : public GBindingContext
 {
 private:
 	typedef GBindingContext super;
@@ -136,7 +136,7 @@ public:
 	}
 };
 
-typedef GSharedPointer<GPythonBindingContext> GPythonContextPointer;
+typedef std::shared_ptr<GPythonBindingContext> GPythonContextPointer;
 
 class GPythonScriptFunction : public GScriptFunctionBase
 {
@@ -206,7 +206,7 @@ public:
 	virtual GScriptValue createScriptArray(const char * name);
 
 	GPythonContextPointer getPythonContext() const {
-		return sharedStaticCast<GPythonBindingContext>(this->getBindingContext());
+		return std::static_pointer_cast<GPythonBindingContext>(this->getBindingContext());
 	}
 
 public:
@@ -1492,7 +1492,7 @@ GScriptValue invokePythonFunctionIndirectly(
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
-			PyTuple_SetItem(args.get(), start + i, arg.take());
+			PyTuple_SetItem(args.get(), start + i, arg.release());
 		}
 
 		GPythonScopedPointer result;
@@ -1991,7 +1991,7 @@ GScriptValue GPythonScriptObject::getScriptFunction(const char * name)
 	GPythonScopedPointer func(getObjectAttr(this->object, name));
 	if(func) {
 		if(PyCallable_Check(func.get())) {
-			GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GPythonScriptFunction(this->getBindingContext(), func.take()), true));
+			GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GPythonScriptFunction(this->getBindingContext(), func.release()), true));
 			return GScriptValue::fromScriptFunction(scriptFunction.get());
 		}
 	}

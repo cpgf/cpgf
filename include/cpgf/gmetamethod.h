@@ -64,7 +64,7 @@ public:
 #undef REF_INVOKE
 
 protected:
-	GScopedPointer<meta_internal::GMetaMethodDataBase,
+	std::unique_ptr<meta_internal::GMetaMethodDataBase,
 		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaMethodDataBase> >
 		baseData;
 };
@@ -135,7 +135,7 @@ public:
 #undef REF_NEW_INSTANCE
 
 protected:
-	GScopedPointer<meta_internal::GMetaMethodDataBase,
+	std::unique_ptr<meta_internal::GMetaMethodDataBase,
 		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaMethodDataBase> >
 		baseData;
 };

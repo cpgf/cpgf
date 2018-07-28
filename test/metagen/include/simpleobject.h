@@ -1,8 +1,6 @@
 #ifndef CPGF_SIMPLEOBJECT_H
 #define CPGF_SIMPLEOBJECT_H
 
-#include "cpgf/gsharedptr.h"
-
 #include "cpgf/metatraits/gmetasharedptrtraits_cpp11_shared_ptr.h"
 
 #if ENABLE_BOOST
@@ -57,8 +55,8 @@ struct IMetaClass;
 cpgf::IMetaClass * getSimpleObjectClass(cpgf::IMetaClass * metaClass);
 bool metaClassIsSimpleObject(cpgf::IMetaClass * metaClass);
 
-cpgf::GSharedPointer<SimpleObject> createSharedSimpleObject();
-SimpleObject * getSharedSimpleObject(cpgf::GSharedPointer<SimpleObject> sp);
+std::shared_ptr<SimpleObject> createSharedSimpleObject();
+SimpleObject * getSharedSimpleObject(std::shared_ptr<SimpleObject> sp);
 
 std::shared_ptr<SimpleObject> createCpp11SharedSimpleObject();
 SimpleObject * getCpp11SharedSimpleObject(std::shared_ptr<SimpleObject> sp);
@@ -66,7 +64,7 @@ SimpleObject * getCpp11SharedSimpleObject(std::shared_ptr<SimpleObject> sp);
 #if ENABLE_BOOST
 typedef boost::shared_ptr<SimpleObject> BOOST_SP;
 #else
-typedef cpgf::GSharedPointer<SimpleObject> BOOST_SP;
+typedef std::shared_ptr<SimpleObject> BOOST_SP;
 #endif
 BOOST_SP createBoostSharedSimpleObject();
 SimpleObject * getBoostSharedSimpleObject(BOOST_SP sp);

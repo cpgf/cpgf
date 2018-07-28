@@ -149,17 +149,17 @@ void doTestAPI()
 	using namespace cpgf;
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("constructor::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
 	GScopedInterface<IMetaConstructor> constructor;
 
 	{
-		constructor.reset(metaClass->getConstructorAt(0)); testCheckAssert(constructor);
+		constructor.reset(metaClass->getConstructorAt(0)); testCheckAssert((bool)constructor);
 		void * obj = metaInvokeConstructor(constructor.get());
 		TestObject back;
 		testCheckEqual(back, *(TestObject *)obj);
@@ -167,7 +167,7 @@ void doTestAPI()
 	}
 
 	{
-		constructor.reset(metaClass->getConstructorAt(1)); testCheckAssert(constructor);
+		constructor.reset(metaClass->getConstructorAt(1)); testCheckAssert((bool)constructor);
 		void * obj = metaInvokeConstructor(constructor.get(), 5);
 		TestObject back(5);
 		testCheckEqual(back, *(TestObject *)obj);
@@ -175,7 +175,7 @@ void doTestAPI()
 	}
 
 	{
-		constructor.reset(metaClass->getConstructorAt(2)); testCheckAssert(constructor);
+		constructor.reset(metaClass->getConstructorAt(2)); testCheckAssert((bool)constructor);
 		void * obj = metaInvokeConstructor(constructor.get(), 18, "new name");
 		TestObject back(18, "new name");
 		testCheckEqual(back, *(TestObject *)obj);
@@ -183,7 +183,7 @@ void doTestAPI()
 	}
 
 	{
-		constructor.reset(metaClass->getConstructorAt(3)); testCheckAssert(constructor);
+		constructor.reset(metaClass->getConstructorAt(3)); testCheckAssert((bool)constructor);
 		void * obj = metaInvokeConstructor(constructor.get(), 9, "another name", TestData(199, "another tag"));
 		TestObject back(9, "another name", TestData(199, "another tag"));
 		testCheckEqual(back, *(TestObject *)obj);
@@ -191,7 +191,7 @@ void doTestAPI()
 	}
 
 	{
-		constructor.reset(metaClass->getConstructorAt(4)); testCheckAssert(constructor);
+		constructor.reset(metaClass->getConstructorAt(4)); testCheckAssert((bool)constructor);
 		void * obj = metaInvokeConstructor(constructor.get(), 1, 3, 5, 7, 9);
 		int n = ((TestObject *)obj)->width;
 		testCheckEqual(n, 1 + 3 + 5 + 7 + 9);

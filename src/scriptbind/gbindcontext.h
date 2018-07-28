@@ -4,7 +4,6 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptservice.h"
 #include "cpgf/gsharedinterface.h"
-#include "cpgf/gscopedptr.h"
 #include "cpgf/gstringmap.h"
 #include "cpgf/glifecycle.h"
 
@@ -46,7 +45,7 @@ private:
 	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
 
 private:
-	GScopedPointer<ScriptUserConverterListType> scriptUserConverterList;
+	std::unique_ptr<ScriptUserConverterListType> scriptUserConverterList;
 	GBindingContext * bindingContext;
 	std::vector<GObjectGlueDataPointer> externalObjects;
 };
@@ -61,7 +60,7 @@ private:
 	typedef std::tuple<GObjectGlueData *, IMetaClass *, GMetaOpType> OperatorKey;
 
 public:
-	explicit GBindingPool(const GSharedPointer<GBindingContext> & context);
+	explicit GBindingPool(const std::shared_ptr<GBindingContext> & context);
 	~GBindingPool();
 
 	template <typename T>
@@ -120,7 +119,7 @@ private:
 	ObjectKey doMakeObjectKey(const GObjectGlueDataPointer & glueData);
 
 private:
-	GWeakPointer<GBindingContext> context;
+	std::weak_ptr<GBindingContext> context;
 	GMetaMap metaMap;
 
 	std::map<MethodKey, GWeakMethodGlueDataPointer> methodMap;
@@ -133,7 +132,7 @@ private:
 	std::map<OperatorKey, GWeakOperatorGlueDataPointer> operatorMap;
 };
 
-class GBindingContext : public GShareFromThis<GBindingContext>
+class GBindingContext : public std::enable_shared_from_this<GBindingContext>
 {
 public:
 	explicit GBindingContext(IMetaService * service);
@@ -185,7 +184,7 @@ private:
 	GSharedInterface<IMetaService> service;
 	std::shared_ptr<GBindingPool> bindingPool;
 
-	GScopedPointer<GScriptCoreService> scriptCoreService;
+	std::unique_ptr<GScriptCoreService> scriptCoreService;
 	GScopedInterface<IScriptContext> scriptContext;
 
 private:

@@ -152,14 +152,14 @@ void doTestAPI()
 	std::cout << "API: " << "Test Meta Classes" << std::endl;
 	
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass;
 
 	char buffer[4096];
 
 	metaClass.reset(service->findClassByName("class::TestAbstract"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	testCheckAssert(!! metaClass->isAbstract());
 	testCheckAssert(! metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());
@@ -173,7 +173,7 @@ void doTestAPI()
 	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoDefaultConstructor"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	testCheckAssert(! metaClass->isAbstract());
 	testCheckAssert(! metaClass->canCreateInstance());
 	testCheckAssert(!! metaClass->canCopyInstance());
@@ -187,7 +187,7 @@ void doTestAPI()
 	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoCopyConstructor"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	testCheckAssert(! metaClass->isAbstract());
 	testCheckAssert(!! metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());
@@ -201,7 +201,7 @@ void doTestAPI()
 	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoDefaultAndCopyConstructor"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	testCheckAssert(! metaClass->isAbstract());
 	testCheckAssert(! metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());

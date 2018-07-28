@@ -10,7 +10,7 @@
 
 GTEST(MK(CASE, _V8_Lib))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
 
 	TEST_BIND(context->getBindingLib(), context->getService());
 
@@ -20,7 +20,7 @@ GTEST(MK(CASE, _V8_Lib))
 
 GTEST(MK(CASE, _V8_Api))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 

@@ -70,7 +70,7 @@ struct GlutScriptCallbackData
 
 typedef map<int, GlutScriptCallbackData> GlutCallbackMap;
 
-GScopedPointer<GlutCallbackMap> callbackMap;
+std::unique_ptr<GlutCallbackMap> callbackMap;
 
 GlutScriptCallbackData * getCurrentCallbackData()
 {

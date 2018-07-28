@@ -86,7 +86,7 @@ protected:
 	GMetaMethodDataVirtual * virtualFunctions;
 
 private:
-	mutable GScopedPointer<GMetaDefaultParamList> defaultParamList;
+	mutable std::unique_ptr<GMetaDefaultParamList> defaultParamList;
 };
 
 

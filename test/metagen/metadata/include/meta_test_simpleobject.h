@@ -24,8 +24,8 @@ void buildMetaClass_Global_simpleobject(D _d)
     
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectClass", (cpgf::IMetaClass * (*) (cpgf::IMetaClass *))&getSimpleObjectClass);
     _d.CPGF_MD_TEMPLATE _method("metaClassIsSimpleObject", (bool (*) (cpgf::IMetaClass *))&metaClassIsSimpleObject);
-    _d.CPGF_MD_TEMPLATE _method("createSharedSimpleObject", (cpgf::GSharedPointer< SimpleObject > (*) ())&createSharedSimpleObject);
-    _d.CPGF_MD_TEMPLATE _method("getSharedSimpleObject", (SimpleObject * (*) (cpgf::GSharedPointer< SimpleObject >))&getSharedSimpleObject);
+    _d.CPGF_MD_TEMPLATE _method("createSharedSimpleObject", (std::shared_ptr< SimpleObject > (*) ())&createSharedSimpleObject);
+    _d.CPGF_MD_TEMPLATE _method("getSharedSimpleObject", (SimpleObject * (*) (std::shared_ptr< SimpleObject >))&getSharedSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("createCpp11SharedSimpleObject", (std::shared_ptr< SimpleObject > (*) ())&createCpp11SharedSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("getCpp11SharedSimpleObject", (SimpleObject * (*) (std::shared_ptr< SimpleObject >))&getCpp11SharedSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("createBoostSharedSimpleObject", (BOOST_SP (*) ())&createBoostSharedSimpleObject);

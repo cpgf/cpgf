@@ -1,7 +1,6 @@
 #include "test_tween_common.h"
 #include "cpgf/tween/gtween.h"
 #include "cpgf/accessor/gaccessor.h"
-#include "cpgf/gsharedptr.h"
 #include "cpgf/tween/easing/linear.h"
 
 #include <cstdarg>
@@ -19,7 +18,7 @@ const int END = 0;
 
 
 typedef vector<int> ListType;
-typedef GSharedPointer<GTween> Pointer;
+typedef std::shared_ptr<GTween> Pointer;
 
 Pointer createTween()
 {

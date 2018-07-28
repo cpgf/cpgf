@@ -63,7 +63,7 @@ GScriptFunctionBase::~GScriptFunctionBase()
 
 GContextPointer GScriptFunctionBase::getBindingContext()
 {
-	return this->weakContext.get();
+	return this->weakContext.lock();
 }
 
 GScriptArrayBase::GScriptArrayBase(const GContextPointer & context)

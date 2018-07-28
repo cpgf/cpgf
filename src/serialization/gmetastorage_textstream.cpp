@@ -32,7 +32,7 @@ public:
 	int getType() const;
 
 private:
-	mutable GScopedPointer<StackType> typeStack;
+	mutable std::unique_ptr<StackType> typeStack;
 };
 
 void GMetaArchiveTypeSession::beginSession()
@@ -537,7 +537,7 @@ IMetaClass * G_API_CC GTextStreamMetaReader::readMetaClassAndTypeID(IMetaService
 	this->skipDelimiter();
 	*outClassTypeID = id;
 	
-	GScopedArray<char> classType(this->doReadString(nullptr));
+	std::unique_ptr<char[]> classType(this->doReadString(nullptr));
 	return service->findClassByName(classType.get());
 }
 

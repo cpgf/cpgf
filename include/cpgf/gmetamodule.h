@@ -1,8 +1,7 @@
 #ifndef CPGF_GMETAMODULE_H
 #define CPGF_GMETAMODULE_H
 
-#include "cpgf/gscopedptr.h"
-
+#include <memory>
 
 namespace cpgf {
 
@@ -45,7 +44,7 @@ private:
 	void doUnregisterMetaEnum(const GMetaEnum * metaEnum);
 	
 private:
-	GScopedPointer<GMetaModuleImplement> implement;
+	std::unique_ptr<GMetaModuleImplement> implement;
 	bool initializedMetaClasses;
 };
 

@@ -1,8 +1,6 @@
 #ifndef CPGF_METAGEN_MULTIPLE_INHERITANCE_CAST_H
 #define CPGF_METAGEN_MULTIPLE_INHERITANCE_CAST_H
 
-#include "cpgf/gsharedptr.h"
-
 #include <typeinfo>
 
 // R->A
@@ -101,9 +99,9 @@ inline MultipleInheritanceCastD * getMultipleInheritanceCastD()
 	return pd;
 }
 
-inline cpgf::GSharedPointer<MultipleInheritanceCastD> getMultipleInheritanceCastDSharedPointer()
+inline std::shared_ptr<MultipleInheritanceCastD> getMultipleInheritanceCastDSharedPointer()
 {
-	return cpgf::GSharedPointer<MultipleInheritanceCastD>(new MultipleInheritanceCastD());
+	return std::shared_ptr<MultipleInheritanceCastD>(new MultipleInheritanceCastD());
 }
 
 inline bool checkMultipleInheritanceCastDAsR(MultipleInheritanceCastR * r)
@@ -117,9 +115,9 @@ inline MultipleInheritanceCastR * getMultipleInheritanceCastDAsR()
 	return getMultipleInheritanceCastD();
 }
 
-inline cpgf::GSharedPointer<MultipleInheritanceCastR> getMultipleInheritanceCastDAsRSharedPointer()
+inline std::shared_ptr<MultipleInheritanceCastR> getMultipleInheritanceCastDAsRSharedPointer()
 {
-	return cpgf::GSharedPointer<MultipleInheritanceCastR>(new MultipleInheritanceCastD());
+	return std::shared_ptr<MultipleInheritanceCastR>(new MultipleInheritanceCastD());
 }
 
 inline bool checkMultipleInheritanceCastRAsD(MultipleInheritanceCastD * d)

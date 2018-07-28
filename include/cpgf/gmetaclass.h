@@ -179,13 +179,13 @@ private:
 	mutable bool intialized;
 	void (*metaRegister)(GMetaClass * metaClass);
 
-	GScopedPointer<meta_internal::GMetaSuperList> superList;
+	std::unique_ptr<meta_internal::GMetaSuperList> superList;
 	
-	GScopedPointer<meta_internal::GMetaClassDataBase,
+	std::unique_ptr<meta_internal::GMetaClassDataBase,
 		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaClassDataBase> >
 		baseData;
 		
-	GScopedPointer<DerivedListType> derivedList;
+	std::unique_ptr<DerivedListType> derivedList;
 
 	mutable GMetaModule * module;
 	

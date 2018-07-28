@@ -167,16 +167,16 @@ void doTestAPI()
 	using namespace cpgf;
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("field::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
 	GScopedInterface<IMetaField> field;
 
 	{
-		field.reset(metaClass->getField("width")); testCheckAssert(field);
+		field.reset(metaClass->getField("width")); testCheckAssert((bool)field);
 		metaCheckError(field.get());
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
@@ -187,7 +187,7 @@ void doTestAPI()
 	}
 
 	{
-		field.reset(metaClass->getField("name")); testCheckAssert(field);
+		field.reset(metaClass->getField("name")); testCheckAssert((bool)field);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		metaSetValue(field.get(), obj, "new name");
@@ -198,7 +198,7 @@ void doTestAPI()
 	}
 
 	{
-		field.reset(metaClass->getField("data")); testCheckAssert(field);
+		field.reset(metaClass->getField("data")); testCheckAssert((bool)field);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		TestData data(3, "Fake dummy data");
@@ -209,7 +209,7 @@ void doTestAPI()
 	}
 
 	{
-		field.reset(metaClass->getField("nocopy")); testCheckAssert(field);
+		field.reset(metaClass->getField("nocopy")); testCheckAssert((bool)field);
 		void * obj = metaClass->createInstance();
 		
 		testBeginException;
@@ -227,14 +227,14 @@ void doTestAPI()
 	}
 
 	{
-		field.reset(metaClass->getField("stats")); testCheckAssert(field);
+		field.reset(metaClass->getField("stats")); testCheckAssert((bool)field);
 		metaSetValue(field.get(), NULL, 567);
 		testCheckEqual(TestObject::stats, 567);
 		testCheckEqual(TestObject::stats, fromVariant<int>(metaGetValue(field.get(), NULL)));
 	}
 
 	{
-		field.reset(metaClass->getField("callback")); testCheckAssert(field);
+		field.reset(metaClass->getField("callback")); testCheckAssert((bool)field);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 

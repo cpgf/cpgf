@@ -1,11 +1,11 @@
 #ifndef CPGF_GMETABYTEARRAY_H
 #define CPGF_GMETABYTEARRAY_H
 
-#include "cpgf/gscopedptr.h"
 #include "cpgf/gapi.h"
 
 #include <cstdint>
-#include <stddef.h>
+#include <cstddef>
+#include <memory>
 
 namespace cpgf {
 
@@ -59,7 +59,7 @@ public:
 
     void writeBuffer(const void * buffer, size_t length);
 private:
-	GScopedPointer<GMetaByteArrayImplement> implement;
+	std::unique_ptr<GMetaByteArrayImplement> implement;
 };
 
 

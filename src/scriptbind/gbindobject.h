@@ -5,7 +5,6 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetaapi.h"
-#include "cpgf/gsharedptr.h"
 
 namespace cpgf {
 
@@ -45,8 +44,8 @@ namespace bind_internal {
 
 class GBindingContext;
 
-typedef GSharedPointer<GBindingContext> GContextPointer;
-typedef GWeakPointer<GBindingContext> GWeakContextPointer;
+typedef std::shared_ptr<GBindingContext> GContextPointer;
+typedef std::weak_ptr<GBindingContext> GWeakContextPointer;
 
 class GScriptObjectBase : public GScriptObject
 {

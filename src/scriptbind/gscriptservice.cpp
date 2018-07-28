@@ -29,7 +29,7 @@ void buildMetaClass_GScriptCoreService(D _d)
 
 GScriptCoreService * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader)
 {
-	GScopedPointer<GScriptCoreService> coreService(new GScriptCoreService(scriptObject, bindName, libraryLoader));
+	std::unique_ptr<GScriptCoreService> coreService(new GScriptCoreService(scriptObject, bindName, libraryLoader));
 
 	GDefineMetaClass<GScriptCoreService> define = GDefineMetaClass<GScriptCoreService>::Policy<GMetaPolicyNoDefaultAndCopyConstructor>::declare("GScriptCoreService");
 	buildMetaClass_GScriptCoreService(define);
@@ -39,7 +39,7 @@ GScriptCoreService * doBindScriptCoreService(GScriptObject * scriptObject, const
 	GScopedInterface<IMetaItem> metaItem(metaItemToInterface(define.takeMetaClass(), true));
 	scriptObject->holdObject(metaItem.get());
 
-	return coreService.take();
+	return coreService.release();
 }
 
 

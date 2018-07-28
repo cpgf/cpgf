@@ -1,7 +1,7 @@
 #include "cpgf/tween/gtweenlist.h"
 #include "cpgf/tween/gtimeline.h"
-#include "cpgf/gscopedptr.h"
 
+#include <memory>
 
 namespace cpgf {
 
@@ -31,7 +31,7 @@ void GTweenList::TweenableData::addToTimeline()
 
 GTweenList * GTweenList::getInstance()
 {
-	static GScopedPointer<GTweenList> instance;
+	static std::unique_ptr<GTweenList> instance;
 
 	if(! instance) {
 		instance.reset(new GTweenList);

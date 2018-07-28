@@ -10,12 +10,11 @@
 #include "cpgf/gmetaproperty.h"
 #include "cpgf/gglobal.h"
 #include "cpgf/gpp.h"
-#include "cpgf/gsharedptr.h"
 
+#include <memory>
 
 #define MAX_BASE_COUNT 20
 #define BASE_DEFAULT(N, unused) , typename GPP_CONCAT(BaseType, N) = void
-
 
 namespace cpgf {
 
@@ -62,7 +61,34 @@ struct GLazyDefineClassHelper
 template <typename DefineClass>
 void (*GLazyDefineClassHelper<DefineClass>::registerAddress)(DefineClass define) = nullptr;
 
-typedef GSharedPointer<GMetaClass> GSharedMetaClass;
+typedef std::shared_ptr<GMetaClass> GSharedMetaClass;
+
+struct GSharedMetaClassDeleter
+{
+	explicit GSharedMetaClassDeleter(const bool freeIt = true)
+		: freeIt(freeIt)
+	{
+	}
+
+	void operator() (GMetaClass * p) const {
+		if(freeIt) {
+			delete p;
+		}
+	}
+
+	bool freeIt;
+};
+
+inline GSharedMetaClass makeSharedMetaClass(GMetaClass * metaClass, const bool autoFreeIt = true)
+{
+	return GSharedMetaClass(metaClass, GSharedMetaClassDeleter(autoFreeIt));
+}
+
+inline GMetaClass * takeSharedMetaClass(GSharedMetaClass * metaClass)
+{
+	std::get_deleter<GSharedMetaClassDeleter>(*metaClass)->freeIt = false;
+	return metaClass->get();
+}
 
 
 } // namespace meta_internal
@@ -204,7 +230,7 @@ public:
 	}
 
 	GMetaClass * takeMetaClass() {
-		return this->metaClass.take();
+		return meta_internal::takeSharedMetaClass(&this->metaClass);
 	}
 
 	bool isDangle() const {
@@ -433,11 +459,11 @@ protected:
 	GDefineMetaClass() : super(meta_internal::GSharedMetaClass(), nullptr) {
 	}
 
-	explicit GDefineMetaClass(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass), metaClass) {
+	explicit GDefineMetaClass(GMetaClass * metaClass) : super(meta_internal::makeSharedMetaClass(metaClass), metaClass) {
 		this->takeMetaClass();
 	}
 
-	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::GSharedMetaClass(metaClass), currentItem) {
+	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::makeSharedMetaClass(metaClass), currentItem) {
 		this->takeMetaClass();
 	}
 
@@ -493,7 +519,7 @@ public:
 	}
 
 	GMetaClass * takeMetaClass() {
-		return this->metaClass.take();
+		return meta_internal::takeSharedMetaClass(&this->metaClass);
 	}
 
 protected:
@@ -518,9 +544,9 @@ protected:
 			}
 		}
 
-		this->metaClass.reset(classToAdd);
+		this->metaClass = meta_internal::makeSharedMetaClass(classToAdd);
 		if(addToGlobal) {
-			this->metaClass.take();
+			meta_internal::takeSharedMetaClass(&this->metaClass);
 		}
 
 		this->currentItem = classToAdd;
@@ -587,17 +613,17 @@ public:
 	}
 
 	GMetaClass * takeMetaClass() {
-		return this->metaClass.take();
+		return meta_internal::takeSharedMetaClass(&this->metaClass);
 	}
 
 protected:
 	GDefineMetaDangle() : super(meta_internal::GSharedMetaClass(), nullptr) {
 	}
 
-	explicit GDefineMetaDangle(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass, false), metaClass) {
+	explicit GDefineMetaDangle(GMetaClass * metaClass) : super(meta_internal::makeSharedMetaClass(metaClass, false), metaClass) {
 	}
 
-	GDefineMetaDangle(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::GSharedMetaClass(metaClass), currentItem) {
+	GDefineMetaDangle(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::makeSharedMetaClass(metaClass), currentItem) {
 	}
 
 	GDefineMetaDangle(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
@@ -609,7 +635,7 @@ protected:
 		
 		GMetaClass * metaClass = new GMetaClass((ClassType *)0, new meta_internal::GMetaSuperList, "", nullptr, GMetaPolicyDefault());
 
-		this->metaClass.reset(metaClass);
+		this->metaClass = meta_internal::makeSharedMetaClass(metaClass);
 		this->currentItem = metaClass;
 	}
 
@@ -627,13 +653,14 @@ private:
 	typedef GDefineMetaGlobal ThisType;
 
 public:
-	GDefineMetaGlobal() : super(meta_internal::GSharedMetaClass(getGlobalMetaClass(), false), getGlobalMetaClass()) {
+	GDefineMetaGlobal() : super(meta_internal::makeSharedMetaClass(getGlobalMetaClass(), false), getGlobalMetaClass()) {
 	}
 
-	explicit GDefineMetaGlobal(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass, false), metaClass) {
+	explicit GDefineMetaGlobal(GMetaClass * metaClass) : super(meta_internal::makeSharedMetaClass(metaClass, false), metaClass) {
 	}
 
-	GDefineMetaGlobal(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem) : super(meta_internal::GSharedMetaClass(metaClass.take(), false), currentItem) {
+	GDefineMetaGlobal(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem)
+		: super(meta_internal::makeSharedMetaClass(meta_internal::takeSharedMetaClass(&metaClass), false), currentItem) {
 	}
 
 	void setName(const char * name) {

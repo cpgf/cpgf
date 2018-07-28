@@ -1,6 +1,5 @@
 #include "test_misc_common.h"
 
-#include "cpgf/gsharedptr.h"
 #include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/gvariant.h"
 
@@ -16,10 +15,10 @@ namespace Test_WeakPointer { namespace {
 class TestA;
 class TestB;
 
-typedef GSharedPointer<TestA> SharedA;
-typedef GSharedPointer<TestB> SharedB;
-typedef GWeakPointer<TestA> WeakA;
-typedef GWeakPointer<TestB> WeakB;
+typedef std::shared_ptr<TestA> SharedA;
+typedef std::shared_ptr<TestB> SharedB;
+typedef std::weak_ptr<TestA> WeakA;
+typedef std::weak_ptr<TestB> WeakB;
 
 class TestA
 {
@@ -67,7 +66,7 @@ GTEST(TestWeakPointer_Simple)
 		
 		WeakA wa(pa);
 
-		GEQUAL(pa, wa.get());
+		GEQUAL(pa, wa.lock());
 
 		SharedB pb(new TestB(&count, wa));
 		GEQUAL(2, count);
@@ -91,7 +90,7 @@ GTEST(TestWeakPointer_NullWeakPointer)
 		
 		WeakA wa(pa);
 
-		GEQUAL(pa, wa.get());
+		GEQUAL(pa, wa.lock());
 
 		SharedB pb(new TestB(&count, wa));
 		GEQUAL(2, count);
@@ -102,7 +101,7 @@ GTEST(TestWeakPointer_NullWeakPointer)
 		pa.reset();
 		pb.reset();
 
-		GCHECK(! wa.get());
+		GCHECK(! wa.lock());
 	}
 	GEQUAL(0, count);
 

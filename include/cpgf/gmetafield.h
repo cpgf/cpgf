@@ -50,7 +50,7 @@ public:
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const override;
 
 private:
-	GScopedPointer<meta_internal::GMetaFieldDataBase,
+	std::unique_ptr<meta_internal::GMetaFieldDataBase,
 		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaFieldDataBase> >
 		baseData;
 };

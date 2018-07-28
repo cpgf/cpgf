@@ -78,11 +78,11 @@ GScriptValue GScriptObject::createScriptObject(const char * name)
 	}
 	else {
 		size_t len = strlen(name);
-		GScopedArray<char> tempName(new char[len + 1]);
-		memmove(tempName.get(), name, len + 1);
+		std::vector<char> tempName(len + 1);
+		memmove(tempName.data(), name, len + 1);
 		char * next;
-		char * head = tempName.get();
-		GScopedPointer<GScriptObject> scriptObject;
+		char * head = tempName.data();
+		std::unique_ptr<GScriptObject> scriptObject;
 		for(;;) {
 			next = strchr(head, delimiter);
 			if(next != nullptr) {
@@ -102,7 +102,7 @@ GScriptValue GScriptObject::createScriptObject(const char * name)
 			++next;
 			head = next;
 		}
-		object = scriptObject.take();
+		object = scriptObject.release();
 	}
 	if(object == nullptr) {
 		return GScriptValue();

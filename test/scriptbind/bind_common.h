@@ -130,8 +130,8 @@ protected:
 
 private:
 	cpgf::GScopedInterface<cpgf::IMetaService> service;
-	cpgf::GScopedPointer<TestScriptCoder> coder;
-	cpgf::GScopedPointer<cpgf::GScriptObject> bindingLib;
+	std::unique_ptr<TestScriptCoder> coder;
+	std::unique_ptr<cpgf::GScriptObject> bindingLib;
 	cpgf::GScopedInterface<cpgf::IScriptObject> bindingApi;
 	mutable bool printError;
 };

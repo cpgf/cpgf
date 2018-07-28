@@ -220,7 +220,7 @@ private:
 	void clearList();
 
 private:
-	GScopedPointer<meta_internal::GMetaItemListImplement> implement;
+	std::unique_ptr<meta_internal::GMetaItemListImplement> implement;
 	bool clearOnFree;
 };
 

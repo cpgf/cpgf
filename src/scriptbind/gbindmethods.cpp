@@ -94,7 +94,7 @@ GScriptInstanceCv getGlueDataCV(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
-			return sharedStaticCast<GObjectGlueData>(glueData)->getCV();
+			return std::static_pointer_cast<GObjectGlueData>(glueData)->getCV();
 		}
 	}
 
@@ -105,7 +105,7 @@ GVariant getGlueDataInstance(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
-			return sharedStaticCast<GObjectGlueData>(glueData)->getInstance();
+			return std::static_pointer_cast<GObjectGlueData>(glueData)->getInstance();
 		}
 	}
 
@@ -116,7 +116,7 @@ void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
-			return sharedStaticCast<GObjectGlueData>(glueData)->getInstanceAddress();
+			return std::static_pointer_cast<GObjectGlueData>(glueData)->getInstanceAddress();
 		}
 	}
 
@@ -127,11 +127,11 @@ IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
-			return sharedStaticCast<GObjectGlueData>(glueData)->getClassData()->getMetaClass();
+			return std::static_pointer_cast<GObjectGlueData>(glueData)->getClassData()->getMetaClass();
 		}
 		else {
 			if(glueData->getType() == gdtClass) {
-				return sharedStaticCast<GClassGlueData>(glueData)->getMetaClass();
+				return std::static_pointer_cast<GClassGlueData>(glueData)->getMetaClass();
 			}
 		}
 	}
@@ -143,11 +143,11 @@ IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
-			return sharedStaticCast<GObjectGlueData>(glueData)->getSharedPointerTraits();
+			return std::static_pointer_cast<GObjectGlueData>(glueData)->getSharedPointerTraits();
 		}
 		else {
 			if(glueData->getType() == gdtRaw) {
-				return sharedStaticCast<GRawGlueData>(glueData)->getSharedPointerTraits();
+				return std::static_pointer_cast<GRawGlueData>(glueData)->getSharedPointerTraits();
 			}
 		}
 	}

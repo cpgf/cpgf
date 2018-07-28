@@ -11,7 +11,7 @@
 
 GTEST(MK(CASE, _Lua_Lib))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
 
 	TEST_BIND(context->getBindingLib(), context->getService());
 
@@ -20,7 +20,7 @@ GTEST(MK(CASE, _Lua_Lib))
 
 GTEST(MK(CASE, _Lua_Api))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 
@@ -35,7 +35,7 @@ GTEST(MK(CASE, _Lua_Api))
 
 GTEST(MK(CASE, _V8_Lib))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
 
 	TEST_BIND(context->getBindingLib(), context->getService());
 
@@ -45,7 +45,7 @@ GTEST(MK(CASE, _V8_Lib))
 
 GTEST(MK(CASE, _V8_Api))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 
@@ -60,7 +60,7 @@ GTEST(MK(CASE, _V8_Api))
 
 GTEST(MK(CASE, _Python_Lib))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslPython, tsaLib));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslPython, tsaLib));
 
 	TEST_BIND(context->getBindingLib(), context->getService());
 
@@ -70,7 +70,7 @@ GTEST(MK(CASE, _Python_Lib))
 
 GTEST(MK(CASE, _Python_Api))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslPython, tsaApi));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslPython, tsaApi));
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 
@@ -85,7 +85,7 @@ GTEST(MK(CASE, _Python_Api))
 
 GTEST(MK(CASE, _SpiderMonkey_Lib))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslSpider, tsaLib));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslSpider, tsaLib));
 
 	TEST_BIND(context->getBindingLib(), context->getService());
 
@@ -95,7 +95,7 @@ GTEST(MK(CASE, _SpiderMonkey_Lib))
 
 GTEST(MK(CASE, _SpiderMonkey_Api))
 {
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslSpider, tsaApi));
+	std::unique_ptr<TestScriptContext> context(createTestScriptContext(tslSpider, tsaApi));
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 

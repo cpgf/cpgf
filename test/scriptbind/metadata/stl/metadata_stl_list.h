@@ -14,7 +14,7 @@ void testStlList_Helper(Binding * binding, TestScriptContext * c, const char * c
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.takeMetaClass(), true)));
 	scriptSetValue(binding, className, GScriptValue::fromClass(metaClass.get()));
 
-	GScopedPointer<TestScriptContext> context(c);
+	std::unique_ptr<TestScriptContext> context(c);
 
 	testStlContainer_Empty(c, className, valueProvider);
 	testStlContainer_Pushback(c, className, valueProvider);

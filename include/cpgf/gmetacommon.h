@@ -4,7 +4,6 @@
 #include "cpgf/gcompiler.h"
 #include "cpgf/gconfig.h"
 #include "cpgf/gvariant.h"
-#include "cpgf/gscopedptr.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gmetaextendtype.h"
 #include "cpgf/gapi.h"
@@ -104,7 +103,7 @@ private:
 	GMetaAnnotation * addItemAnnotation(GMetaAnnotation * annotation);
 
 protected:
-	GScopedPointer<meta_internal::GMetaItemImplement> implement;
+	std::unique_ptr<meta_internal::GMetaItemImplement> implement;
 
 private:
 	int modifiers;

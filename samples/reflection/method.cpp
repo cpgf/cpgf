@@ -187,17 +187,17 @@ void doTestAPI()
 	using namespace cpgf;
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
 	GScopedInterface<IMetaMethod> method;
 
 	{
-		method.reset(metaClass->getMethod("getWidth")); testCheckAssert(method);
+		method.reset(metaClass->getMethod("getWidth")); testCheckAssert((bool)method);
 		testCheckAssert(metaGetItemType(method.get()).isConstFunction());
 		
 		void * obj = metaClass->createInstance();
@@ -208,7 +208,7 @@ void doTestAPI()
 	}
 
 	{
-		method.reset(metaClass->getMethod("incWidth")); testCheckAssert(method);
+		method.reset(metaClass->getMethod("incWidth")); testCheckAssert((bool)method);
 		testCheckAssert(! metaGetItemType(method.get()).isConstFunction());
 		
 		void * obj = metaClass->createInstance();
@@ -225,7 +225,7 @@ void doTestAPI()
 	}
 
 	{
-		method.reset(metaClass->getMethod("calcData")); testCheckAssert(method);
+		method.reset(metaClass->getMethod("calcData")); testCheckAssert((bool)method);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		pobj->data = TestData(168, "Test stdcall");
@@ -237,7 +237,7 @@ void doTestAPI()
 	}
 
 	{
-		method.reset(metaClass->getMethod("refName")); testCheckAssert(method);
+		method.reset(metaClass->getMethod("refName")); testCheckAssert((bool)method);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		pobj->name = "";
@@ -250,7 +250,7 @@ void doTestAPI()
 	}
 
 	{
-		method.reset(metaClass->getMethod("sum")); testCheckAssert(method);
+		method.reset(metaClass->getMethod("sum")); testCheckAssert((bool)method);
 		testCheckAssert(metaGetItemType(method.get()).isConstFunction());
 
 		void * obj = metaClass->createInstance();

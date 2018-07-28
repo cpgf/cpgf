@@ -128,7 +128,7 @@ inline void checkEnum(Meta & metaEnum, const char * prefix)
 {
 	using namespace cpgf;
 
-	testCheckAssert(metaEnum);
+	testCheckAssert((bool)metaEnum);
 
 	size_t valueCount = metaEnum->getCount();
 

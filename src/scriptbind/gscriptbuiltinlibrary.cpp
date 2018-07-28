@@ -14,7 +14,7 @@
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
-#include "cpgf/metatraits/gmetasharedptrtraits_gsharedpointer.h"
+#include "cpgf/metatraits/gmetasharedptrtraits_cpp11_shared_ptr.h"
 
 #include "cpgf/gscopedinterface.h"
 
@@ -24,19 +24,19 @@ namespace cpgf {
 
 namespace {
 
-GSharedPointer<GMetaByteArray> createByteArray()
+std::shared_ptr<GMetaByteArray> createByteArray()
 {
-	return GSharedPointer<GMetaByteArray>(new GMetaByteArray);
+	return std::shared_ptr<GMetaByteArray>(new GMetaByteArray);
 }
 
-GSharedPointer<GMetaByteArray> createByteArrayWithLength(size_t length)
+std::shared_ptr<GMetaByteArray> createByteArrayWithLength(size_t length)
 {
-	return GSharedPointer<GMetaByteArray>(new GMetaByteArray(length));
+	return std::shared_ptr<GMetaByteArray>(new GMetaByteArray(length));
 }
 
-GSharedPointer<GMetaObjectArray> createObjectArray(IMetaClass * metaClass)
+std::shared_ptr<GMetaObjectArray> createObjectArray(IMetaClass * metaClass)
 {
-	return GSharedPointer<GMetaObjectArray>(new GMetaObjectArray(metaClass));
+	return std::shared_ptr<GMetaObjectArray>(new GMetaObjectArray(metaClass));
 }
 
 } // unnamed namespace
@@ -44,7 +44,7 @@ GSharedPointer<GMetaObjectArray> createObjectArray(IMetaClass * metaClass)
 
 bool loadCore(GScriptObject * scriptObject, const char * namespaces, const char * /*libraryName*/)
 {
-	GScopedPointer<GMetaCore> core(new GMetaCore(scriptObject));
+	std::unique_ptr<GMetaCore> core(new GMetaCore(scriptObject));
 
 	GDefineMetaClass<GMetaCore> define = GDefineMetaClass<GMetaCore>::Policy<GMetaPolicyNoDefaultAndCopyConstructor>::declare("GMetaCore");
 	buildMetaData_metaCore(define);
@@ -53,7 +53,7 @@ bool loadCore(GScriptObject * scriptObject, const char * namespaces, const char 
 
 	GScopedInterface<IMetaItem> metaItem(metaItemToInterface(define.takeMetaClass(), true));
 	scriptObject->holdObject(metaItem.get());
-	GScopedInterface<IObject> metaObject(createObjectDeleterInterface(core.take()));
+	GScopedInterface<IObject> metaObject(createObjectDeleterInterface(core.release()));
 	scriptObject->holdObject(metaObject.get());
 	
 	return true;

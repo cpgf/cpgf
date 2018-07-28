@@ -265,7 +265,7 @@ IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * met
 	if(outCastedInstance != nullptr) {
 		*outCastedInstance = const_cast<void *>(instance);
 	}
-	return currentClass.take();
+	return currentClass.release();
 }
 
 void * doMetaCastToBase(void * instance, IMetaClass * currentClass, IMetaClass * targetBaseClass)

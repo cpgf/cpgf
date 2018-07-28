@@ -123,15 +123,15 @@ void testItem(cpgf::IMetaItem * item)
 
 			GScopedInterface<IMetaAnnotationValue> value;
 
-			value.reset(anno->getValue("name")); testCheckAssert(value);
+			value.reset(anno->getValue("name")); testCheckAssert((bool)value);
 			testCheckAssert(!! value->canToWideString());
 			testCheckEqual(value->toWideString(), stringToWString(item->getName()));
 
-			value.reset(anno->getValue("cat")); testCheckAssert(value);
+			value.reset(anno->getValue("cat")); testCheckAssert((bool)value);
 			testCheckAssert(!! value->canToInt());
 			testCheckEqual(value->toInt32(), static_cast<int>(item->getCategory()));
 
-			value.reset(anno->getValue("dog")); testCheckAssert(value);
+			value.reset(anno->getValue("dog")); testCheckAssert((bool)value);
 			TestData data = fromVariant<TestData>(metaGetAnnotationVariant(value.get()));
 			testCheckEqual(data, TestData(item->getCategory(), item->getName()));
 		}
@@ -166,10 +166,10 @@ void doTestAPI()
 	using namespace std;
 
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	testCheckAssert(service);
+	testCheckAssert((bool)service);
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("annotation::TestObject"));
-	testCheckAssert(metaClass);
+	testCheckAssert((bool)metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 

@@ -1,11 +1,9 @@
 #ifndef CPGF_GSCOPEDINTERFACE_H
 #define CPGF_GSCOPEDINTERFACE_H
 
-#include "cpgf/gscopedptr.h"
-
 #include <cstddef>
 #include <algorithm>
-
+#include <memory>
 
 namespace cpgf {
 
@@ -13,7 +11,7 @@ namespace cpgf {
 template <typename T>
 struct GScopedInterfaceDeleter
 {
-	static inline void Delete(T * p) {
+	inline void operator() (T * p) const {
 		if(p) {
 			p->releaseReference();
 		}
@@ -21,29 +19,7 @@ struct GScopedInterfaceDeleter
 };
 
 template <typename T>
-struct GScopedInterfaceResetPredict
-{
-	// dont restrict that p != this->rawPointer
-	// even if the pointer is the same, it's necessary to reset to release one reference count.
-	static inline bool CanReset(T * /*pointerOfMine*/, T * /*pointerToReset*/) {
-		return true;
-	}
-};
-
-template <typename T>
-class GScopedInterface : public GScopedPointer<T, GScopedInterfaceDeleter<T>, GScopedInterfaceResetPredict<T> >
-{
-private:
-	typedef GScopedPointer<T, GScopedInterfaceDeleter<T>, GScopedInterfaceResetPredict<T> > super;
-
-public:
-	GScopedInterface(): super() {
-	}
-
-	explicit GScopedInterface(T * p) : super(p) {
-	}
-
-};
+using GScopedInterface = std::unique_ptr<T, GScopedInterfaceDeleter<T> >;
 
 
 } // namespace cpgf

@@ -128,7 +128,7 @@ inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GScop
 
 		if(meta->getOperator() == op) {
 			if(index <= 0) {
-				return meta.take();
+				return meta.release();
 			}
 
 			--index;
