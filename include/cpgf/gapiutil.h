@@ -12,20 +12,40 @@ protected: \
 	virtual uint32_t G_API_CC addReference() { return this->ginterface_implObject.addReference(); } \
 	virtual uint32_t G_API_CC releaseReference() { return this->ginterface_implObject.releaseReference(this); }
 
+#define G_INTERFACE_IMPL_OBJECT_DERIVED_OVERRIDE \
+protected: \
+	virtual uint32_t G_API_CC addReference() override { return this->ginterface_implObject.addReference(); } \
+	virtual uint32_t G_API_CC releaseReference() override { return this->ginterface_implObject.releaseReference(this); }
+
 #define G_INTERFACE_IMPL_OBJECT \
 protected: \
 	cpgf::GImplObject ginterface_implObject; \
 	G_INTERFACE_IMPL_OBJECT_DERIVED
+
+#define G_INTERFACE_IMPL_OBJECT_OVERRIDE \
+protected: \
+	cpgf::GImplObject ginterface_implObject; \
+	G_INTERFACE_IMPL_OBJECT_DERIVED_OVERRIDE
 
 #define G_INTERFACE_IMPL_EXTENDOBJECT_DERIVED \
 protected: \
 	virtual int32_t G_API_CC getErrorCode() { return this->ginterface_implExtendObject.getErrorCode(); } \
 	virtual const char * G_API_CC getErrorMessage() { return this->ginterface_implExtendObject.getErrorMessage(); }
 
+#define G_INTERFACE_IMPL_EXTENDOBJECT_DERIVED_OVERRIDE \
+protected: \
+	virtual int32_t G_API_CC getErrorCode() override { return this->ginterface_implExtendObject.getErrorCode(); } \
+	virtual const char * G_API_CC getErrorMessage() override { return this->ginterface_implExtendObject.getErrorMessage(); }
+
 #define G_INTERFACE_IMPL_EXTENDOBJECT \
 protected: \
 	cpgf::GImplExtendObject ginterface_implExtendObject; \
 	G_INTERFACE_IMPL_EXTENDOBJECT_DERIVED
+
+#define G_INTERFACE_IMPL_EXTENDOBJECT_OVERRIDE \
+protected: \
+	cpgf::GImplExtendObject ginterface_implExtendObject; \
+	G_INTERFACE_IMPL_EXTENDOBJECT_DERIVED_OVERRIDE
 
 namespace cpgf {
 
@@ -42,7 +62,7 @@ public:
 	uint32_t addReference() {
 		return ++this->referenceCount;
 	}
-	
+
 	template <typename T>
 	uint32_t releaseReference(T * p)
 	{
@@ -86,7 +106,7 @@ private:
 
 class GImplMemoryAllocator : public GImplObject, public IMemoryAllocator
 {
-	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_OBJECT_OVERRIDE
 
 protected:
 	virtual void * G_API_CC allocate(uint32_t size) override;

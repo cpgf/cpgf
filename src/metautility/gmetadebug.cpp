@@ -15,7 +15,7 @@ void GMetaDebug::debugBreak(const GMetaVariadicParam * params)
 #if defined(__i386) || defined(_M_IX86)
 	#if defined(G_COMPILER_VC)
 		__asm int 3;
-	#elif defined(G_COMPILER_GCC)
+	#elif defined(G_COMPILER_GCC) || defined(G_COMPILER_CLANG)
 		__asm__("int $0x03");
 	#endif
 #else
@@ -101,5 +101,3 @@ GVariant GMetaDebug::inspect(const GVariant & value)
 
 
 } // namespace cpgf
-
-

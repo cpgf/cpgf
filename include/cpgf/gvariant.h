@@ -43,7 +43,7 @@ enum class GVariantType : GVtType {
 	vtFundamentalEnd = vtLongDouble,
 
 	vtObject = 31, // is equivalent to unkown type
-	
+
 	// special types
 	vtInterfaceBegin = 32,
 	vtShadow = vtInterfaceBegin,
@@ -62,7 +62,7 @@ enum class GVariantType : GVtType {
 	byPointer = 0x1000,
 	byLvalueReference = 0x2000,
 	byRvalueReference = 0x4000,
-	
+
 	maskByPointerAndReference = byPointer | byLvalueReference | byRvalueReference,
 	maskByReference = byLvalueReference | byRvalueReference,
 };
@@ -106,13 +106,13 @@ struct GVariantData
 		std::int32_t valueInt32;
 		std::int64_t valueInt64;
 		GVariantInteger valueInt;
-	
+
 		float valueFloat;
 		double valueDouble;
 		long double valueLongDouble;
-	
+
 		void * pointer;
-		
+
 		cpgf::IObject * valueInterface;
 
 	};
@@ -259,7 +259,7 @@ public:
 	{
 		return value;
 	}
-	
+
 	GVariant() : data() {
 	}
 
@@ -301,7 +301,7 @@ public:
 	~GVariant() {
 		variant_internal::releaseVariantData(this->data);
 	}
-	
+
 	GVariantType getType() const {
 		return (GVariantType)this->data.typeData.vt;
 	}
@@ -496,7 +496,7 @@ auto fromVariantData(const GVariantData & data)
 	)
 {
 	typedef typename variant_internal::VariantDecay<T>::Result U;
-	
+
 	return doFromVariantData<U, Policy>(data, typename variant_internal::VariantCastTagTraits<U>::Tag());
 }
 
@@ -649,4 +649,3 @@ void deduceVariantType(GVarTypeData & data)
 
 
 #endif
-
