@@ -5,7 +5,7 @@
 
 #if defined(G_COMPILER_VC)
 	#define G_DEPRECATED(func, msg) __declspec(deprecated(msg)) func
-#elif defined(G_COMPILER_GCC)
+#elif defined(G_COMPILER_GCC) || defined(G_COMPILER_CLANG)
 	#define G_DEPRECATED(func, msg) func __attribute__ ((deprecated(msg)))
 #else
 	#define G_DEPRECATED(func, msg) func

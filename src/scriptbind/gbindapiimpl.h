@@ -35,8 +35,8 @@ public:
 	GScriptFunction * getUnderlying() const { return this->scriptFunction; }
 
 protected:
-	G_INTERFACE_IMPL_OBJECT
-	G_INTERFACE_IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT_OVERRIDE
+	G_INTERFACE_IMPL_EXTENDOBJECT_OVERRIDE
 
 	virtual void G_API_CC invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount) override;
 	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) override;
@@ -59,8 +59,8 @@ public:
 	GScriptArray * getUnderlying() const { return this->scriptArray; }
 
 protected:
-	G_INTERFACE_IMPL_OBJECT
-	G_INTERFACE_IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT_OVERRIDE
+	G_INTERFACE_IMPL_EXTENDOBJECT_OVERRIDE
 
 	virtual uint32_t G_API_CC getLength() override;
 	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index) override;
@@ -86,8 +86,8 @@ public:
 	GScriptObject * getUnderlying() const { return this->scriptObject; }
 
 protected:
-	G_INTERFACE_IMPL_OBJECT
-	G_INTERFACE_IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT_OVERRIDE
+	G_INTERFACE_IMPL_EXTENDOBJECT_OVERRIDE
 
 	virtual IScriptContext * G_API_CC getContext() override;
 
@@ -127,4 +127,3 @@ private:
 
 
 #endif
-

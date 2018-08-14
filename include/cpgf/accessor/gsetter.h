@@ -21,7 +21,7 @@ public:
 	typedef int DataType;
 	typedef int ValueType;
 	typedef ValueType PassType;
-	
+
 	static constexpr bool HasSetter = false;
 	static constexpr bool Writable = false;
 
@@ -62,16 +62,16 @@ public:
 	static constexpr bool IsArray = std::is_array<typename std::remove_reference<ValueType>::type>::value;
 
 	typedef const typename std::decay<typename ArrayToPointers<ValueType>::Result>::type & PassType;
-	
+
 	static constexpr bool HasSetter = true;
 	static constexpr bool Writable = ! std::is_const<typename std::remove_reference<T>::type>::value
 		&& ! std::is_const<typename std::remove_pointer<typename std::remove_reference<T>::type>::type>::value;
 
 public:
-	static void set(DataType & data, const void * instance, const PassType & value){
+	static void set(DataType & data, const void * instance, PassType & value){
 		return doSet<DataType &>(data, instance, value);
 	}
-	
+
 	static void * getAddress(DataType & data, const void * instance) {
 		return doGetAddress<DataType &>(data, instance);
 	}
@@ -83,7 +83,7 @@ private:
 	template <typename U>
 	static
 	typename std::enable_if<! std::is_void<U>::value && Writable && ! IsArray && IsMember>::type
-	doSet(U data, const void * instance, const PassType & value)
+	doSet(U data, const void * instance, PassType & value)
 	{
 		(typename MemberTrait::ObjectType *)(instance)->*data = value;
 	}
@@ -91,7 +91,7 @@ private:
 	template <typename U>
 	static
 	typename std::enable_if<! std::is_void<U>::value && Writable && ! IsArray && ! IsMember>::type
-	doSet(U data, const void * /*instance*/, const PassType & value)
+	doSet(U data, const void * /*instance*/, PassType & value)
 	{
 		*data = value;
 	}
@@ -99,7 +99,7 @@ private:
 	template <typename U>
 	static
 	typename std::enable_if<std::is_void<U>::value || ! Writable || IsArray>::type
-	doSet(U /*data*/, const void * /*instance*/, const PassType & /*value*/)
+	doSet(U /*data*/, const void * /*instance*/, PassType & /*value*/)
 	{
 	}
 
@@ -141,9 +141,9 @@ public:
 		typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 1>::Result,
 		typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 0>::Result
 	>::type ValueType;
-	
+
 	typedef ValueType PassType;
-	
+
 	static constexpr bool HasSetter = true;
 	static constexpr bool Writable = true;
 
@@ -151,7 +151,7 @@ public:
 	static void set(DataType & data, const void * instance, const PassType & value) {
 		doSet<DataType &>(data, instance, value);
 	}
-	
+
 	static void * getAddress(DataType & /*data*/, const void * /*instance*/) {
 		return nullptr;
 	}
@@ -183,10 +183,10 @@ private:
 public:
 	typedef typename ImplmentType::ValueType ValueType;
 	typedef typename ImplmentType::PassType PassType;
-	
+
 	static constexpr bool HasSetter = ImplmentType::HasSetter;
 	static constexpr bool Writable = HasSetter && ImplmentType::Writable && ! PolicyHasRule<Policy, GMetaRuleForbidWrite>::Result;
-	
+
 
 public:
 	GInstanceSetter() : setter() {
@@ -194,15 +194,15 @@ public:
 
 	GInstanceSetter(const T & setter) : setter(setter) {
 	}
-	
+
 	GInstanceSetter(const GInstanceSetter & other) : setter(other.setter) {
 	}
-	
+
 	GInstanceSetter & operator = (const GInstanceSetter & other) {
 		this->setter = other.setter;
 		return *this;
 	}
-	
+
 	void set(const void * instance, const PassType & value) const {
 		if(! Writable) {
 			raiseCoreException(Error_Meta_WriteDenied);
@@ -210,7 +210,7 @@ public:
 
 		ImplmentType::set(this->setter, instance, value);
 	}
-	
+
 	void * getAddress(const void * instance) const {
 		return ImplmentType::getAddress(this->setter, instance);
 	}
@@ -231,37 +231,37 @@ public:
 		: super(setter), instance(instance)
 	{
 	}
-	
+
 	GSetter(const GSetter & other)
 		: super(other), instance(other.instance)
 	{
 	}
-	
+
 	GSetter & operator = (const GSetter & other) {
 		super::operator = (other);
 		this->instance = other.instance;
-		
+
 		return *this;
 	}
 
 	void set(const typename super::PassType & value) const {
 		super::set(this->instance, value);
 	}
-	
+
 	void operator() (const typename super::PassType & value) const {
 		this->set(value);
 	}
-	
+
 	GSetter & operator = (const typename super::PassType & value) {
 		this->set(value);
-		
+
 		return *this;
 	}
 
 	void * getAddress() const {
 		return super::getAddress(this->instance);
 	}
-	
+
 	const void * getInstance() const {
 		return this->instance;
 	}
@@ -269,7 +269,7 @@ public:
 	void setInstance(const void * newInstance) {
 		this->instance = newInstance;
 	}
-	
+
 private:
 	const void * instance;
 };

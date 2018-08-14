@@ -11,3 +11,5 @@
 /tools/metagen/*/xml/
 org.eclipse.jdt.core.prefs
 *.so
+codealike.json
+.vscode/

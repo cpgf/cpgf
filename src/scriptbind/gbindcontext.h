@@ -31,7 +31,7 @@ private:
 	typedef GSharedInterface<IScriptUserConverter> ScriptUserConverterType;
 	typedef std::vector<ScriptUserConverterType> ScriptUserConverterListType;
 
-	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_OBJECT_OVERRIDE
 
 protected:
 	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter) override;
@@ -177,7 +177,7 @@ public:
 		IMetaClass * metaClass,
 		GMetaOpType op
 	);
-	
+
 	GBindingPool * getBindingPool();
 
 private:

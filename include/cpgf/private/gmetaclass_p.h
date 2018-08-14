@@ -49,10 +49,10 @@ class GMetaClassDataBase
 {
 public:
 	void deleteSelf();
-	
+
 	bool canCreateInstance() const;
 	bool canCopyInstance() const;
-	
+
 	void * createInstance() const;
 	void * createInplace(void * placement) const;
 	void * cloneInstance(const void * instance) const;
@@ -62,7 +62,7 @@ public:
 	void destroyInplace(void * instance) const;
 
 	size_t getObjectSize() const;
-	
+
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags, const GMetaItem * metaItem) const {
 		return this->virtualFunctions->getItemExtendType(flags, metaItem);

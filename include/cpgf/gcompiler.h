@@ -16,7 +16,7 @@
 	#define G_OS_WIN64
 #elif defined(_WIN32) || defined(WIN32) || defined(__WIN32__) || defined(_WIN32_WCE)
 	#define G_OS_WIN32
-#elif defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__) 
+#elif defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__)
 	#define G_OS_LINUX
 #elif defined(__APPLE__)
 	#define G_OS_APPLE
@@ -30,10 +30,12 @@
 	#define G_COMPILER_CPPBUILDER
 #elif defined(__CODEGEARC__)
 	#define G_COMPILER_CPPBUILDER
+#elif defined(__clang__)
+	#define G_COMPILER_CLANG
 #elif defined(__GNUC__)
 	#define G_COMPILER_GCC
 #else
-	#define G_COMPILER_UNKNOWN	
+	#define G_COMPILER_UNKNOWN
 #endif
 
 #if defined(G_OS_WIN32) || defined(G_OS_WIN64)
@@ -43,7 +45,7 @@
 #ifdef G_OS_WIN
 	#define G_SUPPORT_STDCALL
 	#define G_SUPPORT_FASTCALL
-	
+
     #ifdef __GNUC__
         #if (__GNUC__ < 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ < 5))
 			#undef G_SUPPORT_STDCALL
@@ -60,7 +62,7 @@
 		#undef G_SUPPORT_STDCALL
 		#undef G_SUPPORT_FASTCALL
     #endif
-#endif    
+#endif
 
 #ifndef G_API_CC
 	#ifdef G_SUPPORT_STDCALL
