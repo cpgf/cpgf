@@ -122,6 +122,8 @@ To build the unit test and sample code, feed a second parameter
 	TARGET=sampleirrlicht        Build the Irrlicht binding sample application.
 
 ## Compatibility -- Tested compilers and OSes
+* Linux (Ubuntu 18.04), GCC 7.3.0
+* Linux (Ubuntu 18.04, LLVM Clang 5.0.2
 * The below cases were based on the old 1.5 version. Since version 1.6, C++11 compiler is required, and VC 2015 and GCC 4.9.1 were tested.
 * Windows XP, Microsoft Visual C++ 2008 Express and Microsoft Visual C++ 2010 Professional
 * Windows XP, MingW GCC 3.4.2, 4.4.0 and 4.5.2
