@@ -22,6 +22,7 @@ struct GMetaFundamentalDataVirtual
 	void * (*cloneInstance)(const void * instance);
 	void * (*cloneInplace)(const void * instance, void * placement);
 	void (*destroyInstance)(void * o);
+	void (*destroyInplace)(void * o);
 	
 	GMetaExtendType (*getItemExtendType)(uint32_t flags);
 };
@@ -41,6 +42,7 @@ public:
 	void * cloneInplace(const void * instance, void * placement) const;
 
 	void destroyInstance(void * o) const;
+	void destroyInplace(void * o) const;
 
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
@@ -94,6 +96,9 @@ private:
 		delete static_cast<T *>(instance);
 	}
 
+	static void virtualDestroyInplace(void * instance) {
+	}
+
 	static GMetaExtendType virtualGetItemExtendType(uint32_t flags) {
 		return createMetaExtendType<T>(flags);
 	}
@@ -109,6 +114,7 @@ public:
 			&virtualCloneInstance,
 			&virtualCloneInplace,
 			&virtualDestroyInstance,
+			&virtualDestroyInplace,
 			&virtualGetItemExtendType
 		};
 

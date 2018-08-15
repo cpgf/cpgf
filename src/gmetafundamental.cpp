@@ -48,6 +48,11 @@ void GMetaFundamentalData::destroyInstance(void * o) const
 	this->virtualFunctions->destroyInstance(o);
 }
 
+void GMetaFundamentalData::destroyInplace(void * o) const
+{
+	this->virtualFunctions->destroyInplace(o);
+}
+
 
 } // namespace meta_internal
 
@@ -91,6 +96,12 @@ void * GMetaFundamental::cloneInplace(const void * instance, void * placement) c
 void GMetaFundamental::destroyInstance(void * instance) const
 {
 	this->getData()->destroyInstance(instance);
+}
+
+
+void GMetaFundamental::destroyInplace(void * instance) const
+{
+	this->getData()->destroyInplace(instance);
 }
 
 
