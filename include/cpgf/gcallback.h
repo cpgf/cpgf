@@ -128,23 +128,6 @@ struct GCheckReturnType <void, Actural>
 	static constexpr bool value = true;
 };
 
-template <typename T>
-struct GReturnEmptyValue
-{
-	static T invoke() {
-		return (T)(*(typename std::conditional<std::is_void<T>::value, int, T>::type *)0);
-		//return T(); // this causes compile error if T has no default constructor
-	}
-};
-
-template <typename T>
-struct GReturnEmptyValue <T &>
-{
-	static T & invoke() {
-		return *(T *)0;
-	}
-};
-
 template <typename RT, typename... Parameters>
 struct GCallbackBase
 {
@@ -406,7 +389,7 @@ public:
 			return this->base->virtuals->invoker(this->base, std::forward<Parameters>(args)...);
 		}
 		else {
-			return callback_internal::GReturnEmptyValue<RT>::invoke();
+			throw std::bad_function_call();
 		}
 	}
 
@@ -416,7 +399,7 @@ public:
 			return this->base->virtuals->invoker(this->base, std::forward<Parameters>(args)...);
 		}
 		else {
-			return callback_internal::GReturnEmptyValue<RT>::invoke();
+			throw std::bad_function_call();
 		}
 	}
 
