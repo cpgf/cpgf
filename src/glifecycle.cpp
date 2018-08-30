@@ -47,13 +47,18 @@ private:
 	ListType itemList;
 };
 
-std::unique_ptr<GOrderedStaticUninitializerManager> orderedStaticUninitializerManager;
+std::unique_ptr<GOrderedStaticUninitializerManager> & getOrderedStaticUninitializerManager()
+{
+	static std::unique_ptr<GOrderedStaticUninitializerManager> orderedStaticUninitializerManager;
+
+	return orderedStaticUninitializerManager;
+}
 
 } // unnamed namespace
 
 void shutDownLibrary()
 {
-	orderedStaticUninitializerManager.reset();
+	getOrderedStaticUninitializerManager().reset();
 	libraryIsActive = false;
 }
 
@@ -65,6 +70,8 @@ bool isLibraryLive()
 
 void addOrderedStaticUninitializer(GStaticUninitializationOrderType order, const GStaticUninitializerType & uninitializer)
 {
+	auto & orderedStaticUninitializerManager = getOrderedStaticUninitializerManager();
+	
 	if(! orderedStaticUninitializerManager) {
 		orderedStaticUninitializerManager.reset(new GOrderedStaticUninitializerManager());
 	}
