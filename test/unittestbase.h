@@ -8,6 +8,7 @@
 #include "cpgf/genableif.h"
 
 #include <string>
+#include <cmath>
 
 
 #if defined(_MSC_VER)
@@ -16,7 +17,7 @@
 #endif
 
 
-#define GTEST(name) TEST_CASE(GPP_STRINGIZE(name) ## GPP_STRINGIZE(__) ## GPP_STRINGIZE(__FILE__) ## GPP_STRINGIZE(__LINE__))
+#define GTEST(name) TEST_CASE(GPP_STRINGIZE(name) GPP_STRINGIZE(__FILE__) GPP_STRINGIZE(__LINE__))
 
 #define GFAIL(...) REQUIRE(false)
 

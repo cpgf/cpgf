@@ -25,26 +25,26 @@ namespace cpgf {
 template <typename T>
 struct PointerDimension
 {
-	G_STATIC_CONSTANT(int, Result = 0);
+	enum { Result = 0 };
 };
 
 template <typename T> struct PointerDimension <T *>
 {
-	G_STATIC_CONSTANT(int, Result = 1 + PointerDimension<T>::Result);
+	enum { Result = 1 + PointerDimension<T>::Result };
 };
 
 template <typename T> struct PointerDimension <T const>
 {
-	G_STATIC_CONSTANT(int, Result = PointerDimension<T>::Result);
+	enum { Result = PointerDimension<T>::Result };
 };
 template <typename T> struct PointerDimension <T volatile>
 {
-	G_STATIC_CONSTANT(int, Result = PointerDimension<T>::Result);
+	enum { Result = PointerDimension<T>::Result };
 };
 
 template <typename T> struct PointerDimension <T const volatile>
 {
-	G_STATIC_CONSTANT(int, Result = PointerDimension<T>::Result);
+	enum { Result = PointerDimension<T>::Result };
 };
 
 

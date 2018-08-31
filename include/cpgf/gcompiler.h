@@ -76,7 +76,7 @@
 	#define G_NO_MEMBER_TEMPLATE_FRIENDS
 #endif
 
-#define G_STATIC_CONSTANT(type, assignment) static const type assignment
+#define G_STATIC_CONSTANT(type, assignment) static constexpr type assignment
 
 #ifdef __clang__
     #define G_SUPPORT_NORETURN_ATTRIBUTE
