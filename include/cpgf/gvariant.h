@@ -183,27 +183,27 @@ inline GVariantType vtGetBaseType(const GVarTypeData & data)
 
 inline int vtGetPointers(const GVarTypeData & data)
 {
-	return data.sizeAndPointers & 0x0f;
+	return data.sizeAndPointers & 0x07;
 }
 
 inline void vtSetPointers(GVarTypeData & data, unsigned int pointers)
 {
-	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) | (pointers & 0x0f));
+	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf8) | (pointers & 0x07));
 }
 
 inline int vtGetSize(const GVarTypeData & data)
 {
-	return (data.sizeAndPointers >> 4) & 0x0f;
+	return (data.sizeAndPointers >> 3) & 0x1f;
 }
 
 inline void vtSetSize(GVarTypeData & data, unsigned int size)
 {
-	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (data.sizeAndPointers & 0x0f));
+	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x1f) << 3) | (data.sizeAndPointers & 0x07));
 }
 
 inline void vtSetSizeAndPointers(GVarTypeData & data, unsigned int size, unsigned int pointer)
 {
-	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (pointer & 0x0f));
+	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x01f) << 3) | (pointer & 0x07));
 }
 
 inline bool vtIsInterface(const GVariantType vt) {
