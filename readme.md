@@ -8,7 +8,7 @@ It's written in standard C++ and doesn't require any preprocessor or tools.
 [http://www.cpgf.org/](http://www.cpgf.org/)
 
 ## Version
-1.6.0
+1.6.1
 		
 ## Libraries
 
