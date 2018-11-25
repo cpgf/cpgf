@@ -29,12 +29,12 @@ private:
 
 public:
 	~GOrderedStaticUninitializerManager() {
-        // Without setting libraryIsActive to false, the 'reset' called from shutDownLibrary()
-        // will cause GOrderedStaticUninitializerManager double freed when compiled as shared library
-        // on Linux.
-        // Setting libraryIsActive to false here to avoid the double free, though we need to investigate
-        // on why the double free ever happens.
-        libraryIsActive = false;
+		// Without setting libraryIsActive to false, the 'reset' called from shutDownLibrary()
+		// will cause GOrderedStaticUninitializerManager double freed when compiled as shared library
+		// on Linux.
+		// Setting libraryIsActive to false here to avoid the double free, though we need to investigate
+		// on why the double free ever happens.
+		libraryIsActive = false;
 		sort(this->itemList.begin(), this->itemList.end());
 		for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 			it->uninitializer();
@@ -64,9 +64,9 @@ std::unique_ptr<GOrderedStaticUninitializerManager> & getOrderedStaticUninitiali
 
 void shutDownLibrary()
 {
-    if(isLibraryLive()) {
-        getOrderedStaticUninitializerManager().reset();
-	    libraryIsActive = false;
+	if(isLibraryLive()) {
+		getOrderedStaticUninitializerManager().reset();
+		libraryIsActive = false;
     }
 }
 
