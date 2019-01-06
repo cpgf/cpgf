@@ -20,7 +20,6 @@ However, with the combination of rules, a new policy can be created.
 
 To create a policy, include the header gpolicy.h, use MakePolicy to make a policy.
 ```c++
-
 typedef MakePolicy<Rule1, Rule2, ..., RuleN> NewPolicy;
 ```
 
@@ -70,7 +69,6 @@ Effect: the first parameter of the method is treated as "this" pointer and it's 
 This policy is used to use a global method to pretend being a member function.  
 For example, if we have global function,  
 ```c++
-
 void myMethod(MyClass * instance, int param);
 ```
 Applying GMetaRuleExplicitThis will have the same effect as if myMethod is a member function of MyClass and the prototype is void myMethod(int param).  
@@ -87,7 +85,6 @@ Though you can combine the rules to create the policy you need, there are some p
 Below only lists the source code of all of the pre-defined policies.  
 The meaning can be found by the policy name and the rules.
 ```c++
-
 typedef MakePolicy<
     	GMetaRuleForbidRead,
     	GMetaRuleForbidWrite

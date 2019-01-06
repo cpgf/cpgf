@@ -12,8 +12,7 @@ Now the supported Box2D version is 2.1.
 Can't wait to experiment the Box2D binding? Below is a piece of real Lua code snippet that using Box2D!  
 To see more code, including JavaScript code, see samples/bopx2d/samplebox2d.cpp in the library package.
 ```lua
-
-    function setupBox2d()
+function setupBox2d()
     	gravity = box2d.b2Vec2(0.0, -10.0)
     	world = box2d.b2World(gravity, 1)
     	bd = box2d.b2BodyDef()

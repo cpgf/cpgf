@@ -23,7 +23,6 @@ The namespace is cpgf.
 
 ## Getter
 ```c++
-
 template <typename RawGetter, typename Policy = GMetaPolicyDefault>
 class GGetter
 {
@@ -46,8 +45,7 @@ The constructor is "GGetter(const void * instance, RawGetterPassType getter)". T
 
 To obtain the value from the getter, use one of below functions or operators,
 ```c++
-
-  T get() const;
+T get() const;
   T operator() () const;
   operator T () const;
 ```
@@ -57,7 +55,6 @@ Function getAddress() is used to obtain the variable address of the getter. If t
 
 It's cumbersome to specify RawGetter for each getter, so some auxiliary function are provided to create getter.
 ```c++
-
 template <typename RawGetter, typename Policy>
 GGetter<RawGetter, Policy> createGetter(const void * instance,
     const RawGetter & getter, Policy policy);
@@ -72,8 +69,7 @@ Some examples,
 
 Use non-member variable as getter,
 ```c++
-
-  int x;
+int x;
   GGetter<int *> getter = createGetter(NULL, &x);
   x = 5;
   cout << getter->get(); // print 5
@@ -85,8 +81,7 @@ Use non-member variable as getter,
 
 Use member variable as getter,
 ```c++
-
-  class C
+class C
   {
   public:
     int x;
@@ -97,8 +92,7 @@ Use member variable as getter,
 
 Use member function as getter,
 ```c++
-
-  class C
+class C
   {
   public:
     int getX() const;
@@ -109,7 +103,6 @@ Use member function as getter,
 
 ## Setter
 ```c++
-
 template <typename RawSetter, typename Policy = GMetaPolicyDefault>
 class GSetter
 {
@@ -137,8 +130,7 @@ Setter is very similar with getter, except that a setter is used to store value 
 
 To set the value with the setter, use one of below functions or operators,
 ```c++
-
-  void set(T value) const;
+void set(T value) const;
   void operator() (T value) const;
   GSetter & operator = (T value);
 ```
@@ -148,8 +140,7 @@ Type T is deduced from getter type. Usually T is a reference to the value.
 
 An accessor is a combination of a getter and setter. So an accessor can be used to either retrieve data from a variable or save data to a variable.
 ```c++
-
-  GAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter);
+GAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter);
   GAccessor(const GAccessor & other);
   GAccessor & operator = (const GAccessor & other);
   

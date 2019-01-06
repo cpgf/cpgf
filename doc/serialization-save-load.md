@@ -11,7 +11,6 @@ IMetaArchiveWriter is used to save objects and data to permanent storage.
 However, we usually don't need to invoke IMetaArchiveWriter functions directly.  
 There are several global auxiliary functions to ease the use.
 ```c++
-
 void serializeWriteObject(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 ```
 Write an object to archive.  
@@ -19,7 +18,6 @@ Parameter name is the object name that represents in the archive. Text stream ar
 Parameter instance is a pointer to the object.  
 Parameter metaClass is the meta type for the object.
 ```c++
-
 template <typename T>
 void serializeWriteData(IMetaArchiveWriter * archiveWriter, const char * name, const T & data);
 ```
@@ -30,7 +28,6 @@ It can also be any object, which meta class can be retrieved from global scope.
 It can also be any data that has a customized serializer.  
 If the library can't serialize the data, an exception will be thrown.
 ```c++
-
 template <typename T>
 void serializeWriteData(IMetaArchiveWriter * archiveWriter, const char * name, const T & data, const GMetaModule * module);
 ```
@@ -44,19 +41,16 @@ IMetaArchiveReader is used to load objects and data from permanent storage.
 However, we usually don't need to invoke IMetaArchiveReader functions directly.  
 There are several global auxiliary functions to ease the use.
 ```c++
-
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass);
 ```
 Read an object at the address instance.  
 instance must be allocated.
 ```c++
-
 template <typename T>
 void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T & instance);
 ```
 Read arbitrary data at address &instance.
 ```c++
-
 template <typename T>
-void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T & instance, const GMetaModule * module); 
+void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T & instance, const GMetaModule * module);
 ```

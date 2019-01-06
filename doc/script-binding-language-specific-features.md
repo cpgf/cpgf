@@ -56,7 +56,6 @@ The operators that supported by cpgf Python binding engine are,
 
 Assume we have C++ code
 ```c++
-
 class MyClass {
 public:
     void foo(int a, const char * b);
@@ -65,7 +64,6 @@ public:
 
 In script, we can have the code
 ```lua
-
 obj = MyClass(); -- construct an object
 f = obj.foo; -- assign object.foo to a variable
 f(1, "abc"); -- same as calling obj.foo(1, "abc");
@@ -76,7 +74,6 @@ Above code works for Lua and Python, but not JavaScript, because the "this" poin
 
 Assume we have C++ code
 ```c++
-
 class MyClass {
 public:
     void foo();
@@ -85,7 +82,6 @@ public:
 ```
 In JavaScript
 ```javascript
-
 obj = new MyClass();
 for(p in obj) {
 }
@@ -96,7 +92,6 @@ In the body of the for loop, p will be obj.foo, then obj.a, in turn.
 
 If we have two C++ class, B and D, D is inherited from B, then in JavaScript
 ```javascript
-
 obj = new D();
 b = (obj instanceof D); // true
 b = (obj instanceof B); // true
@@ -106,7 +101,6 @@ b = (obj instanceof B); // true
 
 If we have a C++ class MyClass, in JavaScript
 ```javascript
-
 obj = new MyClass();
 b = {};
 b.__proto__ = obj;

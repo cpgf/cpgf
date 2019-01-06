@@ -20,7 +20,6 @@ If you are going to generate meta data for a library, all header files with publ
 
 Below listed Doxygen tags and values which required by metagen and has non-default value.
 ```c++
-
 EXTRACT_ALL = YES
 EXTRACT_STATIC = YES
 SHOW_INCLUDE_FILES = NO

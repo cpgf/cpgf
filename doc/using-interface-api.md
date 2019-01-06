@@ -25,13 +25,11 @@ Also we can see DLLs (the dynamic libraries) are how important in Windows develo
 
 Include header file cpgf/gmetaapi.h, call createDefaultMetaService to create a default meta service.
 ```c++
-
 IMetaService * createDefaultMetaService();
 ```
 
 There two other functions related to the service.
 ```c++
-
 IMetaModule * getMetaModule();
 IMetaService * createMetaService(IMetaModule * primaryModule);
 ```
@@ -48,7 +46,6 @@ An application should have one and only one IMetaService, no matter how many mod
 
 Include header file cpgf/scriptbind/gluabind.h, call createLuaScriptObject to get an IScriptObject interface.
 ```c++
-
 IScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
 ```
 
@@ -57,7 +54,6 @@ IScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, con
 Very like Windows Component Object Model, cpgf interface based API utilizes reference count based memory management.  
 Two functions from the root interface IObject give the memory management,
 ```c++
-
 virtual uint32_t G_API_CC addReference() = 0;
 virtual uint32_t G_API_CC releaseReference() = 0;
 ```
@@ -92,13 +88,11 @@ Aspect -- Meta value
 Interface: GVariantData.  
 Example:
 ```c++
-
 void G_API_CC get(GVariantData * outResult, void * instance); // in IMetaField
 ```
 CF: GVariant.  
 Example:
 ```c++
-
 GVariant get(void * instance); // in GMetaField
 ```
 
@@ -106,13 +100,11 @@ Aspect -- Meta type
 Interface: GMetaTypeData  
 Example:  
 ```c++
-
 void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index); // in IMetaMethod
 ```
 CF: GMetaType  
 Example:  
 ```c++
-
 GMetaType getParamType(size_t index); // in GMetaMethod
 ```
 
@@ -120,13 +112,11 @@ Aspect -- how functions return aggregate data (GVariant/GVariantData, GMetaType/
 Interface: Return in first parameter which is a pointer to the data.  
 Example:  
 ```c++
-
 void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index); // in IMetaMethod
 ```
 CF: Return as the C++ function return value.  
 Example:  
 ```c++
-
 GMetaType getParamType(size_t index); // in GMetaMethod
 ```
 

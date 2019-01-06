@@ -22,7 +22,6 @@ Any values can be converted to a GVariant implicitly, so you don't need to call 
 This is why the invoke function in GMetaMethod accepts only GVariant but any value can be passed directly.  
 The prototype of "invoke" in GMetaMethod is,  
 ```c++
-
 GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
 ```
 We can call it as method->invoke(instance, 5, "test", myObject).
@@ -33,17 +32,14 @@ A GVariant can be converted back to a normal value with the function fromVariant
 
 Assume v is a GVariant.
 ```c++
-
 int n = fromVariant<int>(v);
 ```
 Convert v to integer.
 ```c++
-
 string s = fromVariant<char *>(v);
 ```
 Convert v to C string then assign to a STL string.
 ```c++
-
 MyObject obj = fromVariant<MyObject>(v);
 ```
 Convert v to MyObject.
@@ -59,7 +55,6 @@ Bye default, GVariant requires the value assigned to it copyable.
 If the value is a class object, but the copy constructor is private or not implemented, when trying to create GVariant from such value, compiling will fail.  
 To store non-copyable object or reference to GVariant, use function createVariant.
 ```c++
-
 template <bool CanShadow, typename T>
 GVariant createVariant(const T & value, bool allowShadow = false);
 ```
@@ -69,7 +64,6 @@ If CanShadow is false, the object is not copyable.
 
 So to store a non-copyable object, named A, to GVariant v, write like this,
 ```c++
-
 GVariant v = createVariant<false>(A);
 ```
 
@@ -77,7 +71,6 @@ GVariant v = createVariant<false>(A);
 
 ### Rule 1, A GVariant with fundamental value can be casted to any other fundamental.
 ```c++
-
 GVariant v;
 v = 1; // integer
 fromVariant<double>(v); // OK
@@ -85,14 +78,12 @@ fromVariant<double>(v); // OK
 
 ### Rule 2, A GVariant with pointer value can be casted to any other pointer, even if the pointer dimension is different.
 ```c++
-
 v = (char *)1;
 fromVariant<int **>(v); // OK
 ```
 
 ### Rule 3, A GVariant with fundamental value or pointer value can be casted to an object that has constructor to accept the type implicitly.
 ```c++
-
 v = "abc"; // C string, const char *
 std::string s = fromVariant<std::string>(v); // OK, because std::string accepts "const char *".
 ```
@@ -105,7 +96,6 @@ So when casting to type U, GVariant will always assume that it holds a buffer wi
 
 ### Rule 5, By default, casting a GVariant to reference-to-const (const T &) will not perform implicit type conversion.
 ```c++
-
 std::string s = "blah";
 v = s;
 const std::string & rs = fromVariant<const std::string &>(v);
@@ -114,9 +104,9 @@ const std::string & rs = fromVariant<const std::string &>(v);
 rs will become a reference to v.
 The address of rs and v will be the same. &rs == &v
 ```c++
-
-int n = fromVariant<int>(v);
-```0
+const char * s = "blah";
+const std::string & rs = fromVariant<const std::string &>(s);
+```
 
 This doesn't work.  
 rs will reference to invalid address because s is not std::string.  
@@ -124,15 +114,15 @@ And the cast will not convert C string to std::string.
 
 To make fromVariant perform the implicit conversion, feed it with a second parameter.
 ```c++
-
-int n = fromVariant<int>(v);
-```1
+const char * s = "blah";
+const std::string & rs = fromVariant<const std::string &, VarantCastCopyConstRef>(s);
+```
 
 This works as if it's a C++ assignment,
 ```c++
-
-int n = fromVariant<int>(v);
-```2
+const char * s = "blah";
+const std::string & rs = s;
+```
 
 A temporary std::string will be create to hold s, then assign it to rs.
 
@@ -143,9 +133,9 @@ A usual fromVariant<const std::string &> without VarantCastCopyConstRef will ret
 
 In pseudo code
 ```c++
-
-int n = fromVariant<int>(v);
-```3
+const std::string & fromVariant<const std::string &>(variant);
+std::string fromVariant<const std::string &, VarantCastCopyConstRef>(variant);
+```
 
 </WRAP>
 
@@ -153,15 +143,19 @@ int n = fromVariant<int>(v);
 
 That's to say, you can't convert such variant back to reference.
 ```c++
-
-int n = fromVariant<int>(v);
-```4
+int n = 0;
+int & r = n;
+GVariant v = r;
+fromVariant<int &>(v); // faile
+```
 
 However, setting a reference to object (such as MyClass &) to variant will cause the variant references to the object.
 ```c++
-
-int n = fromVariant<int>(v);
-```5
+MyClass c;
+MyClass & r = c;
+GVariant v = r;
+fromVariant<MyClass &>(v); // ok
+```
 
 In summary, be careful to use reference. Usually you should reference-to-const or pointer instead of reference.
 
@@ -178,6 +172,11 @@ GVariantData is a POD struct and doesn't manage the memory.
 So to avoid memory leak, never use GVariantData directly. You should use GVariant.refData() instead.  
 For example, to invoke IMetaField::get to get the field value, we should write like this,
 ```c++
+GVariant v;
+myMetaClass->get(&v.refData(), instance);
+// now v holds the value
 
-int n = fromVariant<int>(v);
-```6
+// if we need to reuse v again, we should reset it
+v = 0;
+myMetaClass->get(&v.refData(), anotherInstance);
+```

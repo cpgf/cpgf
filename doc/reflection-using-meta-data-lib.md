@@ -19,7 +19,6 @@ GMetaClass exposes a lot of functions to access the meta data, but fortunately w
 Assume MMM is the meta name, it can be Constructor, Field, Property, Method, Operator, Enum, Class.  
 Then for most meta data, we have these kind of functions,
 ```c++
-
 const GMetaMMM * getMMM(const char * name) const;
 const GMetaMMM * getMMMInHierarchy(const char * name, void ** outInstance) const;
 size_t getMMMCount() const;
@@ -32,7 +31,6 @@ const GMetaMMM * getMMMAt(size_t index) const;
 The second parameter, can be NULL, or the address of an instance pointer. If it's not NULL, on return the function will convert the pointer to the object in which the meta data is in.  
 The function will perform an action as,  
 ```c++
-
 *outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
 ```
 Usually the casted pointer is same as the original pointer, but under virtual inheritance, they can be different.
@@ -43,13 +41,11 @@ Usually the casted pointer is same as the original pointer, but under virtual in
 
 Constructors are special because they can't be inherited and have no name. So there is no getConstructor and getConstructorInHierarchy. But there is a function getConstructorByParamCount to get a constructor quickly.
 ```c++
-
 const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
 ```
 
 Here is a list of all functions in GMetaClass that can retrieve meta data:
 ```c++
-
 const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
 size_t getConstructorCount() const;
 const GMetaConstructor * getConstructorAt(size_t index) const;
@@ -97,21 +93,18 @@ The last two functions, getMetaCount and getMetaAt, can be used to retrieve arbi
 Class GMetaItem is the base class for all meta class.  
 It covers the common aspects of the meta data.
 ```c++
-
 bool isStatic() const;
 ```
 Return true if the field, property, or method is global (not class member).  
 Otherwise, return false.  
 For member only meta data, such as constructor, operator, this function always returns false.
 ```c++
-
 GMetaCategory getCategory() const;
 ```
 Return the category of the meta data.
 
 Categories list:
 ```c++
-
 enum GMetaCategory {
     mcatField = 0,
     mcatProperty = 1,
@@ -125,7 +118,6 @@ enum GMetaCategory {
 };
 ```
 ```c++
-
 const GMetaItem * getOwnerItem() const;
 ```
 Return the outter meta class that owns the item.
@@ -133,661 +125,252 @@ For members in class A, the owner item is the meta class of A.
 For members in top level global namespace (the meta class returned by getGlobalMetaClass()), the owner item is the global meta class.  
 Calling this function on getGlobalMetaClass() will always return NULL.
 ```c++
-
 virtual const GMetaType & getItemType() const;
 ```
 Return the meta type of the item.  
 For field and property, it's the field and property variable type.  
 For method, it's the function type.
 ```c++
-
 const std::string & getName() const;
 ```
 Return the item name. The name is the one used to register the meta data.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```0
+const std::string & getQualifiedName() const;
+```
 Return the full qualified name. It's all of the owner items, recursively, names joined with ".".  
 If a name looks like ClassOne.ClassTwo.myData, it means the item name is myData, it's in ClassTwo, and ClassTwo is an inner class of ClassOne.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```1
+std::string makeQualifiedName(const char * delimiter) const;
+```
 If you are not satisfied with the "." delimiter returned by getQualifiedName, use makeQualifiedName to make your own full qualified name.  
 delimiter can be any string.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```2
+const GMetaAnnotation * getAnnotation(const char * name) const;
+```
 Get the annotation with "name" that bound to the item.  
 Return NULL if there is no annotation with "name".
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```3
+size_t getAnnotationCount() const;
+```
 Return annotation count.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```4
+const GMetaAnnotation * getAnnotationAt(size_t index) const;
+```
 Return annotation at certain index.
 
 ### Using meta field
 
 Class GMetaField exposes several functions to set/get field, and acquire field information.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```5
+virtual bool canGet() const;
+```
 Check if the field value can be got.  
 A field can't be got if it's forbidden by the policy.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```6
+virtual bool canSet() const;
+```
 Check if the field value can be set.  
 A field can't be set if it's forbidden by the policy.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```7
+virtual GVariant get(void * instance) const;
+```
 Get the field value on the object "instance". A GVariant that represents the value will be returned.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```8
+virtual void set(void * instance, const GVariant & v) const;
+```
 Set the field value on the object "instance". A GVariant that represents the value is passed as the second parameter.
 ```c++
-
-*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance). \\
-```9
+virtual size_t getSize() const;
+```
 Get the field memory size. It's as if performing a sizeof on the field.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```0
+void * getAddress(void * instance) const;
+```
 Get the field address. It's as if performing a "&" operator on the field.
 
 ### Using meta property
 
 Using property is almost same as using field, except that property doesn't support getAddress.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```1
+virtual bool canGet() const;
+```
 Check if the property value can be got.  
 A property can't be got if it's forbidden by the policy, or the getter is absence (NULL).
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```2
+virtual bool canSet() const;
+```
 Check if the property value can be set.  
 A property can't be set if it's forbidden by the policy, or the setter is absence (NULL).
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```3
+virtual GVariant get(void * instance) const;
+```
 Get the property value on the object "instance". A GVariant that represents the value will be returned.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```4
+virtual void set(void * instance, const GVariant & v) const;
+```
 Set the property value on the object "instance". A GVariant that represents the value is passed as the second parameter.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```5
+virtual size_t getSize() const;
+```
 Get the property memory size. It's as if performing a sizeof on the property.
 
 ### Using meta method
 
 Class GMetaMethod exposes several functions to invoke method, and acquire field information.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```6
+virtual GMetaType getParamType(size_t index) const;
+```
 Acquire parameter type at index.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```7
+virtual size_t getParamCount() const;
+```
 Get parameter count.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```8
+virtual size_t getDefaultParamCount() const;
+```
 Get the default parameter count.  
 For instance, if we have a meta method "int abc(int a, int b = 5, int c = 6);", getDefaultParamCount() will return 2 for it.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-```9
+virtual bool hasResult() const;
+```
 Check whether the method has result. For functions that return "void", this function return false, otherwise, it returns true.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```0
+virtual GMetaType getResultType() const;
+```
 Acquire result type information.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```1
+virtual bool isVariadic() const;
+```
 Check whether the method can accept variadic parameters.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```2
+GVariant invoke(void * instance, const GVariant & p1);
+GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2);
+GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
+```
 A group of overloaded functions to invoke the method with different amount of parameters, on the object "instance".
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```3
+virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+```
 Invoke the method, and pass the parameters in an array.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```4
+virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+```
 Check if a parameter can be converted to the method parameter.
 
 ### Using meta constructor
 
 Using constructor is almost same as using method, except that its return value is always a pointer of "void *".
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```5
+virtual GMetaType getParamType(size_t index) const;
+```
 Acquire parameter type at index.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```6
+virtual size_t getParamCount() const;
+```
 Get parameter count.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```7
+virtual size_t getDefaultParamCount() const;
+```
 Get the default parameter count.  
 For instance, if we have a meta method "int abc(int a, int b = 5, int c = 6);", getDefaultParamCount() will return 2 for it.
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```8
+virtual bool hasResult() const;
+```
 Always return true;
 ```c++
-
-const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
-size_t getConstructorCount() const;
-const GMetaConstructor * getConstructorAt(size_t index) const;
-
-const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
-const GMetaField * getField(const char * name) const;
-size_t getFieldCount() const;
-const GMetaField * getFieldAt(size_t index) const;
-
-const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
-const GMetaProperty * getProperty(const char * name) const;
-size_t getPropertyCount() const;
-const GMetaProperty * getPropertyAt(size_t index) const;
-
-const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
-const GMetaMethod * getMethod(const char * name) const;
-size_t getMethodCount() const;
-const GMetaMethod * getMethodAt(size_t index) const;
-
-const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
-const GMetaOperator * getOperator(GMetaOpType op) const;
-size_t getOperatorCount() const;
-const GMetaOperator * getOperatorAt(size_t index) const;
-
-const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
-const GMetaEnum * getEnum(const char * name) const;
-size_t getEnumCount() const;
-const GMetaEnum * getEnumAt(size_t index) const;
-
-const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
-const GMetaClass * getClass(const char * name) const;
-size_t getClassCount() const;
-const GMetaClass * getClassAt(size_t index) const;
-
-size_t getMetaCount() const;
-const GMetaItem * getMetaAt(size_t index) const;
-```9
+virtual GMetaType getResultType() const;
+```
 Return the type information of the class it will construct.
 ```c++
-
-bool isStatic() const;
-```0
+virtual bool isVariadic() const;
+```
 Check whether the constructor can accept variadic parameters.
 ```c++
-
-bool isStatic() const;
-```1
+void * invoke(const GVariant & p1);
+void * invoke(const GVariant & p1, const GVariant & p2);
+void * invoke(const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
+```
 A group of overloaded functions to invoke the method with different amount of parameters.  
 Unlike GMetaMethod, these functions here always return void *, which is the address of the new instance.
 ```c++
-
-bool isStatic() const;
-```2
+virtual GVariant execute(const GVariant * params, size_t paramCount) const;
+```
 Invoke the constructor, and pass the parameters in an array.
 ```c++
-
-bool isStatic() const;
-```3
+virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+```
 Check if a parameter can be converted to the constructor parameter.
 
 ### Using meta operator
 ```c++
-
-bool isStatic() const;
-```4
+Using operator is almost same as using method, except that its parameter count is determined by the operator itself.
+```
 ```c++
-
-bool isStatic() const;
-```5
+virtual GMetaType getParamType(size_t index) const;
+```
 Acquire parameter type at index.
 ```c++
-
-bool isStatic() const;
-```6
+virtual size_t getParamCount() const;
+```
 Get parameter count.
 ```c++
-
-bool isStatic() const;
-```7
+virtual size_t getDefaultParamCount() const;
+```
 Get the default parameter count.  
 For instance, if we have a meta method "int abc(int a, int b = 5, int c = 6);", getDefaultParamCount() will return 2 for it.
 ```c++
-
-bool isStatic() const;
-```8
+virtual bool hasResult() const;
+```
 Check whether the operator has result. For operators that return "void", this function return false, otherwise, it returns true.
 ```c++
-
-bool isStatic() const;
-```9
+virtual GMetaType getResultType() const;
+```
 Acquire result type information.
 ```c++
-
-GMetaCategory getCategory() const;
-```0
+virtual bool isVariadic() const;
+```
 Check whether the operator can accept variadic parameters.
 ```c++
-
-GMetaCategory getCategory() const;
-```1
+GVariant invokeUnary(const GVariant & p0) const;
+```
 Invoke the operator with one parameter. The operator should be a unary operator.
 ```c++
-
-GMetaCategory getCategory() const;
-```2
+GVariant invokeBinary(const GVariant & p0, const GVariant & p1) const;
+```
 Invoke the operator with two parameter. The operator should be a binary operator.
 ```c++
-
-GMetaCategory getCategory() const;
-```3
+GVariant invokeFunctor(const GVariant & instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pMax) const;
+```
 Invoke the functor operator.
 ```c++
-
-GMetaCategory getCategory() const;
-```4
+virtual GVariant execute(const GVariant * params, size_t paramCount) const;
+```
 Invoke the operator, and pass the parameters in an array.
 ```c++
-
-GMetaCategory getCategory() const;
-```5
+virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+```
 Check if a parameter can be converted to the operator parameter.
 
 ### Using meta annotation
 ```c++
-
-GMetaCategory getCategory() const;
-```6
+const GMetaItem * getMetaItem() const;
+```
 Get the meta item that the annotation is bound to.
 ```c++
-
-GMetaCategory getCategory() const;
-```7
+const GAnnotationValue * getValue(const char * name) const;
+```
 Get the annotation value of the key with the "name". Return NULL if "name" doesn't exist.
 ```c++
-
-GMetaCategory getCategory() const;
-```8
+size_t getCount() const;
+```
 Get how many annotation values there are.
 ```c++
-
-GMetaCategory getCategory() const;
-```9
+const char * getNameAt(size_t index) const;
+```
 Get the annotation name at certain index.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```0
+const GAnnotationValue * getValueAt(size_t index) const;
+```
 Get the annotation value at certain index.
 
 ### Using meta annotation value
@@ -795,174 +378,74 @@ Get the annotation value at certain index.
 Annotation value is not meta data.  
 It's the value type of annotation.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```1
+const GVariant * getVariant() const;
+```
 Get the value as a GVariant;
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```2
+bool canToString() const;
+```
 Check if the value can be converted to a string.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```3
+bool canToWideString() const;
+```
 Check if the value can be converted to a wide string.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```4
+bool canToInt() const;
+```
 Check if the value can be converted to a integer.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```5
+const char * toString() const;
+```
 Convert the value to a string.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```6
+const wchar_t * toWideString() const;
+```
 Convert the value to a wide string.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```7
+int toInt() const;
+```
 Convert the value to an integer.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```8
+bool toBoolean() const;
+```
 Convert the value to a boolean.
 ```c++
-
-enum GMetaCategory {
-    mcatField = 0,
-    mcatProperty = 1,
-    mcatMethod = 2,
-    mcatEnum = 3,
-    mcatOperator = 4,
-    mcatConstructor = 5,
-    mcatClass = 6,
-    mcatAnnotation = 7,
-    mcatFundamental = 8,
-};
-```9
+template <typename T>
+T toObject() const;
+```
 Convert the value to a specified type.
 
 
 ### Using meta enumerators
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```0
+virtual size_t getTypeSize() const;
+```
 Get the memory size of the enumerator type. It's as if performing a sizeof on the enumerator.
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```1
+size_t getCount() const;
+```
 Get the element count of the enumerator;
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```2
+const char * getKey(size_t index) const;
+```
 Get the enumerator element key name at index.
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```3
+GVariant getValue(size_t index) const;
+```
 Get the enumerator element value at index.  
 It's safe to convert the result value to an integer.
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```4
+int findKey(const char * key) const;
+```
 Get the index of a key name.  
 Return -1 if not found.
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```5
+virtual void * createInstance() const;
+virtual void * createInplace(void * placement) const;
+virtual void * cloneInstance(void * instance) const;
+virtual void * cloneInplace(void * instance, void * placement) const;
+virtual void destroyInstance(void * instance) const;
+```
 
 
 ### Using variadic parameters in meta methods, constructors and operators
@@ -972,39 +455,45 @@ Thus any number of parameters can be passed to the invokable.
 
 A variadic meta method,
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```6
+int sum(const cpgf::GMetaVariadicParam * params);
+```
 
 In meaning it's same as C++ variadic function,
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```7
+int sum(...);
+```
 
 Calling the meta version sum,
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```8
+method->invoke(obj, 1, 3, 5, 7, 9);
+```
 
 is quite similar with C++ variadic function,
 ```c++
-
-const GMetaItem * getOwnerItem() const;
-```9
+obj->sum(1, 3, 5, 7, 9);
+```
 
 GMetaVariadicParam is a structure,
 ```c++
-
-virtual const GMetaType & getItemType() const;
-```0
+struct GMetaVariadicParam
+{
+    GVariant const * const * params;
+    size_t paramCount;
+};
+```
 
 params is a pointer that points to an array of GVariant pointers, each GVariant pointer points to a parameter.  
 paramCount is the parameter count.
 
 A sample implementation of the variadic method "sum",
 ```c++
+int sum(const cpgf::GMetaVariadicParam * params)
+{
+    int total = 0;
+    for(size_t i = 0; i < params->paramCount; ++i) {
+        total += cpgf::fromVariant<int>(*(params->params[i]));
+    }
 
-virtual const GMetaType & getItemType() const;
-```1
+    return total;
+}
+```

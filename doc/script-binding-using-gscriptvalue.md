@@ -6,7 +6,6 @@ GScriptValue is the core type used to exchange data with script binding engine. 
 
 ## Construct GScriptValue
 ```c++
-
 GScriptValue();
 GScriptValue(const GScriptValue & other);
 GScriptValue & operator = (const GScriptValue & other);
@@ -18,17 +17,14 @@ GScriptValue can be default constructed and the value is a null pointer which is
 
 GScriptValue utilizes "named constructor idiom" to construct from given values. Below lists a bunch of static functions in GScriptValue, which accept values and return a GScriptValue.
 ```c++
-
 static GScriptValue fromNull();
 ```
 Construct a GScriptValue with null pointer.
 ```c++
-
 static GScriptValue fromPrimary(const GVariant & primary);
 ```
 Construct a GScriptValue with primary value. A primary value is a boolean, integer, float point, string, or wide string. For example, "GScriptValue::fromPrimary(5)" will construct a GScriptValue with value 5.
 ```c++
-
 static GScriptValue fromClass(IMetaClass * metaClass);
 ```
 Construct a GScriptValue with a meta class. Setting the GScriptValue to script engine will cause the meta class is bound to the script engine.
@@ -47,7 +43,6 @@ a is constructed with the default constructor.
 b = new MyClass(5)  
 b is constructed with the constructor that accepts an integer.
 ```c++
-
 static GScriptValue fromObject(const GVariant & instance,
     IMetaClass * metaClass, bool transferOwnership);
 ```
@@ -56,7 +51,6 @@ Parameter "instance" is the object address. It can be a pointer, or a GVariant c
 Parameter "metaClass" is the meta class of the object.  
 Parameter "transferOwnership", if it's true, after setting to script engine, the script engine will free the object. If it's false, the script engine will not free the object.
 ```c++
-
 static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 ```
 Construct a GScriptValue with a method.  
@@ -65,26 +59,22 @@ Parameter "method" is the meta method.
 
 Note: only set a meta method to script engine to bind method in global scope. You don't need to bind member function for class. Setting a meta class to script engine will do it for you.
 ```c++
-
 static GScriptValue fromOverloadedMethods(IMetaList * methods);
 ```
 Construct a GScriptValue with a bunch of overloaded methods.  
 Parameter "methods" is a meta list holding the methods.  
 To create a IMetaList, call "IMetaList * createMetaList();" in gmetaapi.h
 ```c++
-
 static GScriptValue fromEnum(IMetaEnum * metaEnum);
 ```
 Construct a GScriptValue with a C++ Enum.
 ```c++
-
 static GScriptValue fromRaw(const GVariant & raw);
 ```
 Construct a GScriptValue with a raw value.  
 A raw value is not recognized by the script engine.  
 A raw value can be passed around within the script, and between script and C++.
 ```c++
-
 static GScriptValue fromAccessible(void * instance, IMetaAccessible * accessible);
 ```
 Construct a GScriptValue with a property or field.  
@@ -97,21 +87,18 @@ Parameter "accessible" is the meta property or field.
   * The syntax is weird in Python binding. When accessing a bound accessible, use obj.__get__(0).accessbileName rather than obj.accessbileName.
   * You should better not set an accessible to script engine when possible. Use object property instead.
 ```c++
-
-static GScriptValue fromNull();
-```0
+static GScriptValue fromScriptObject(IScriptObject * scriptObject);
+```
 Construct a GScriptValue with a script object.  
 Note: a GScriptValue with script object value can't be set to the script engine.
 ```c++
-
-static GScriptValue fromNull();
-```1
+static GScriptValue fromScriptFunction(IScriptFunction * scriptFunction);
+```
 Construct a GScriptValue with a script function.  
 Note: a GScriptValue with script function value can't be set to the script engine.
 ```c++
-
-static GScriptValue fromNull();
-```2
+static GScriptValue fromScriptArray(IScriptArray * scriptArray);
+```
 Construct a GScriptValue with a script array.  
 Note: a GScriptValue with script function value can't be set to the script engine.
 
@@ -120,28 +107,24 @@ Note: a GScriptValue with script function value can't be set to the script engin
 
 On contrary to the construct functions, there are a bunch of functions to convert a GScriptValue to underlying value.
 ```c++
-
-static GScriptValue fromNull();
-```3
+void * toNull() const;
+```
 Get the null value. It always returns (void *)0.  
 If the value is not a null, return (void *)0. Thus this function can't fail.
 ```c++
-
-static GScriptValue fromNull();
-```4
+GVariant toPrimary() const;
+```
 Get the primary value.  
 If the value is not a fundamental, return GVariant().
 ```c++
-
-static GScriptValue fromNull();
-```5
+IMetaClass * toClass() const;
+```
 Get the meta class.  
 If the value is not a meta class, return NULL.  
 The caller must call releaseReference on the returned value.
 ```c++
-
-static GScriptValue fromNull();
-```6
+GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
+```
 Get the object. Returns the object address in GVariant.  
 If the value is not an object, return GVariant().
 outMetaClass and outTransferOwnership are used to receive the meta class and transferOwnership property. They can be NULL if the information is not needed.
@@ -149,82 +132,97 @@ The caller must call releaseReference on (*outMetaClass) if outMetaClass is not 
 
 Note: Don't free the returned object.
 ```c++
-
-static GScriptValue fromNull();
-```7
+void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
+```
 Similar as toObject, but this function returns the object address pointer.  
 If the value is not an object, return NULL.
 ```c++
-
-static GScriptValue fromNull();
-```8
+IMetaMethod * toMethod(void ** outInstance) const;
+```
 Get the method.  
 outInstance is used to receive the instance. It can be NULL if the instance is not needed.  
 If the value is not a method, return NULL.  
 The caller must call releaseReference on the returned value.
 ```c++
-
-static GScriptValue fromNull();
-```9
+IMetaList * toOverloadedMethods() const;
+```
 Get the overloaded methods.  
 If the value is not overloaded methods, return NULL.  
 The caller must call releaseReference on the returned value.
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```0
+IMetaEnum * toEnum() const;
+```
 Get the meta enum.  
 If the value is not meta enum, return NULL.  
 The caller must call releaseReference on the returned value.
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```1
+GVariant toRaw() const;
+```
 Get the raw value.  
 If the value is not raw value, return GVariant().
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```2
+IMetaAccessible * toAccessible(void ** outInstance) const;
+```
 Get the property or field.  
 outInstance is used to receive the instance. It can be NULL if the instance is not needed.  
 If the value is not a property or field, return NULL.  
 The caller must call releaseReference on the returned value.
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```3
+IScriptObject * toScriptObject() const;
+```
 Get the script object.  
 If the value is not script object, return NULL.  
 The caller must call releaseReference on the returned value.
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```4
+IScriptFunction * toScriptFunction() const;
+```
 Get the script function.  
 If the value is not script function, return NULL.  
 The caller must call releaseReference on the returned value.
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```5
+IScriptArray * toScriptArray() const;
+```
 Get the script array.  
 If the value is not script arrayreturn NULL.  
 The caller must call releaseReference on the returned value.
 
 ## Detect the type of a GScriptValue
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```6
+bool isNull() const;
+bool isFundamental() const;
+bool isClass() const;
+bool isObject() const;
+bool isMethod() const;
+bool isOverloadedMethods() const;
+bool isEnum() const;
+bool isRaw() const;
+bool isAccessible() const;
+bool isScriptObject() const;
+bool isScriptFunction() const;
+bool isScriptArray() const;
+```
 
 Above lists the isXXX function to check if the GScriptValue is the type of XXX.
 ```c++
-
-static GScriptValue fromPrimary(const GVariant & primary);
-```7
+GScriptValue::Type getType() const;
+```
 Get the type.
 ```c++
+class GScriptValue
+{
+public:
+    enum Type {
+        typeNull = 0,
+        typeFundamental = 1,
+        typeClass = 2, typeObject = 3,
+        typeMethod = 4, typeOverloadedMethods = 5,
+        typeEnum = 6,
+        typeRaw = 7,
+        typeAccessible = 8,
 
-static GScriptValue fromPrimary(const GVariant & primary);
-```8
+        typeScriptObject = 9,
+        typeScriptFunction = 10,
+        typeScriptArray = 11
+    };
+}
+```

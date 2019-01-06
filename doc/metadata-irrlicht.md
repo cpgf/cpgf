@@ -45,7 +45,6 @@ To see how to bind the meta data, please see the sample code main file samples/i
 
 Below is the full source of Hello World sample JavaScript code
 ```javascript
-
 function start()
 {
     var device = new irr.createDevice(irr.EDT_SOFTWARE, new irr.dimension2d_u32(640, 480), 16, false, false, false, null);
@@ -143,7 +142,6 @@ For example. irr::vector3d is a template. To use it, we must specify the certain
 
 cpgf Irrlicht meta data has some predefined template instantiations. See file tools/metagen/metagen_irrlicht/config.irrlicht.js, the variable predefinedTemplateInstances
 ```javascript
-
 predefinedTemplateInstances : [
     "dimension2d<u32>", "",
     "dimension2d<f32>", "",

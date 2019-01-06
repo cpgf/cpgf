@@ -4,7 +4,6 @@
 
 Serializer is a meta traits that is used by the serialization library to allow new data types being serialized.
 ```c++
-
 struct IMetaSerializer : public IObject
 {
   virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) = 0;
@@ -16,7 +15,6 @@ struct IMetaSerializer : public IObject
 };
 ```
 ```c++
-
 virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) = 0;
 ```
 Get the data class type name.
@@ -27,7 +25,6 @@ The returned name is used to track object pointer.
 
 This function is called by archive writer.
 ```c++
-
 virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) = 0;
 ```
 
@@ -35,21 +32,18 @@ Write an object. All required information is stored in "param".
 
 This function is called by archive writer.
 ```c++
-
 virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass) = 0;
 ```
 Construct an instance.
 
 This function is called by archive reader.
 ```c++
-
 virtual void G_API_CC freeObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass, void * instance) = 0;
 ```
 Destroy an instance.
 
 This function is called by archive reader.
 ```c++
-
 virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) = 0;
 ```
 Read an object. All required information is stored in "param".
@@ -58,7 +52,6 @@ This function is called by archive reader.
 
 ## GMetaArchiveReaderParam
 ```c++
-
 struct GMetaArchiveReaderParam
 {
   const char * name;
@@ -79,7 +72,6 @@ struct GMetaArchiveReaderParam
 
 ## GMetaArchiveWriterParam
 ```c++
-
 struct GMetaArchiveWriterParam
 {
   const char * name;

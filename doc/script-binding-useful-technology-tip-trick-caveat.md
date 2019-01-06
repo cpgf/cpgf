@@ -10,7 +10,6 @@ After reading this documentation, we can use a lot of C/C++ only features, such 
 
 It's not rare in C++ we have below code
 ```c++
-
 bool foo(MyClass & a)
 {
     a = MyClass(blah, blah);
@@ -36,14 +35,12 @@ In cpgf script binding, we can invoke those kind of functions from script, with 
 
 For function foo, we can call it in quite nature way from script
 ```javascript
-
 var a = new MyClass();
 foo(a);
 ```
 
 For function bar, there is no way to pass reference to fundamental types (here is int) around the script, we need to use byte array to simulate it.
 ```javascript
-
 // Don't forget to import byte array
 cpgf.import(null, "builtin.collections.bytearray");
 
@@ -70,7 +67,6 @@ If a function returns a reference to fundamental type such as int, the result is
 
 C++
 ```c++
-
 static int value = 0;
 int & getA()
 {
@@ -87,7 +83,6 @@ a = 5;
 
 Script
 ```javascript
-
 var a = getA();
 // here a == 0 and value == 0
 
@@ -99,7 +94,6 @@ If the return type is a reference to class, the address will be returned. So cha
 
 C++
 ```c++
-
 static MyClass value; // value.n == 0
 MyClass & getM()
 {
@@ -113,7 +107,6 @@ a.n = 5;
 
 Script
 ```javascript
-
 var a = getM();
 a.n = 5;
 // here a.n == 5 and value.n == 5
@@ -137,7 +130,6 @@ If we don't use metagen, we can reflect bit fields as property manually. We only
 
 If we have below C++ code
 ```c++
-
 class A {
 public:
     void setValue(int n);
@@ -148,7 +140,6 @@ const A & getA();
 
 In C++, if we wrote
 ```c++
-
 A a = getA();
 a.setValue(0);
 ```
@@ -156,7 +147,6 @@ The code works.
 
 But if we wrote in JavaScript
 ```javascript
-
 var a = getA();
 a.setValue(0);
 ```
@@ -164,8 +154,7 @@ The code will cause runtime error because we can't call a non-const function set
 
 To make the code works in script, we need to create new A and copy return value of getA.
 ```javascript
-
-var a = new MyClass();
-foo(a);
-```0
+var a = new A(getA());
+a.setValue(0);
+```
 That works!

@@ -19,14 +19,12 @@ Note:
 
 The prototype is
 ```javascript
-
 NewCppClass = cpgf.cloneClass(CppClass);
 ```
 cloneClass takes one parameter, which is a C++ class. It returns another C++ class which is exactly same the parameter.
 
 Sample code
 ```javascript
-
 var MyNewCppClass = cpgf.cloneClass(MyCppClass);
 var aNewInstance = new MyNewCppClass();
 ```
@@ -37,13 +35,11 @@ How can that be useful? That's useful to override C++ virtual function from scri
 
 The prototype is
 ```javascript
-
 newInstance = cpgf.cast(instance, CppClassToCastTo);
 ```
 
 Assume we have C++ code as below
 ```c++
-
 class B {
 public:
   virtual ~B();
@@ -62,7 +58,6 @@ B * createD() {
 
 Then in script if we write below code,
 ```javascript
-
 var a = createD();
 a.foo(); // OK
 a.bar(); // ERROR. Can't find method bar.
@@ -80,7 +75,6 @@ If the second parameter is omitted or it's null, cpgf will try to find the close
 
 So we can rewrite above script code
 ```javascript
-
 var a = createD();
 a = cpgf.cast(a, D);
 // or just write as

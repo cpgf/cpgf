@@ -20,7 +20,6 @@ cpgf serialization is licensed under Apache License, Version 2.0
 
 ## Sample code
 ```c++
-
 // the archive reader and writer
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"

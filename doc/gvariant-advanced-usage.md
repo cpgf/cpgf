@@ -16,7 +16,6 @@ The behaviors listed above is the default behaviors in GVariant, such as we do "
 
 GVariant can allocate memory and copy an object to itself and GVariant will manage memory automatically.
 ```c++
-
 template <bool Copyable, typename T>
 GVariant createVariant(const T & value, bool copyObject = false)
 ```
@@ -28,7 +27,6 @@ The function parameter "copyObject" indicates if GVariant copies the object. If 
 
 Examples:
 ```c++
-
 // Same as v = myObject, don't copy the object
 // v holds a pointer to myObject
 // We can't get back the object from v after myObject is freed
@@ -62,7 +60,6 @@ Similar with storing object, storing a C string will cause GVariant points to th
 
 There are function to create GVariant which allocate memory for the string.
 ```c++
-
 void initializeVarString(GVariantData * data, const char * s);
 GVariant createStringVariant(const char * s);
 bool variantDataIsString(const GVariantData & v);
@@ -74,7 +71,6 @@ variantIsString treats both vtString or pointer to vtChat as a string.
 
 There are wide string version, the variant type is vtWideString.
 ```c++
-
 void initializeVarWideString(GVariantData * data, const wchar_t * s);
 GVariant createWideStringVariant(const wchar_t * s);
 bool variantDataIsWideString(const GVariantData & v);
@@ -85,7 +81,6 @@ bool variantIsWideString(const GVariant & v);
 
 By default GVariant doesn't hold any meta type information. There are functions to store meta type in GVariant. This kind of GVariant type is vtTypedVar.
 ```c++
-
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 template <typename T>
 GVariant createTypedVariant(const T & value);

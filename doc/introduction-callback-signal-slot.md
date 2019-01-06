@@ -36,7 +36,6 @@ cpgf callback is a callback system for C++. It's written heavily using C++ templ
  
 ## Here is a piece of code that the callback looks like
 ```c++
-
 GCallback<void (int)> cb = someObj;
 cb.invoke(66);
 

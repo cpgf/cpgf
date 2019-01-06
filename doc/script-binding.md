@@ -31,7 +31,6 @@ First, we need a global script object, GScriptObject or IScriptObject (the inter
 
 Lua version:
 ```c++
-
 GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
 IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config);
 ```
@@ -42,7 +41,6 @@ The third one is a config. Just call GScriptConfig() to construct default one.
 
 V8 version:
 ```c++
-
 GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
 IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
 ```
@@ -53,7 +51,6 @@ The third one is a config. Just call GScriptConfig() to construct default one.
 
 Python version:
 ```c++
-
 GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
 IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object, const GScriptConfig & config);
 ```
@@ -64,7 +61,6 @@ The third one is a config. Just call GScriptConfig() to construct default one.
 
 Mozilla SpiderMonkey version:
 ```c++
-
 JSObject * createSpiderMonkeyGlobaObject(JSContext * jsContext);
 GScriptObject * createSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject, const GScriptConfig & config);
 IScriptObject * createSpiderMonkeyScriptInterface(IMetaService * service, JSContext *jsContext, JSObject  * jsObject, const GScriptConfig & config);
@@ -90,13 +86,11 @@ A nested script object is a kind of object that embeded in another object. It ca
 
 ## Script object API
 ```c++
-
 GScriptValue getValue(const char * name);
 ```
 Get a GScriptValue from the script object.  
 "name" is the property name in the script object.
 ```c++
-
 void setValue(const char * name, const GScriptValue & value);
 ```
 Set a GScriptValue to the script object.  
@@ -105,7 +99,6 @@ Set a GScriptValue to the script object.
 If value is a meta data (meta class, meta enum, meta method, meta property and field), the meta data is bound to the script object.  
 If value is not a meta data, it's underlying value is set to the script object.
 ```c++
-
 virtual GScriptValue createScriptObject(const char * name);
 ```
 Create a new script object in current script object.  
@@ -113,35 +106,28 @@ The new script object can be used to bind meta data.
 On failure the function will fail and return GScriptValue().  
 To get the IScriptObject pointer, call toScriptObject on the returned value.
 ```c++
-
 virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
 ```
 Invoke a function named "name" in the script.  
 This can be any function, such as a function written in script, or a C++ function bound to the script.  
 The parameters are passed as a pointer to a GVariant.
 ```c++
-
 virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
 ```
 Same as "invoke", but the parameters are passed as a pointer to a GVariant pointer.
 ```c++
-
 virtual void assignValue(const char * fromName, const char * toName) = 0;
 ```
 Assign a script value named "fromName" to another script value named "toName".
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```0
+virtual void bindCoreService(const char * name) = 0;
+```
 Bind core service to the script engine in namespace "name".  
 The core service is a set of utility functions and objects to be used by the script.  
 Currently there is only core service function, cloneClass.
-```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```1
+```javascript
+MetaClass cloneClass(MetaClass);
+```
 cloneClass recieves a meta class as parameter and return a clone of the meta class.  
 cloneClass is used to inherit C++ class from script. For more information, please see the documentation of "inherit C++ class from script".
 
@@ -149,52 +135,42 @@ cloneClass is used to inherit C++ class from script. For more information, pleas
 
 To easy the use, there are some utility APIs in gscriptbindutil.h
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```2
+GScriptValue scriptGetValue(GScriptObject * scriptObject, const char * name);
+GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name);
+void scriptSetValue(GScriptObject * scriptObject, const char * name, const GScriptValue & value);
+void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScriptValue & value);
+```
 
 Set or get GScriptValue from a script object. When using the interfaced based API (IScriptObject), we should always use these function to set or get the values.
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```3
+GVariant invokeScriptFunction(GScriptObject * scriptObject, const char * name, GVariant P1, GVariant P2, ..., GVariant PN);
+GVariant invokeScriptFunction(IScriptObject * scriptObject, const char * name, GVariant P1, GVariant P2, ..., GVariant PN);
+```
 
 Invoke a script function.  
 Example,
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```4
+GVariant result = invokeScriptFunction(binding, "funcAdd", 8, 2);
+```
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```5
+IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
+```
 Wrap GScriptObject object to IScriptObject.  
 Note: the returned interface will not own the scriptObject. The caller should delete scriptObject.
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```6
+IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
+```
 If freeObject is true, the returned interface will free the script object.
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```7
+void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance);
+```
 Inject a class to the script. It will bind all methods, enumerators, nested class, in metaClass, to scriptObject in global scope.  
 "instance" is the object if metaClass is not global.  
 The function is usually only useful to bind the whole global meta class.  
 So if metaClass is a top level global class, calling
 ```c++
-
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-```8
+injectMetaClassToScript(myScriptObject, globalClass, NULL);
+```
 will bind everything in the meta system to the script.
 
 ## Passing script function and object to C++

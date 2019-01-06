@@ -81,7 +81,6 @@ The operators that are not wrapped is "->", "->*", and type casting. They are ve
 Assume we have a class vector, which supports +-*/ operators and the normalize function.
 Then if have C++ code
 ```c++
-
 // This is a modification code in Irrlicht sample code 07.Collision.
 // It calculates a ray cast from the camera.
 vector start = camera->getPositionVector();
@@ -89,7 +88,6 @@ vector end = start + (camera->getTargetVector() - start).normalize() * 1000.0;
 ```
 Then in JavaScript we can write
 ```javascript
-
 // This is a modification code in Irrlicht sample code 07.Collision
 // It calculates a ray cast from the camera.
 var start = camera.getPositionVector();

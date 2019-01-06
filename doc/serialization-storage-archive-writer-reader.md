@@ -58,7 +58,6 @@ The cpgf library has three built in storage formats:
 
 To create the interface for archive reader and writer, call below factory functions.
 ```c++
-
 IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaStorageReader * reader);
 IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaStorageWriter * writer);
 ```
@@ -71,7 +70,6 @@ To get the service for global meta data, just call createDefaultMetaService(). I
 
 ### Create storage reader/writer for text stream storage
 ```c++
-
 IMetaStorageWriter * createTextStreamStorageWriter(std::ostream & outputStream);
 IMetaStorageReader * createTextStreamStorageReader(std::istream & inputStream);
 ```
@@ -81,7 +79,6 @@ Usually you can use a stringstream as the input and output stream.
 
 ### Create storage reader/writer for XML storage
 ```c++
-
 IMetaStorageWriter * createXmlStorageWriter(const GMetaXmlStorage & xmlStorage);
 IMetaStorageReader * createXmlStorageReader(const GMetaXmlStorage & xmlStorage);
 ```
@@ -92,7 +89,6 @@ RapidXML is included in cpgf library.
 
 Functions in GMetaXmlStorage
 ```c++
-
 void load(const char * xmlContent) const;
 ```
 Load XML content.  
@@ -100,12 +96,10 @@ xmlContent is a string with the XML content.
 GMetaXmlStorage will copy xmlContent to internal buffer.  
 So xmlContent can be freed after this function.
 ```c++
-
 void saveToStream(std::ostream & outputStream) const;
 ```
 Save the XML content to a stream.
 ```c++
-
 void loadIntrusive(char * xmlContent) const;
 ```
 Load XML content.  
@@ -113,7 +107,6 @@ xmlContent must be valid during the object life.
 And the content in xmlContent will be destroyed by GMetaXmlStorage.  
 This function is an optimization version of load. It doesn't copy the xmlContent, and use xmlContent in place.
 ```c++
-
 GScopedInterface<IMetaService> service(createDefaultMetaService());
 
 GMetaXmlStorage storage;
@@ -132,7 +125,6 @@ GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(servi
 
 ### Create storage reader/writer for JSON storage
 ```c++
-
 IMetaStorageWriter * createJsonStorageWriter(const GMetaJsonStorage & jsonStorage);
 IMetaStorageReader * createJsonStorageReader(const GMetaJsonStorage & jsonStorage);
 ```
@@ -143,7 +135,6 @@ JsonCPP is included in cpgf library.
 
 Functions in GMetaJsonStorage
 ```c++
-
 void load(const char * jsonContent) const;
 ```
 Load JSON content.  
@@ -151,7 +142,6 @@ jsonContent is a string with the JSON content.
 GMetaJsonStorage will copy jsonContent to internal buffer.  
 So jsonContent can be freed after this function.
 ```c++
-
 void saveToStream(std::ostream & outputStream) const;
 ```
 Save the JSON content to a stream.

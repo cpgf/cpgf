@@ -20,7 +20,6 @@ Some cool features in script binding with OpenGL:
 Can't wait to experiment the OpenGL binding? Below is a piece of real Javascript code snippet that using OpenGL!  
 To see more code, see samples/opengl/sampleopengl.cpp in the library package.
 ```javascript
-
 function render()
 {
     gl.glClear(gl.GL_COLOR_BUFFER_BIT + gl.GL_DEPTH_BUFFER_BIT + gl.GL_STENCIL_BUFFER_BIT)
@@ -102,7 +101,6 @@ gmetadata_openglut.h
 Note: before include those header file, the corresponding OpenGL header file must be included first.  
 So the code on Windows will look like:
 ```c++
-
 #include <windows.h>
 #include <gl/gl.h>
 #include "cpgf/metadata/opengl/gmetadata_opengl.h"
@@ -112,7 +110,6 @@ Similar with GLU and GLUT.
 
 The APIs prototype:
 ```c++
-
 template <typename MetaDefine>
 void buildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define,
     const GMetaDataNameReplacer * replacer = NULL);

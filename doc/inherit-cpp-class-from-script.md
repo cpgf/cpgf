@@ -14,7 +14,6 @@ A normal C++ class can't be override by script, we must create wrapper for it.
 
 Assume we have a C++ class
 ```c++
-
 class MyClass
 {
 public:
@@ -28,7 +27,6 @@ public:
 
 Then the wrapper class should look like
 ```c++
-
 class MyClassWrapper : public MyClass, public cpgf::GScriptWrapper
 {
 public:
@@ -56,7 +54,6 @@ Now we must build meta data for the wrapper class. The script will use the wrapp
 
 After built the meta data and reflected "getValue" and "m", now we can override "getValue" from the script. Below we only use Javascript syntax as sample.
 ```javascript
-
 // This is javascript code
 function overrideGetValue(me, n) {
     return me.m * 2 + n;
@@ -85,7 +82,6 @@ The sample code in above section looks perfect, but the problem is, after run "M
 
 To solve the problem, cpgf library provides a powerful function cloneClass in the core service. cloneClass is a function that is called from the script. Its prototype is, in Javascript syntax,
 ```javascript
-
 NewMetaClass cloneClass(MetaClass);
 ```
 cloneClass will create a class same as MetaClass, but they have independent overrided function storage. So overriding a function on NewMetaClass will not affect MetaClass.
@@ -93,19 +89,16 @@ cloneClass will create a class same as MetaClass, but they have independent over
 To use cloneClass, we have to bind the core service into the script engine.
 There is a function in GScriptBind and IScriptBind
 ```c++
-
 virtual void bindCoreService(const char * name) = 0;
 ```
 
 Calling it will bind the core service into the namespace "name". So if call
 ```c++
-
 myScriptBind->bindCoreService("cpgf");
 ```
 
 In script, we can extend a class as,
 ```javascript
-
 var NewClass = cpgf.cloneClass(MyClassWrapper);
 // Now we can use NewClass as if it's MyClassWrapper
 NewClass.getValue = overrideGetValue;

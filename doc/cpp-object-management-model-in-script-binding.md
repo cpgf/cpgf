@@ -7,7 +7,6 @@ In this model, C++ transfers the object ownership to script. Then C++ code doesn
 
 ### Return object as a copy
 ```c++
-
 MyObject getSomeObject() {
     return MyObject();
 }
@@ -18,7 +17,6 @@ The mechanism works quite well but the problem is that MyObject must be copied. 
 
 ### Return object as a raw pointer and use policy GMetaRuleTransferOwnership
 ```c++
-
 MyObject * getSomeObject() {
     return new MyObject();
 }
@@ -33,7 +31,6 @@ Usually this is not a serious problem and it rarely happens, but it's good to ta
 ## C++ frees the object
 It's simple. If the returned object is a reference, or a pointer without policy GMetaRuleTransferOwnership, script doesn't free the object. It's the responsibility of C++ code to free it.
 ```c++
-
 MyObject * getSomeObject() {
     return new MyObject();
 }
@@ -49,7 +46,6 @@ Sometimes it's hard to decide which side free the object, in C++ or in script. S
 
 To do it, in native C++, we use shared pointer, a kind of smart pointer. In cpgf, we also use shared pointer, exactly same as we did in native C++.
 ```c++
-
 // C++11
 std::shared_ptr<MYObject> getSomeObject() {
     return std::shared_ptr<MYObject>(new MyObject());

@@ -16,7 +16,6 @@ Note:
 
 Though we can allocate a byte array, there is global function createByteArray to create a byte array.
 ```javascript
-
 var myByteArray = cpgf.createByteArray();
 var myAnotherByteArray = cpgf.createByteArray(100);
 ```
@@ -26,7 +25,6 @@ myByteArray is an empty byte array. myAnotherByteArray is a byte array with 100 
 
 GMetaByteArray is the byte array class. The C++ code is self explained, so below list the class declaration and each member functions.
 ```c++
-
 class GMetaByteArray {
 public:
     GMetaByteArray();
@@ -91,7 +89,6 @@ The function getPointer returns the address at the beginning of the buffer, the 
 
 Note most writeXXX functions, such as writeInt8, take an extra parameter which is default to NULL. That's a variadic parameter, so we can write more than one values at ones. For exmaple,
 ```javascript
-
 myByteArray.writeInt8(1, 2, 3);
 ```
 Will write three characters, 1, 2, and 3 to the byte array.

@@ -23,7 +23,6 @@ gmetadata_vector.h
 
 ## The APIs prototype
 ```c++
-
 template <typename MetaDefine, typename Policy>
 MetaDefine buildMetaData_constIterator(const GMetaDataConfigFlags & config, MetaDefine define,
     const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
@@ -103,7 +102,6 @@ void initializeLuaReplacer(GMetaDataNameReplacer * replacer);
 
 Examples to build meta data for STL.
 ```c++
-
 GMetaDataNameReplacer replacer;
 initializeLuaReplacer(&replacer);
 GDefineMetaClass<vector<int> > define = GDefineMetaClass<vector<int> >::declare("MyVector");
@@ -113,7 +111,6 @@ buildMetaData_vector(define, typename GMetaDataPolicyDeduce<typename vector<int>
 Now the meta class in "define" contains the meta data for vector<int>, named MyVector.  
 If the code doesn't compile (C++ Builder will fail), change typename GMetaDataPolicyDeduce<typename vector<int>::value_type>::Result() to a temporary variable.
 ```c++
-
 typename GMetaDataPolicyDeduce<typename vector<int>::value_type>::Result p;
 buildMetaData_vector(define, p, &replacer);
 ```

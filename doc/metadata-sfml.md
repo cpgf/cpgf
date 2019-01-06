@@ -14,8 +14,7 @@ With the meta data, it's a piece of cake to use SFML in Lua or Javascript langua
 Can't wait to experiment the SFML binding? Below is a piece of real Javascript code snippet that using SFML!
 To see more code, including Lua code, see samples/sfml/ in the library package.
 ```javascript
-
-    // Create the window of the application
+// Create the window of the application
     var App = new sfml.RenderWindow(new sfml.VideoMode(800, 600, 32), "SFML Pong -- cpgf SFML binding demo -- V8 Javascript");
 
     // Load the sounds used in the game

@@ -10,7 +10,6 @@ To using the importing mechanism, GScriptObject::bindScriptCoreService must be c
 
 Assume we use bindScriptCoreService to bind the service to namespace "cpgf", to import a library from script, just write the script code as,
 ```javascript
-
 cpgf.import(Namespace, Libraryname);
 ```
 import is the function to load the library. Note: to avoid name conflicting, there is another alias _import. So cpgf.import is same as cpgf._import.  
@@ -38,37 +37,30 @@ The builtin libraries:
 
 All the sample code below are written in Javascript.
 ```javascript
-
 cpgf.import(null, "builtin.core");
 ```
 Load core library to namespace "cpgf". Then to use function cast, we should write cpgf.cast(blah).
 ```javascript
-
 cpgf.import("foo", "builtin.core");
 ```
 Load core library to namespace "foo". Then to use function cast, we should write foo.cast(blah).
 ```javascript
-
 cpgf.import("foo.bar", "builtin.core");
 ```
 Load core library to namespace "foo.bar". Then to use function cast, we should write foo.bar.cast(blah).
 ```javascript
-
 cpgf.import(null, "builtin.collections");
 ```
 Load all libraries under namespace builtin.collections to namespace "cpgf". That is equivalent to
 ```javascript
-
 cpgf.import(null, "builtin.collections.bytearray");
 cpgf.import(null, "builtin.collections.objectarray");
 ```
 ```javascript
-
 cpgf.import(null, "builtin");
 ```
 Load all builtin libraries to namespace "cpgf". That is equivalent to
 ```javascript
-
 cpgf.import(null, "builtin.core");
 cpgf.import(null, "builtin.collections.bytearray");
 cpgf.import(null, "builtin.collections.objectarray");

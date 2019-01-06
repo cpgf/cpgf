@@ -20,7 +20,6 @@ Note:
 
 Though we can allocate an object array, there is global function createObjectArray to create an object array.
 ```javascript
-
 var myObjectArray = cpgf.createObjectArray(MyCppClass);
 ```
 createObjectArray accepts one parameter, which is a C++ class that's bound to the script. createObjectArray returns an instance of the object array.
@@ -29,13 +28,11 @@ createObjectArray accepts one parameter, which is a C++ class that's bound to th
 
 Class GMetaObjectArray has a constructor, with the same signature as function createObjectArray, below code allocate an object array.
 ```javascript
-
 var myObjectArray = new cpgf.GMetaObjectArray(MyCppClass);
 ```
 
 Below is the C++ declaration of GMetaObjectArray
 ```c++
-
 class GMetaObjectArray
 {
 public:

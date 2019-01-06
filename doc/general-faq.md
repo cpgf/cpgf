@@ -32,7 +32,6 @@ This is because either the parameter, or the return value, is a reference-to-con
 
 For example, if we have this method,
 ```c++
-
 void setName(const std::string & name);
 ```
 std::string can be constructed implicitly from const char *.
@@ -41,7 +40,6 @@ When this kind of method is reflected, GVariant will try to return reference to 
 
 That warning is dangerous, it may crash your program. To solve this issue, use policy GMetaPolicyCopyAllConstReference. That policy will force the parameter or return value being passed by value instead of reference.
 ```c++
-
 ._method("setName", &setName, GMetaPolicyCopyAllConstReference())
 ```
 
@@ -56,7 +54,6 @@ However, we can simulate namespace reflection in cpgf perfectly.
 
 There is a typedef in gmetadefine.h
 ```c++
-
 typedef GDefineMetaClass<void> GDefineMetaNamespace;
 ```
 
