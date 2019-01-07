@@ -1,5 +1,18 @@
 # cpgf reflection, Lua, Javascript, and Python script binding for Irrlicht 3D engine
 
+<!-- toc -->
+
+- [Overview](#overview)
+- [How is the meta data created](#how-is-the-meta-data-created)
+- [Current status of Irrlicht reflection and script binding](#current-status-of-irrlicht-reflection-and-script-binding)
+- [Compiling requirements of Irrlicht library](#compiling-requirements-of-irrlicht-library)
+- [Use cpgf Irrlicht script binding](#use-cpgf-irrlicht-script-binding)
+- [Compile and run Irrlicht sample script code](#compile-and-run-irrlicht-sample-script-code)
+- [Memory management in cpgf Irrlicht script binding](#memory-management-in-cpgf-irrlicht-script-binding)
+- [Known issues and limitations in the Irrlicht meta data](#known-issues-and-limitations-in-the-irrlicht-meta-data)
+
+<!-- tocstop -->
+
 ## Overview
 
 cpgf Irrlicht binding is a full stack of technology to use cpgf reflection and script binding with the 3D render engine Irrlicht. With cpgf built-in meta data collection for Irrlicht, we can easily get reflection information for Irrlicht at runtime, and it's even easier to use Irrlicht library in Lua, Google V8 JavaScript, and Python.

@@ -1,5 +1,16 @@
 # Useful technologies, tips, tricks and caveats for cpgf script binding
 
+<!-- toc -->
+
+- [Overview](#overview)
+- [Use non-const reference as function in/out parameter](#use-non-const-reference-as-function-inout-parameter)
+- [Function returning reference to fundamental will be converted to value](#function-returning-reference-to-fundamental-will-be-converted-to-value)
+- [Use C++ operator overloading in script language](#use-c-operator-overloading-in-script-language)
+- [Use C++ bit fields in script language](#use-c-bit-fields-in-script-language)
+- [Be careful that in script variable is assigned by reference, not by value](#be-careful-that-in-script-variable-is-assigned-by-reference-not-by-value)
+
+<!-- tocstop -->
+
 ## Overview
 
 This documentation discusses several technologies and caveats which is not obvious to know when using cpgf script binding.

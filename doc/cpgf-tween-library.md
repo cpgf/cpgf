@@ -1,5 +1,19 @@
 # cpgf tween library
 
+<!-- toc -->
+
+- [Main features](#main-features)
+- [Time unit in cpgf tween library](#time-unit-in-cpgf-tween-library)
+- [Common types, methods and parameters in both GTween and GTimeline](#common-types-methods-and-parameters-in-both-gtween-and-gtimeline)
+- [GTween special methods and parameters](#gtween-special-methods-and-parameters)
+- [GTimeline special methods](#gtimeline-special-methods)
+- [Use GTweenList](#use-gtweenlist)
+- [Drive the tween](#drive-the-tween)
+- [Tweening large amount of properties at once in CPU data cache friendly manner](#tweening-large-amount-of-properties-at-once-in-cpu-data-cache-friendly-manner)
+- [Use the sample application](#use-the-sample-application)
+
+<!-- tocstop -->
+
 cpgf tween and timeline library is a powerful tweening engine written in pure C++. A tween interpolates property values overtime in-between a certain duration. A timeline manages a sequence of tweens or nested timelines.
 
 We can do lots of stuff with cpgf tween library, such as, but not limit to,

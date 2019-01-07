@@ -1,5 +1,28 @@
 # cpgf reflection -- build meta data
 
+<!-- toc -->
+
+- [Overview](#overview)
+- [Define meta classes](#define-meta-classes)
+  * [Overview](#overview-1)
+  * [Define a meta class](#define-a-meta-class)
+  * [Lazy define a meta class](#lazy-define-a-meta-class)
+  * [Add meta data to global scope](#add-meta-data-to-global-scope)
+  * [Build dangling meta class](#build-dangling-meta-class)
+  * [GDefineMetaInfo -- non template representation of meta define class](#gdefinemetainfo----non-template-representation-of-meta-define-class)
+  * [Reflect templates](#reflect-templates)
+- [Build meta data](#build-meta-data)
+  * [Reflect field](#reflect-field)
+  * [Reflect property](#reflect-property)
+  * [Reflect method](#reflect-method)
+  * [Reflect constructor](#reflect-constructor)
+  * [Reflect operator](#reflect-operator)
+  * [Reflect annotation](#reflect-annotation)
+  * [Reflect enumerators](#reflect-enumerators)
+  * [Reflect nested class](#reflect-nested-class)
+  * [Reflect parameter default values](#reflect-parameter-default-values)
+
+<!-- tocstop -->
 
 ## Overview
 

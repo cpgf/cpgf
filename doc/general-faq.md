@@ -1,5 +1,23 @@
 # cpgf library -- general frequently asked questions
 
+<!-- toc -->
+
+- [General](#general)
+  * [What's the exception safety in cpgf library?](#whats-the-exception-safety-in-cpgf-library)
+  * [What's the thread safety in cpgf library?](#whats-the-thread-safety-in-cpgf-library)
+  * [Some of the library document is bad, I want to help to rephrase it, how can I help?](#some-of-the-library-document-is-bad-i-want-to-help-to-rephrase-it-how-can-i-help)
+- [Reflection](#reflection)
+  * [When I build meta data for method, why the compiler issues warning saying "returning reference to temporary object"?](#when-i-build-meta-data-for-method-why-the-compiler-issues-warning-saying-returning-reference-to-temporary-object)
+  * [cpgf doesn't support reflecting meta data for namespace. I need namespace, please!](#cpgf-doesnt-support-reflecting-meta-data-for-namespace-i-need-namespace-please)
+  * [The compile time is super slow, how to boost it?](#the-compile-time-is-super-slow-how-to-boost-it)
+  * [Should I reflect all class members even if I don't need all of them?](#should-i-reflect-all-class-members-even-if-i-dont-need-all-of-them)
+- [Script binding (Lua, Google V8 Javascript and Python)](#script-binding-lua-google-v8-javascript-and-python)
+  * [Why can 0 (zero) be passed as pointer in Javascript and Python, but not in Lua](#why-can-0-zero-be-passed-as-pointer-in-javascript-and-python-but-not-in-lua)
+  * [When should I use bindMethod and bindMethodList?](#when-should-i-use-bindmethod-and-bindmethodlist)
+  * [Why the Google V8 binding is based on an old version V8 (v3.4.5)?](#why-the-google-v8-binding-is-based-on-an-old-version-v8-v345)
+
+<!-- tocstop -->
+
 ## General
 
 ### What's the exception safety in cpgf library?

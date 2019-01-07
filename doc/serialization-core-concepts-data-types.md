@@ -1,5 +1,18 @@
 # Inside cpgf serialization -- core concepts and data types
 
+<!-- toc -->
+
+- [Simple data types and compound data types](#simple-data-types-and-compound-data-types)
+- [Archive identifier](#archive-identifier)
+- [Class type identifier](#class-type-identifier)
+- [Archive and Storage -- two layers structure](#archive-and-storage----two-layers-structure)
+- [Streaming storage and structured storage -- we support both](#streaming-storage-and-structured-storage----we-support-both)
+- [Serializer -- the sharp sword to serialize arbitrary data types](#serializer----the-sharp-sword-to-serialize-arbitrary-data-types)
+- [Customized storage and serializer -- extend serialization library infinitely](#customized-storage-and-serializer----extend-serialization-library-infinitely)
+- [Core data types in archive layer](#core-data-types-in-archive-layer)
+
+<!-- tocstop -->
+
 In this document, we will introduce the core concepts and data types in cpgf serialization library. It's important to understand these stuff if we want extend the serialization library. Yes, cpgf serialization library is extensible without modifying the source code.
 
 ## Simple data types and compound data types
@@ -67,4 +80,3 @@ The archive layer supports several data types, all data are covered by those typ
   * matClassType: A class type.
   * matFundamental: A fundamental type, such as integer, float, double, etc.
   * matCustomized: Customized data type. Currently C++ string and array are customized type.
-

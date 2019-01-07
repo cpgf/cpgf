@@ -1,5 +1,16 @@
 # Binding Lua, Google V8 Javascript, Python and Mozilla SpiderMonkey engine to C++
 
+<!-- toc -->
+
+- [Overview](#overview)
+- [Get start](#get-start)
+- [Global script object VS. nested script object](#global-script-object-vs-nested-script-object)
+- [Script object API](#script-object-api)
+- [Utility API](#utility-api)
+- [Passing script function and object to C++](#passing-script-function-and-object-to-c)
+
+<!-- tocstop -->
+
 ## Overview
 
 In this documentation, the phrase "script engine" represents any supported script engine, which is Lua, Google V8 JavaScript, Python or Mozilla SpiderMonkey.
@@ -182,4 +193,3 @@ Then the C++ code can use the interfaces to access the script function and objec
 Notes:
   - If the script interface is passed as method parameter, don't release it. The caller will release it.
   - Don't pass script interface to field. You should use property with getter and setter to set the data. In the setter, addReference must be called on the interface to retain it. Otherwise, the interface will be released by the script.
-

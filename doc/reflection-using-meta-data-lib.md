@@ -1,5 +1,24 @@
 # cpgf reflection -- using meta data
 
+<!-- toc -->
+
+- [Using reflection through library](#using-reflection-through-library)
+  * [Retrieve meta class](#retrieve-meta-class)
+  * [Retrieve meta data](#retrieve-meta-data)
+- [Using meta data](#using-meta-data)
+  * [Using meta item](#using-meta-item)
+  * [Using meta field](#using-meta-field)
+  * [Using meta property](#using-meta-property)
+  * [Using meta method](#using-meta-method)
+  * [Using meta constructor](#using-meta-constructor)
+  * [Using meta operator](#using-meta-operator)
+  * [Using meta annotation](#using-meta-annotation)
+  * [Using meta annotation value](#using-meta-annotation-value)
+  * [Using meta enumerators](#using-meta-enumerators)
+  * [Using variadic parameters in meta methods, constructors and operators](#using-variadic-parameters-in-meta-methods-constructors-and-operators)
+
+<!-- tocstop -->
+
 ## Using reflection through library
 
 ### Retrieve meta class

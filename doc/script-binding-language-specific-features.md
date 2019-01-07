@@ -1,5 +1,18 @@
 # Script language specific features in cpgf script binding
 
+<!-- toc -->
+
+- [Overview](#overview)
+- [Lua - Use dot (.) to access member functions and fields](#lua---use-dot--to-access-member-functions-and-fields)
+- [Lua - C++ operator overloading](#lua---c-operator-overloading)
+- [Python - C++ operator overloading](#python---c-operator-overloading)
+- [Lua and Python - assign C++ method to script variable](#lua-and-python---assign-c-method-to-script-variable)
+- [JavaScript - enumerate C++ object methods and properties](#javascript---enumerate-c-object-methods-and-properties)
+- [JavaScript - use instanceof on C++ object](#javascript---use-instanceof-on-c-object)
+- [JavaScript - use C++ object as __proto__](#javascript---use-c-object-as-__proto__)
+
+<!-- tocstop -->
+
 ## Overview
 
 cpgf script binding engine supports three script languages, Lua, JavaScript (Google V8), and Python. All languages work on the same meta data in the similar way, so we can have best portability between languages. However, to maximize the power of each script language, some language specified features are supported.

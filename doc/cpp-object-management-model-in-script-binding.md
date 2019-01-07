@@ -1,5 +1,16 @@
 # C++ object life management model in script binding
 
+<!-- toc -->
+
+- [Script frees the object](#script-frees-the-object)
+  * [Return object as a copy](#return-object-as-a-copy)
+  * [Return object as a raw pointer and use policy GMetaRuleTransferOwnership](#return-object-as-a-raw-pointer-and-use-policy-gmetaruletransferownership)
+- [C++ frees the object](#c-frees-the-object)
+- [C++ and script share the object ownership](#c-and-script-share-the-object-ownership)
+- [If you are working on legacy code](#if-you-are-working-on-legacy-code)
+
+<!-- tocstop -->
+
 When returning a C++ object to script from a C++ function, either C++ or script needs to free the object when the object is not used by either C++ or script any more. cpgf library supports flexible object life management model that allows the user decides which side, C++, script, or both, to free the object.
 
 ## Script frees the object
