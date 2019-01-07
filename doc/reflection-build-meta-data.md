@@ -1,29 +1,29 @@
 # cpgf reflection -- build meta data
 
-<!-- toc -->
+<!--begintoc-->
+* [Overview](#a2_1)
+* [Define meta classes](#a2_2)
+  * [Overview](#a3_1)
+  * [Define a meta class](#a3_2)
+  * [Lazy define a meta class](#a3_3)
+  * [Add meta data to global scope](#a3_4)
+  * [Build dangling meta class](#a3_5)
+  * [GDefineMetaInfo -- non template representation of meta define class](#a3_6)
+  * [Reflect templates](#a3_7)
+* [Build meta data](#a2_3)
+  * [Reflect field](#a3_8)
+  * [Reflect property](#a3_9)
+  * [Reflect method](#a3_10)
+  * [Reflect constructor](#a3_11)
+  * [Reflect operator](#a3_12)
+  * [Reflect annotation](#a3_13)
+  * [Reflect enumerators](#a3_14)
+  * [Reflect nested class](#a3_15)
+  * [Reflect parameter default values](#a3_16)
+<!--endtoc-->
 
-- [Overview](#overview)
-- [Define meta classes](#define-meta-classes)
-  * [Overview](#overview-1)
-  * [Define a meta class](#define-a-meta-class)
-  * [Lazy define a meta class](#lazy-define-a-meta-class)
-  * [Add meta data to global scope](#add-meta-data-to-global-scope)
-  * [Build dangling meta class](#build-dangling-meta-class)
-  * [GDefineMetaInfo -- non template representation of meta define class](#gdefinemetainfo----non-template-representation-of-meta-define-class)
-  * [Reflect templates](#reflect-templates)
-- [Build meta data](#build-meta-data)
-  * [Reflect field](#reflect-field)
-  * [Reflect property](#reflect-property)
-  * [Reflect method](#reflect-method)
-  * [Reflect constructor](#reflect-constructor)
-  * [Reflect operator](#reflect-operator)
-  * [Reflect annotation](#reflect-annotation)
-  * [Reflect enumerators](#reflect-enumerators)
-  * [Reflect nested class](#reflect-nested-class)
-  * [Reflect parameter default values](#reflect-parameter-default-values)
 
-<!-- tocstop -->
-
+<a id="a2_1"></a>
 ## Overview
 
 Meta data is the core concept in the whole cpgf library. All the main features, such as reflection, script binding, serialization, are built upon meta data.
@@ -108,8 +108,10 @@ int main()
 }
 ```
 
+<a id="a2_2"></a>
 ## Define meta classes
 
+<a id="a3_1"></a>
 ### Overview
 
 Meta class represents a collection of meta information about a certain class. All meta data, like meta fields, meta properties, meta methods, meta enumerators, meta operators, meta constructor, meta annotation, must be added to a meta class. For global fields and methods, they must be added to the global meta class.
@@ -118,6 +120,7 @@ To build the meta data, include the header file gmetadefine.h.
 
 Meta data is built with only template functions, no any macros, no any preprocessors.
 
+<a id="a3_2"></a>
 ### Define a meta class
 
 Assume we want to define meta classes for below classes
@@ -182,6 +185,7 @@ GMetaClass * takeMetaClass();
 ```
 Get the meta class, GDefineMetaClass will transfer the ownership to the caller. It's the caller's responsibility to free the meta class if it's not added to other class.
 
+<a id="a3_3"></a>
 ### Lazy define a meta class
 ```c++
 void lazyDefineClass(GDefineMetaClass<Animal> define)
@@ -203,6 +207,7 @@ void func(GDefineMetaClass<T> define)
 Which T is the class to build for, here is Animal.
 
 GDefineMetaClass::lazyDeclare "declare" a meta class with lazy build.  
+<a id="a3_4"></a>
 ### Add meta data to global scope
 ```c++
 GDefineMetaGlobal()
@@ -216,6 +221,7 @@ The global scoped is treated as a meta class, but it contains all global meta da
 
 When any meta class is defined by GDefineMetaClass::define, it's add to global scope automatically.
 
+<a id="a3_5"></a>
 ### Build dangling meta class
 ```c++
 GDefineMetaGlobalDangle myGlobalDangleMeta = GDefineMetaGlobalDangle::dangle()()
@@ -244,6 +250,7 @@ It's useful to split the meta data building to different translate units (cpp fi
 With the help of the non-template GDefineMetaInfo, it's possible to split meta data for a class, or for global, to different cpp files.  
 Splitting meta data to smaller cpp files can help to reduce the compile time, compile memory usage, and help to make compiler happy (some compilers may crash with cpp file containing a lot of meta data).
 
+<a id="a3_6"></a>
 ### GDefineMetaInfo -- non template representation of meta define class
 
 GDefineMetaInfo can be obtained by calling getMetaInfo() on GDefineMetaClass and GDefineMetaDangle.  
@@ -274,6 +281,7 @@ define
 ```
 
 
+<a id="a3_7"></a>
 ### Reflect templates
 ```c++
 template <typename T>
@@ -311,8 +319,10 @@ Though we can treat a template instantiation as a normal class and use GDefineMe
 Then the lazy define function (here is lazyDefineClass) can be reused for every template instantiations.  
 Note unlike lazy reflection class which lazy function is a normal function, the lazy function for template is a template function.
 
+<a id="a2_3"></a>
 ## Build meta data
 
+<a id="a3_8"></a>
 ### Reflect field
 
 A field is either a member data or a global variable.  
@@ -331,6 +341,7 @@ The first parameter is the name. The named is used to find the meta data later.
 The second parameter is the field address.  
 The third parameter is optional. It's the policy.
 
+<a id="a3_9"></a>
 ### Reflect property
 
 A property is just a member data or a global variable, but can be accessed with or without getter or setter functions.
@@ -350,6 +361,7 @@ The fourth parameter is optional. It's the policy.
 
 Here "getter" and "setter" are not necessary functions, they can be the data address directly.
 
+<a id="a3_10"></a>
 ### Reflect method
 
 A method is a function.  
@@ -378,6 +390,7 @@ To reflect overloaded functions, just cast the function pointer to appropriate t
 
 In the code snippet, all functions are reflected to the same name as the function name. We can reflect the meta data to any name, not necessary same as the name in C++.
 
+<a id="a3_11"></a>
 ### Reflect constructor
 
 A constructor is a C++ class constructor.  
@@ -395,6 +408,7 @@ GDefineMetaClass<MyClass>
 It accepts one template parameter, and one optional policy function parameter.  
 The template parameter is the function type. The function type must always return void *.
 
+<a id="a3_12"></a>
 ### Reflect operator
 
 An operator is a C++ class operator that be overloaded.  
@@ -419,6 +433,7 @@ Functor, such like "void (int)". The parameter is mopHolder(mopHolder);
 
 About GMetaSelf. GMetaSelf indicates that parameter is the object itself. So that parameter can be passed as both object reference and object pointer.
 
+<a id="a3_13"></a>
 ### Reflect annotation
 
 An annotation is a kind of special meta data that's added by programmer rather than code.  
@@ -444,6 +459,7 @@ To add elements, just call _element on the object. The first parameter is the va
 
 In above code, the annotation "attribute" and "style" are added to the meta class, and the annotation "attr" is added to meta method "incWidth".
 
+<a id="a3_14"></a>
 ### Reflect enumerators
 
 Note: enumerator here, doesn't only limit to C++ enum, but also can be any constants, such as string, pointer, object.  
@@ -461,6 +477,7 @@ GDefineMetaClass<MyClass>
     	._element("ws3", MyClass::ws3)
 ```
 
+<a id="a3_15"></a>
 ### Reflect nested class
 ```c++
 class MyClass {
@@ -479,6 +496,7 @@ GDefineMetaClass<MyClass>
     )
 ```
 
+<a id="a3_16"></a>
 ### Reflect parameter default values
 
 Like the native C++, an invokable, such as constructor, method, operator functor, can have default value in meta data.  

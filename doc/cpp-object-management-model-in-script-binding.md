@@ -1,21 +1,21 @@
 # C++ object life management model in script binding
 
-<!-- toc -->
-
-- [Script frees the object](#script-frees-the-object)
-  * [Return object as a copy](#return-object-as-a-copy)
-  * [Return object as a raw pointer and use policy GMetaRuleTransferOwnership](#return-object-as-a-raw-pointer-and-use-policy-gmetaruletransferownership)
-- [C++ frees the object](#c-frees-the-object)
-- [C++ and script share the object ownership](#c-and-script-share-the-object-ownership)
-- [If you are working on legacy code](#if-you-are-working-on-legacy-code)
-
-<!-- tocstop -->
+<!--begintoc-->
+* [Script frees the object](#a2_1)
+  * [Return object as a copy](#a3_1)
+  * [Return object as a raw pointer and use policy GMetaRuleTransferOwnership](#a3_2)
+* [C++ frees the object](#a2_2)
+* [C++ and script share the object ownership](#a2_3)
+* [If you are working on legacy code](#a2_4)
+<!--endtoc-->
 
 When returning a C++ object to script from a C++ function, either C++ or script needs to free the object when the object is not used by either C++ or script any more. cpgf library supports flexible object life management model that allows the user decides which side, C++, script, or both, to free the object.
 
+<a id="a2_1"></a>
 ## Script frees the object
 In this model, C++ transfers the object ownership to script. Then C++ code doesn't use that object any more. Script will free the object usually in the garbage collection phase. There are two different ways to achieve this model, both has its disadvantage.
 
+<a id="a3_1"></a>
 ### Return object as a copy
 ```c++
 MyObject getSomeObject() {
@@ -26,6 +26,7 @@ In native C++, the compiler will track the life of returned MyObject and free it
 
 The mechanism works quite well but the problem is that MyObject must be copied. It's not acceptable if there is non trivial copy constructor in MyObject.
 
+<a id="a3_2"></a>
 ### Return object as a raw pointer and use policy GMetaRuleTransferOwnership
 ```c++
 MyObject * getSomeObject() {
@@ -39,6 +40,7 @@ In this model, the returned object will not be copied by cpgf, so there is no ex
 
 Usually this is not a serious problem and it rarely happens, but it's good to take aware of it.
 
+<a id="a2_2"></a>
 ## C++ frees the object
 It's simple. If the returned object is a reference, or a pointer without policy GMetaRuleTransferOwnership, script doesn't free the object. It's the responsibility of C++ code to free it.
 ```c++
@@ -52,6 +54,7 @@ const MyObject & getSomeObjectByReference() {
 }
 ```
 
+<a id="a2_3"></a>
 ## C++ and script share the object ownership
 Sometimes it's hard to decide which side free the object, in C++ or in script. Sometimes we may not want to specify GMetaRuleTransferOwnership (but it's good to use GMetaRuleTransferOwnership properly if you are building a meta data library, even you don't use that policy). That's to say, we want C++ and script share the ownership for an object.
 
@@ -79,6 +82,7 @@ Note: if you forget to include the meta traits headers, the shared pointer still
 
 Currently cpgf supports shared pointers in C++11, Boost library, and cpgf library. If you have your own shared pointer, it's a breeze to implement your version of meta traits. If you want to do so, please read the source code in above meta traits headers, they are self explained even there is no comment in the code!
 
+<a id="a2_4"></a>
 ## If you are working on legacy code
 Up to now, seems shared pointer is the best way to return an object from C++ to script. However, it you are working on legacy code base and you can't modify the code, it doesn't matter. You can still use the technical to return an object as a copied value, or a raw pointer (as long as you specify policy GMetaRuleTransferOwnership in reflection data), you legacy code base will still work quite well.
 

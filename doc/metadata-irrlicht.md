@@ -1,28 +1,29 @@
 # cpgf reflection, Lua, Javascript, and Python script binding for Irrlicht 3D engine
 
-<!-- toc -->
+<!--begintoc-->
+* [Overview](#a2_1)
+* [How is the meta data created](#a2_2)
+* [Current status of Irrlicht reflection and script binding](#a2_3)
+* [Compiling requirements of Irrlicht library](#a2_4)
+* [Use cpgf Irrlicht script binding](#a2_5)
+* [Compile and run Irrlicht sample script code](#a2_6)
+* [Memory management in cpgf Irrlicht script binding](#a2_7)
+* [Known issues and limitations in the Irrlicht meta data](#a2_8)
+<!--endtoc-->
 
-- [Overview](#overview)
-- [How is the meta data created](#how-is-the-meta-data-created)
-- [Current status of Irrlicht reflection and script binding](#current-status-of-irrlicht-reflection-and-script-binding)
-- [Compiling requirements of Irrlicht library](#compiling-requirements-of-irrlicht-library)
-- [Use cpgf Irrlicht script binding](#use-cpgf-irrlicht-script-binding)
-- [Compile and run Irrlicht sample script code](#compile-and-run-irrlicht-sample-script-code)
-- [Memory management in cpgf Irrlicht script binding](#memory-management-in-cpgf-irrlicht-script-binding)
-- [Known issues and limitations in the Irrlicht meta data](#known-issues-and-limitations-in-the-irrlicht-meta-data)
-
-<!-- tocstop -->
-
+<a id="a2_1"></a>
 ## Overview
 
 cpgf Irrlicht binding is a full stack of technology to use cpgf reflection and script binding with the 3D render engine Irrlicht. With cpgf built-in meta data collection for Irrlicht, we can easily get reflection information for Irrlicht at runtime, and it's even easier to use Irrlicht library in Lua, Google V8 JavaScript, and Python.
 
 The supported Irrlicht version is 1.8.
 
+<a id="a2_2"></a>
 ## How is the meta data created
 
 All of the meta data for Irrlicht is generated automatically by the tool metagen, which is a part of cpgf library. No any bit was written by hand.
 
+<a id="a2_3"></a>
 ## Current status of Irrlicht reflection and script binding
 
 Thanking to the great sample code collection in Irrlicht C++ version, 19 out of total 26 samples are converted to Lua, JavaScript, and Python scripts. All of the 57 scripts (19 samples in 3 script languages) work perfectly.
@@ -40,12 +41,14 @@ Below are screenshots of some sample code running in different script language.
 <img src="images/cpgf-irrlicht-11-perpixellighting-lua.jpg" width=300>
 <img src="images/cpgf-irrlicht-16-quake3mapshader-py.jpg" width=300>
 
+<a id="a2_4"></a>
 ## Compiling requirements of Irrlicht library
 
 The default distribution of Irrlicht disables RTTI. cpgf can work without RTTI in meta data. However, if we need to cast object to parent/child class in script binding, RTTI is required, otherwise cpgf.cast can't work.
 
 Seems Irrlicht requires a lot of explicit type casting because a lot of functions return pointer with base classes. So to use Irrlicht in script binding, **we should recompile Irrlicht library with Run Time Type Information (RTTI) enabled**, otherwise, object can't be casted between classes.
 
+<a id="a2_5"></a>
 ## Use cpgf Irrlicht script binding
 
 To use Irrlicht meta data, add all cpp files in folder src/metadata/irrlicht/ to your C++ project. Compiling Irrlicht meta data is very slow. It needs from 20 minutes to one hour to compile, depending on your hardware and compiler.
@@ -112,6 +115,7 @@ function start()
 start();
 ```
 
+<a id="a2_6"></a>
 ## Compile and run Irrlicht sample script code
 
 In command line, go to build folder, run
@@ -132,6 +136,7 @@ All the sample scripts use the same folder structure as Irrlicht C++ version, wh
 
 Note for VC user, you must add flag /bigobj to compiler settings to compile Irrchlit meta data.
 
+<a id="a2_7"></a>
 ## Memory management in cpgf Irrlicht script binding
 
 As far as I understand, Irrlicht is based on reference count memory management. Also a lot of objects are created by factory functions, such as createOctreeTriangleSelector. To release any objects, just call IReferenceCounted::drop.
@@ -143,6 +148,7 @@ In cpgf Irrlicht binding, the thing is slightly different.
 2, For objects that are created by factory functions, you must call object.drop() to release the ownership. This is exactly same as Irrlicht C++ version does. It's possible that adding GMetaRuleTransferOwnership policy to those factory functions to make them give up the ownership and let the script engine garbage collect it, however, two problems prevent me from doing that, A, I don't and will not known which functions should give up the ownership, B, Some Irrlicht internal objects don't perform grab/drop well, so arbitrary garbage collection on those kind of objects may cause crash.
 
 
+<a id="a2_8"></a>
 ## Known issues and limitations in the Irrlicht meta data
 
 There are some known issues and limitation in current meta data for Irrlicht. All issues can be overcome with some workaround. Below lists the issues and how to overcome them.

@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Use built-in object array in cpgf script binding
 

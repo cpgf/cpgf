@@ -1,26 +1,26 @@
 # cpgf reflection -- using meta data
 
-<!-- toc -->
+<!--begintoc-->
+* [Using reflection through library](#a2_1)
+  * [Retrieve meta class](#a3_1)
+  * [Retrieve meta data](#a3_2)
+* [Using meta data](#a2_2)
+  * [Using meta item](#a3_3)
+  * [Using meta field](#a3_4)
+  * [Using meta property](#a3_5)
+  * [Using meta method](#a3_6)
+  * [Using meta constructor](#a3_7)
+  * [Using meta operator](#a3_8)
+  * [Using meta annotation](#a3_9)
+  * [Using meta annotation value](#a3_10)
+  * [Using meta enumerators](#a3_11)
+  * [Using variadic parameters in meta methods, constructors and operators](#a3_12)
+<!--endtoc-->
 
-- [Using reflection through library](#using-reflection-through-library)
-  * [Retrieve meta class](#retrieve-meta-class)
-  * [Retrieve meta data](#retrieve-meta-data)
-- [Using meta data](#using-meta-data)
-  * [Using meta item](#using-meta-item)
-  * [Using meta field](#using-meta-field)
-  * [Using meta property](#using-meta-property)
-  * [Using meta method](#using-meta-method)
-  * [Using meta constructor](#using-meta-constructor)
-  * [Using meta operator](#using-meta-operator)
-  * [Using meta annotation](#using-meta-annotation)
-  * [Using meta annotation value](#using-meta-annotation-value)
-  * [Using meta enumerators](#using-meta-enumerators)
-  * [Using variadic parameters in meta methods, constructors and operators](#using-variadic-parameters-in-meta-methods-constructors-and-operators)
-
-<!-- tocstop -->
-
+<a id="a2_1"></a>
 ## Using reflection through library
 
+<a id="a3_1"></a>
 ### Retrieve meta class
 
 To retrieve any meta data, first we need to get the desired meta class.
@@ -30,6 +30,7 @@ To get a certain meta class, call findMetaClass("TheMetaClassName").
 
 Both functions return either NULL for not found or a pointer of const GMetaClass *.
 
+<a id="a3_2"></a>
 ### Retrieve meta data
 
 Any meta data can be retrieved through GMetaClass.
@@ -105,8 +106,10 @@ const GMetaItem * getMetaAt(size_t index) const;
 
 The last two functions, getMetaCount and getMetaAt, can be used to retrieve arbitrary meta data.
 
+<a id="a2_2"></a>
 ## Using meta data
 
+<a id="a3_3"></a>
 ### Using meta item
 
 Class GMetaItem is the base class for all meta class.  
@@ -177,6 +180,7 @@ const GMetaAnnotation * getAnnotationAt(size_t index) const;
 ```
 Return annotation at certain index.
 
+<a id="a3_4"></a>
 ### Using meta field
 
 Class GMetaField exposes several functions to set/get field, and acquire field information.
@@ -207,6 +211,7 @@ void * getAddress(void * instance) const;
 ```
 Get the field address. It's as if performing a "&" operator on the field.
 
+<a id="a3_5"></a>
 ### Using meta property
 
 Using property is almost same as using field, except that property doesn't support getAddress.
@@ -233,6 +238,7 @@ virtual size_t getSize() const;
 ```
 Get the property memory size. It's as if performing a sizeof on the property.
 
+<a id="a3_6"></a>
 ### Using meta method
 
 Class GMetaMethod exposes several functions to invoke method, and acquire field information.
@@ -276,6 +282,7 @@ virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
 ```
 Check if a parameter can be converted to the method parameter.
 
+<a id="a3_7"></a>
 ### Using meta constructor
 
 Using constructor is almost same as using method, except that its return value is always a pointer of "void *".
@@ -320,6 +327,7 @@ virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
 ```
 Check if a parameter can be converted to the constructor parameter.
 
+<a id="a3_8"></a>
 ### Using meta operator
 ```c++
 Using operator is almost same as using method, except that its parameter count is determined by the operator itself.
@@ -370,6 +378,7 @@ virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
 ```
 Check if a parameter can be converted to the operator parameter.
 
+<a id="a3_9"></a>
 ### Using meta annotation
 ```c++
 const GMetaItem * getMetaItem() const;
@@ -392,6 +401,7 @@ const GAnnotationValue * getValueAt(size_t index) const;
 ```
 Get the annotation value at certain index.
 
+<a id="a3_10"></a>
 ### Using meta annotation value
 
 Annotation value is not meta data.  
@@ -435,6 +445,7 @@ T toObject() const;
 Convert the value to a specified type.
 
 
+<a id="a3_11"></a>
 ### Using meta enumerators
 ```c++
 virtual size_t getTypeSize() const;
@@ -467,6 +478,7 @@ virtual void destroyInstance(void * instance) const;
 ```
 
 
+<a id="a3_12"></a>
 ### Using variadic parameters in meta methods, constructors and operators
 
 Any meta invokable -- methods, constructors, or operators -- with only one parameter of type GMetaVariadicParam * or const GMetaVariadicParam *, is treated as variadic invokable.  

@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # cpgf script binding -- an open source library to connect Lua, Google V8 Javascript and Python to C++
 

@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Policies and Rules -- customize the underlying behavior at compile time
 

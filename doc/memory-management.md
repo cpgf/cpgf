@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # cpgf library memory management guideline
 

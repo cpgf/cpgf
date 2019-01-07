@@ -1,21 +1,21 @@
 # Create archive reader/writer and storage reader/writer
 
-<!-- toc -->
+<!--begintoc-->
+* [Overview](#a2_1)
+  * [Concept disambiguition](#a3_1)
+  * [Archive reader/writer](#a3_2)
+  * [Storage reader/writer](#a3_3)
+* [Create archive reader and writer.](#a2_2)
+* [Create storage reader and writer.](#a2_3)
+  * [Create storage reader/writer for text stream storage](#a3_4)
+  * [Create storage reader/writer for XML storage](#a3_5)
+  * [Create storage reader/writer for JSON storage](#a3_6)
+<!--endtoc-->
 
-- [Overview](#overview)
-  * [Concept disambiguition](#concept-disambiguition)
-  * [Archive reader/writer](#archive-readerwriter)
-  * [Storage reader/writer](#storage-readerwriter)
-- [Create archive reader and writer.](#create-archive-reader-and-writer)
-- [Create storage reader and writer.](#create-storage-reader-and-writer)
-  * [Create storage reader/writer for text stream storage](#create-storage-readerwriter-for-text-stream-storage)
-  * [Create storage reader/writer for XML storage](#create-storage-readerwriter-for-xml-storage)
-  * [Create storage reader/writer for JSON storage](#create-storage-readerwriter-for-json-storage)
-
-<!-- tocstop -->
-
+<a id="a2_1"></a>
 ## Overview
 
+<a id="a3_1"></a>
 ### Concept disambiguition
 
 There are two core concepts in the serialization library, archive and storage.
@@ -36,6 +36,7 @@ Archive and storage are accessed through reader and writer.
 A reader is used to get data from archive and storage.  
 A writer is used to send data to archive and storage.
 
+<a id="a3_2"></a>
 ### Archive reader/writer
 
 The interfaces IMetaArchiveReader and IMetaArchiveWriter are the archive reader and writer.  
@@ -56,6 +57,7 @@ The archive reader does:
   * Track pointers to deserialize one object that's pointed by multiple pointers only once.
   * Create and use customized serializers for customized data type, such as std::string, C++ array. 
 
+<a id="a3_3"></a>
 ### Storage reader/writer
 
 The interfaces IMetaStorageReader and IMetaStorageWriter is the meta reader and writer.  
@@ -68,6 +70,7 @@ The cpgf library has three built in storage formats:
   * XML -- use XML as storage. cpgf uses RapidXML to manipulate XML. See gmetastorage_xml.h
   * JSON -- use JSON as storage. cpgf uses Jsoncpp to manipulate JSON. See gmetastorage_json.h
 
+<a id="a2_2"></a>
 ## Create archive reader and writer.
 
 To create the interface for archive reader and writer, call below factory functions.
@@ -80,8 +83,10 @@ How to get the storage reader and writer will be explained later.
 The meta service, IMetaService * service, is the meta data center that the archivers use to find meta data information.  
 To get the service for global meta data, just call createDefaultMetaService(). It will return a IMetaService interface.
 
+<a id="a2_3"></a>
 ## Create storage reader and writer.
 
+<a id="a3_4"></a>
 ### Create storage reader/writer for text stream storage
 ```c++
 IMetaStorageWriter * createTextStreamStorageWriter(std::ostream & outputStream);
@@ -91,6 +96,7 @@ IMetaStorageReader * createTextStreamStorageReader(std::istream & inputStream);
 Text stream reader and writer works on C++ stream.  
 Usually you can use a stringstream as the input and output stream.
 
+<a id="a3_5"></a>
 ### Create storage reader/writer for XML storage
 ```c++
 IMetaStorageWriter * createXmlStorageWriter(const GMetaXmlStorage & xmlStorage);
@@ -137,6 +143,7 @@ GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(servi
 // here we can read object from archiveReader.
 ```
 
+<a id="a3_6"></a>
 ### Create storage reader/writer for JSON storage
 ```c++
 IMetaStorageWriter * createJsonStorageWriter(const GMetaJsonStorage & jsonStorage);

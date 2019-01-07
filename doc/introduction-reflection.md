@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # cpgf reflection -- an open source library to add reflection to C++
 

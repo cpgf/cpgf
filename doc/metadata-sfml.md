@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Built-in meta data for SFML -- Simple and Fast Multimedia Library in C++ cpgf library
 

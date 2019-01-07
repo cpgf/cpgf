@@ -1,16 +1,15 @@
 # Binding Lua, Google V8 Javascript, Python and Mozilla SpiderMonkey engine to C++
 
-<!-- toc -->
+<!--begintoc-->
+* [Overview](#a2_1)
+* [Get start](#a2_2)
+* [Global script object VS. nested script object](#a2_3)
+* [Script object API](#a2_4)
+* [Utility API](#a2_5)
+* [Passing script function and object to C++](#a2_6)
+<!--endtoc-->
 
-- [Overview](#overview)
-- [Get start](#get-start)
-- [Global script object VS. nested script object](#global-script-object-vs-nested-script-object)
-- [Script object API](#script-object-api)
-- [Utility API](#utility-api)
-- [Passing script function and object to C++](#passing-script-function-and-object-to-c)
-
-<!-- tocstop -->
-
+<a id="a2_1"></a>
 ## Overview
 
 In this documentation, the phrase "script engine" represents any supported script engine, which is Lua, Google V8 JavaScript, Python or Mozilla SpiderMonkey.
@@ -28,6 +27,7 @@ What can the binding engine do
   * Transfer binary data between C++ and script.
   * Pass script function and object to C++. 
 
+<a id="a2_2"></a>
 ## Get start
 
 To binding Lua, #include "cpgf/scriptbind/gluabind.h"
@@ -89,12 +89,14 @@ Such as TheName.MyClass, etc.
 
 After getting the GScriptObject object, we get everything ready to bind the meta data to the script engine.
 
+<a id="a2_3"></a>
 ## Global script object VS. nested script object
 
 The APIs shows above create global script object. A global script object represent the whole scripting environment, it's the root object of every other objects. Anything that is set to a global object is accessed by the name directly. For example, if we have set a variable "myObj" to global object, in script we can write "myObj.foo = bar" to use myObj".
 
 A nested script object is a kind of object that embeded in another object. It can be created by GScriptObject::createScriptObject. Assume we created a nested object named "myNested", and then set a variable "myOtherObj" to "myNested", then in script we can access myOtherObj as "myNested.myOtherObj.foo = bar".
 
+<a id="a2_4"></a>
 ## Script object API
 ```c++
 GScriptValue getValue(const char * name);
@@ -142,6 +144,7 @@ MetaClass cloneClass(MetaClass);
 cloneClass recieves a meta class as parameter and return a clone of the meta class.  
 cloneClass is used to inherit C++ class from script. For more information, please see the documentation of "inherit C++ class from script".
 
+<a id="a2_5"></a>
 ## Utility API
 
 To easy the use, there are some utility APIs in gscriptbindutil.h
@@ -184,6 +187,7 @@ injectMetaClassToScript(myScriptObject, globalClass, NULL);
 ```
 will bind everything in the meta system to the script.
 
+<a id="a2_6"></a>
 ## Passing script function and object to C++
 
 The script function and object here are the function and object defined in the script, not exposed by C++.  
@@ -193,3 +197,4 @@ Then the C++ code can use the interfaces to access the script function and objec
 Notes:
   - If the script interface is passed as method parameter, don't release it. The caller will release it.
   - Don't pass script interface to field. You should use property with getter and setter to set the data. In the setter, addReference must be called on the interface to retain it. Otherwise, the interface will be released by the script.
+

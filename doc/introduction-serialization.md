@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # cpgf serialization -- a C++ open source library to serialization
 

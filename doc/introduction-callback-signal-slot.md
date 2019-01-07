@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # cpgf callback -- an open source library for C++ callback, signal, slot, delegate, observer patten, event system
 

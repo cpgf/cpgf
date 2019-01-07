@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Built-in meta data for OpenGL, GLU and GLUT in C++ cpgf library
 

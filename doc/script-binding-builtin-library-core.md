@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Use built-in library builtin.core in cpgf script binding
 

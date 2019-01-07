@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # What cpgf is and is not
 

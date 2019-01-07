@@ -1,29 +1,30 @@
 # cpgf library -- general frequently asked questions
 
-<!-- toc -->
+<!--begintoc-->
+* [General](#a2_1)
+  * [What's the exception safety in cpgf library?](#a3_1)
+  * [What's the thread safety in cpgf library?](#a3_2)
+  * [Some of the library document is bad, I want to help to rephrase it, how can I help?](#a3_3)
+* [Reflection](#a2_2)
+  * [When I build meta data for method, why the compiler issues warning saying "returning reference to temporary object"?](#a3_4)
+  * [cpgf doesn't support reflecting meta data for namespace. I need namespace, please!](#a3_5)
+  * [The compile time is super slow, how to boost it?](#a3_6)
+  * [Should I reflect all class members even if I don't need all of them?](#a3_7)
+* [Script binding (Lua, Google V8 Javascript and Python)](#a2_3)
+  * [Why can 0 (zero) be passed as pointer in Javascript and Python, but not in Lua](#a3_8)
+  * [When should I use bindMethod and bindMethodList?](#a3_9)
+  * [Why the Google V8 binding is based on an old version V8 (v3.4.5)?](#a3_10)
+<!--endtoc-->
 
-- [General](#general)
-  * [What's the exception safety in cpgf library?](#whats-the-exception-safety-in-cpgf-library)
-  * [What's the thread safety in cpgf library?](#whats-the-thread-safety-in-cpgf-library)
-  * [Some of the library document is bad, I want to help to rephrase it, how can I help?](#some-of-the-library-document-is-bad-i-want-to-help-to-rephrase-it-how-can-i-help)
-- [Reflection](#reflection)
-  * [When I build meta data for method, why the compiler issues warning saying "returning reference to temporary object"?](#when-i-build-meta-data-for-method-why-the-compiler-issues-warning-saying-returning-reference-to-temporary-object)
-  * [cpgf doesn't support reflecting meta data for namespace. I need namespace, please!](#cpgf-doesnt-support-reflecting-meta-data-for-namespace-i-need-namespace-please)
-  * [The compile time is super slow, how to boost it?](#the-compile-time-is-super-slow-how-to-boost-it)
-  * [Should I reflect all class members even if I don't need all of them?](#should-i-reflect-all-class-members-even-if-i-dont-need-all-of-them)
-- [Script binding (Lua, Google V8 Javascript and Python)](#script-binding-lua-google-v8-javascript-and-python)
-  * [Why can 0 (zero) be passed as pointer in Javascript and Python, but not in Lua](#why-can-0-zero-be-passed-as-pointer-in-javascript-and-python-but-not-in-lua)
-  * [When should I use bindMethod and bindMethodList?](#when-should-i-use-bindmethod-and-bindmethodlist)
-  * [Why the Google V8 binding is based on an old version V8 (v3.4.5)?](#why-the-google-v8-binding-is-based-on-an-old-version-v8-v345)
-
-<!-- tocstop -->
-
+<a id="a2_1"></a>
 ## General
 
+<a id="a3_1"></a>
 ### What's the exception safety in cpgf library?
 
 The library provides basic exception safety. That's to say, when exception occurs, no memory leak, and the object is not garbled. However, it's hard to guarantee the exception safety. So if you find anything that's not exception safety, let me know.
 
+<a id="a3_2"></a>
 ### What's the thread safety in cpgf library?
 
 The library is not safe for writing at the same time in multiple thread.
@@ -36,14 +37,17 @@ For example, if you get a meta method in one thread, calling the method in sever
 
 However, the library is not tested in multiple threads environment yet, so take your own risk.
 
+<a id="a3_3"></a>
 ### Some of the library document is bad, I want to help to rephrase it, how can I help?
 
 First, any intention of helping the library is appreciated.
 
 Second, about the documentation. If you want to help in documentation randomly, just send me the revised documentation by mail. If you want to help continuously, I can create an editor account for you.
 
+<a id="a2_2"></a>
 ## Reflection
 
+<a id="a3_4"></a>
 ### When I build meta data for method, why the compiler issues warning saying "returning reference to temporary object"?
 
 This is because either the parameter, or the return value, is a reference-to-const to an object which can be constructed implicitly from a fundamental (int, char, etc) type or pointer or reference to a fundamental type.
@@ -62,6 +66,7 @@ That warning is dangerous, it may crash your program. To solve this issue, use p
 ```
 
 
+<a id="a3_5"></a>
 ### cpgf doesn't support reflecting meta data for namespace. I need namespace, please!
 
 It's true that cpgf doesn't support reflecting namespace. There are two reasons for it.
@@ -79,6 +84,7 @@ GDefineMetaNamespace acts as a virtual meta class. A GDefineMetaNamespace can ho
 
 The OpenGL and Box2D sample code in cpgf package demonstrate the use of namespace well.
 
+<a id="a3_6"></a>
 ### The compile time is super slow, how to boost it?
 
 Due to the heavy and deep recursive use of C++ template technology, the compile for meta data reflection is quite slow and consuming huge memory. It's quite possible that the compiler eats gigabytes memory to compile a single .cpp file which contains a lot of reflection templates.
@@ -91,13 +97,16 @@ Also be sure you have enough RAM memory. Usually 2G RAM is the minimum requireme
 
 Just to clarify, compiling code that reflects meta data is slow, but compiling code that uses meta data is not slow because there are very few templates involved.
 
+<a id="a3_7"></a>
 ### Should I reflect all class members even if I don't need all of them?
 No, you don't.
 
 The philosophy in cpgf library is "you don't pay for what you don't use". You only need to reflect the class members that you need. If there are 10 functions in a class and you only need to access one function via reflection, you only need to reflect that one function. Another example, if you only need to construct objects from class name, you only need to reflect the constructors and don't reflect all other members.
 
+<a id="a2_3"></a>
 ## Script binding (Lua, Google V8 Javascript and Python)
 
+<a id="a3_8"></a>
 ### Why can 0 (zero) be passed as pointer in Javascript and Python, but not in Lua
 
 Assume we have a C++ method "void foo(MyClass * p);" In JS and Python script, calling it by "foo(0)" works, but in Lua it will cause GVariant fail cast error. Why?
@@ -108,6 +117,7 @@ In Google V8 Javascript and Python's C/C++ interface, there is integer type. So 
 
 To avoid any cross script clash, we'd better always use null (in JS), nil (in Lua), and None (in Python) to represent NULL pointer rather than 0.
 
+<a id="a3_9"></a>
 ### When should I use bindMethod and bindMethodList?
 
 If you are only binding classes, never you need to call bindMethod or bindMethodList.  
@@ -115,6 +125,7 @@ cpgf will bind all class members automatically.
 
 bindMethod and bindMethodList are useful if you want to bind methods to global scope under current script object.
 
+<a id="a3_10"></a>
 ### Why the Google V8 binding is based on an old version V8 (v3.4.5)?
 
 First, the V8 version used in cpgf is not very old. It should be already stable version.  

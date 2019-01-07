@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Use built-in byte array in cpgf script binding
 

@@ -2,14 +2,6 @@
 
 <!-- toc -->
 
-- [Overview](#overview)
-- [Construct GScriptValue](#construct-gscriptvalue)
-- [Construct GScriptValue with given value](#construct-gscriptvalue-with-given-value)
-- [Get the underlying value from GScriptValue](#get-the-underlying-value-from-gscriptvalue)
-- [Detect the type of a GScriptValue](#detect-the-type-of-a-gscriptvalue)
-
-<!-- tocstop -->
-
 ## Overview
 
 GScriptValue is the core type used to exchange data with script binding engine. A GScriptValue can represent a meta class, an object, a string, a fundamental value, and so on. GScriptValue is copyable and is safe to pass around.

@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Built-in meta data for Box2D physics engine in C++ cpgf library
 

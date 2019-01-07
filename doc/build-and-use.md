@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Building and use cpgf library
 

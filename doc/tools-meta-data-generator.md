@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # cpgf metagen -- C++ meta data generator for reflection and script binding
 

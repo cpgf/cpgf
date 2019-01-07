@@ -1,4 +1,4 @@
-
+<!--notoc-->
 # Programming interface -- Library VS API
 
 ## Library VS API

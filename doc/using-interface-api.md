@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Using interface based API
 

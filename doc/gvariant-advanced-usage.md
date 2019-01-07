@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Advanced usage of GVariant
 

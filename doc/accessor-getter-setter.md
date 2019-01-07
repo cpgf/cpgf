@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # cpgf Accessor library -- generic getter and setter for data accessing
 

@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Inherit and extend C++ class from script in cpgf library
 

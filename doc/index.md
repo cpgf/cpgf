@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Documentations for C++ cpgf library, reflection, script binding
 

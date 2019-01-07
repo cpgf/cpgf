@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # How is cpgf library tested and quality assurance
 

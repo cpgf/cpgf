@@ -1,18 +1,16 @@
 # cpgf tween library
 
-<!-- toc -->
-
-- [Main features](#main-features)
-- [Time unit in cpgf tween library](#time-unit-in-cpgf-tween-library)
-- [Common types, methods and parameters in both GTween and GTimeline](#common-types-methods-and-parameters-in-both-gtween-and-gtimeline)
-- [GTween special methods and parameters](#gtween-special-methods-and-parameters)
-- [GTimeline special methods](#gtimeline-special-methods)
-- [Use GTweenList](#use-gtweenlist)
-- [Drive the tween](#drive-the-tween)
-- [Tweening large amount of properties at once in CPU data cache friendly manner](#tweening-large-amount-of-properties-at-once-in-cpu-data-cache-friendly-manner)
-- [Use the sample application](#use-the-sample-application)
-
-<!-- tocstop -->
+<!--begintoc-->
+* [Main features](#a2_1)
+* [Time unit in cpgf tween library](#a2_2)
+* [Common types, methods and parameters in both GTween and GTimeline](#a2_3)
+* [GTween special methods and parameters](#a2_4)
+* [GTimeline special methods](#a2_5)
+* [Use GTweenList](#a2_6)
+* [Drive the tween](#a2_7)
+* [Tweening large amount of properties at once in CPU data cache friendly manner](#a2_8)
+* [Use the sample application](#a2_9)
+<!--endtoc-->
 
 cpgf tween and timeline library is a powerful tweening engine written in pure C++. A tween interpolates property values overtime in-between a certain duration. A timeline manages a sequence of tweens or nested timelines.
 
@@ -21,6 +19,7 @@ We can do lots of stuff with cpgf tween library, such as, but not limit to,
   * Create visual user interface effect in application software, similar as the drag and drop effect in IOS and Android devices.
   * Delay call a function after a certain duration.
 
+<a id="a2_1"></a>
 ## Main features
 
   * Support many features that exist in some other widely used Flash tweening engines such as TweenMax. cpgf tween library supports repeat, yoyo, delay, repeat delay, backward, use frames, time scale, dynamical destination value (follow), and a lot of callbacks on initialization or complete.
@@ -67,6 +66,7 @@ Below animation shows how cpgf tween library works. A teapot moves with bounce-o
 Below animation shows how timeline works. Three teapots moves in different ease animation, one by one.
 <img src="images/cpgf-timeline-animation.gif">
 
+<a id="a2_2"></a>
 ## Time unit in cpgf tween library
 
 cpgf tween library supports two kinds of timing mode
@@ -76,6 +76,7 @@ cpgf tween library supports two kinds of timing mode
 **Canveat**: if the frameDuration is 0, the timeline will start any pending tweens immediately and cause weird behavior. So only use positive number as frameDuration. If your game frame rate is over 1000 that cause the frame duration is under 1 millisecond, you should use microsecond or even nanosecond which is never goes to zero.
 
 
+<a id="a2_3"></a>
 ## Common types, methods and parameters in both GTween and GTimeline
 
 Class GTween and GTimeline share a lot of types, methods and parameters in common. Below lists the methods and parameters. Note either tween or timeline is also called a tweenable.
@@ -237,6 +238,7 @@ virtual void removeForInstance(const void * instance) = 0;
 ```
 Remove all properties which object equals to the instance.
 
+<a id="a2_4"></a>
 ## GTween special methods and parameters
 
 Parameter setting functions
@@ -287,6 +289,7 @@ GTween & follow(const AccessorType & accessor,
 ```
 Similar as the "target" functions, the "follow" functions add a property to tween on. The target value will be retrieved from targetGetter dynamically. We can use createGetter to create the target getter.
 
+<a id="a2_5"></a>
 ## GTimeline special methods
 ```c++
 GTween & tween();
@@ -338,6 +341,7 @@ virtual void removeForInstance(const void * instance);
 ```
 Remove all properties which object equals to the instance.
 
+<a id="a2_6"></a>
 ## Use GTweenList
 
 Though we can create objects of GTween and GTimeline and tick them, a better way is to use GTweenList. We can get several benefits by using GTweenList,
@@ -378,6 +382,7 @@ virtual void removeForInstance(const void * instance);
 ```
 Remove all properties which object equals to the instance.
 
+<a id="a2_7"></a>
 ## Drive the tween
 
 To be most platform independent, cpgf tween library doesn't update each tweens or timelines. It's up to the user to call the function "tick" on GTween, GTimeline, or GTweenList.
@@ -388,6 +393,7 @@ void tick(GTweenNumber frameDuration);
 **Canveat**: if the frameDuration is 0, the timeline will start any pending tweens immediately and cause weird behavior. So only use positive number as frameDuration. If your game frame rate is over 1000 that cause the frame duration is under 1 millisecond, you should use microsecond or even nanosecond which is never goes to zero.
 
 
+<a id="a2_8"></a>
 ## Tweening large amount of properties at once in CPU data cache friendly manner
 
 Nowadays CPU data cache friendly is one of the most important optimization skill in high performance software such as console game. It's not rare that we may want to tween thousands of object on the screen in a game. Creating thousands of tweens, and each tween moves only one object, sounds work. But that may cause a lot of data cache misses and cause very bad performance.
@@ -426,6 +432,7 @@ void MyClass::setRatio(float ratio)
 
 In the tween sample application, there is test case in testcaseparticles.cpp shows how this works.
 
+<a id="a2_9"></a>
 ## Use the sample application
 
 There is a "tween" folder in cpgf sample directory, which is a comprehensive demonstration of how cpgf tween library works. The sample is a wxWidgets GUI application, and render in OpenGL. It also uses freeglut to draw the teapot.

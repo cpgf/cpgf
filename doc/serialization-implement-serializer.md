@@ -1,4 +1,4 @@
-
+<!--notoc-->
 
 # Inside cpgf serialization -- implement serializer
 
