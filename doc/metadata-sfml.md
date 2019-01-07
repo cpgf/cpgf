@@ -9,7 +9,7 @@ Now the supported SFML version is 1.6.
 
 With the meta data, it's a piece of cake to use SFML in Lua or Javascript language.
 
-<img src="images/cpgf-sfml-js.gif">
+<img src="images/cpgf-sfml-js.gif" />
 
 Can't wait to experiment the SFML binding? Below is a piece of real Javascript code snippet that using SFML!
 To see more code, including Lua code, see samples/sfml/ in the library package.

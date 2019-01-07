@@ -60,10 +60,10 @@ void gameLoop(float frameDuration)
 ```
 
 Below animation shows how cpgf tween library works. A teapot moves with bounce-out ease, repeatedly, in 2 seconds.
-<img src="images/cpgf-tween-animation.gif">
+<img src="images/cpgf-tween-animation.gif" />
 
 Below animation shows how timeline works. Three teapots moves in different ease animation, one by one.
-<img src="images/cpgf-timeline-animation.gif">
+<img src="images/cpgf-timeline-animation.gif" />
 
 <a id="a2_2"></a>
 ## Time unit in cpgf tween library
@@ -437,4 +437,4 @@ In the tween sample application, there is test case in testcaseparticles.cpp sho
 There is a "tween" folder in cpgf sample directory, which is a comprehensive demonstration of how cpgf tween library works. The sample is a wxWidgets GUI application, and render in OpenGL. It also uses freeglut to draw the teapot.
 
 Below image shows the charts of all ease function in the tween library, rendered by the sample application.
-<img src="images/cpgf-tween-all-ease-chart.jpg">
+<img src="images/cpgf-tween-all-ease-chart.jpg" />

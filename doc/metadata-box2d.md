@@ -7,7 +7,7 @@
 The meta data for Box2D is a collection of meta data to represent for Box2D physics engine library.  
 Now the supported Box2D version is 2.1.
 
-<img src="images/cpgf-box2d-lua.gif">
+<img src="images/cpgf-box2d-lua.gif" />
 
 Can't wait to experiment the Box2D binding? Below is a piece of real Lua code snippet that using Box2D!  
 To see more code, including JavaScript code, see samples/bopx2d/samplebox2d.cpp in the library package.

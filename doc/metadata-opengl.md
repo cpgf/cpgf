@@ -14,8 +14,8 @@ Some cool features in script binding with OpenGL:
   * Complete callback supports in GLUT. Scripts can pass the function written in script code to GLUT functions.
   * Complete binary data supports. Scripts can pass vertex buffer, color buffer, etc, to GL functions. 
 
-<img src="images/cpgf-opengl-lua.jpg">
-<img src="images/cpgf-opengl-javascript.jpg">
+<img src="images/cpgf-opengl-lua.jpg" />
+<img src="images/cpgf-opengl-javascript.jpg" />
 
 Can't wait to experiment the OpenGL binding? Below is a piece of real Javascript code snippet that using OpenGL!  
 To see more code, see samples/opengl/sampleopengl.cpp in the library package.

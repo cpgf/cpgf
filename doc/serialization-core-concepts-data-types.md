@@ -50,7 +50,7 @@ The storage layer is the bridge between the archive layer and the physical stora
 
 IMetaStorageReader and IMetaStorageWriter are the core interfaces of storage layer.
 
-<img src="images/cpgf-serialization-flow-chart.jpg">
+<img src="images/cpgf-serialization-flow-chart.jpg" />
 
 <a id="a2_5"></a>
 ## Streaming storage and structured storage -- we support both

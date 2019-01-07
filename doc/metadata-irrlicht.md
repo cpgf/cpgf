@@ -31,14 +31,14 @@ The 19 samples code are 01.helloworld, 02.quake3map, 03.customscenenode, 04.move
 
 Below are screenshots of some sample code running in different script language.
 
-<img src="images/cpgf-irrlicht-01-helloworld-js.jpg" width=300>
-<img src="images/cpgf-irrlicht-03-customscenenode-lua.jpg" width=300>
-<img src="images/cpgf-irrlicht-07-collision-js.jpg" width=300>
-<img src="images/cpgf-irrlicht-08-specialfx-py.jpg" width=300>
-<img src="images/cpgf-irrlicht-09-meshviewer-lua.jpg" width=300>
-<img src="images/cpgf-irrlicht-10-shaders-js.jpg" width=300>
-<img src="images/cpgf-irrlicht-11-perpixellighting-lua.jpg" width=300>
-<img src="images/cpgf-irrlicht-16-quake3mapshader-py.jpg" width=300>
+<img src="images/cpgf-irrlicht-01-helloworld-js.jpg" width=300 />
+<img src="images/cpgf-irrlicht-03-customscenenode-lua.jpg" width=300 />
+<img src="images/cpgf-irrlicht-07-collision-js.jpg" width=300 />
+<img src="images/cpgf-irrlicht-08-specialfx-py.jpg" width=300 />
+<img src="images/cpgf-irrlicht-09-meshviewer-lua.jpg" width=300 />
+<img src="images/cpgf-irrlicht-10-shaders-js.jpg" width=300 />
+<img src="images/cpgf-irrlicht-11-perpixellighting-lua.jpg" width=300 />
+<img src="images/cpgf-irrlicht-16-quake3mapshader-py.jpg" width=300 />
 
 <a id="a2_4"></a>
 ## Compiling requirements of Irrlicht library
