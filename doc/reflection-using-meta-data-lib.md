@@ -1,5 +1,4 @@
 # cpgf reflection -- using meta data
-
 <!--begintoc-->
 * [Using reflection through library](#a2_1)
   * [Retrieve meta class](#a3_1)

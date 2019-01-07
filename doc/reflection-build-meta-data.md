@@ -1,5 +1,4 @@
 # cpgf reflection -- build meta data
-
 <!--begintoc-->
 * [Overview](#a2_1)
 * [Define meta classes](#a2_2)

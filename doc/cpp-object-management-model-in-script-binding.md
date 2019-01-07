@@ -1,5 +1,4 @@
 # C++ object life management model in script binding
-
 <!--begintoc-->
 * [Script frees the object](#a2_1)
   * [Return object as a copy](#a3_1)

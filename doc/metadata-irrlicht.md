@@ -1,5 +1,4 @@
 # cpgf reflection, Lua, Javascript, and Python script binding for Irrlicht 3D engine
-
 <!--begintoc-->
 * [Overview](#a2_1)
 * [How is the meta data created](#a2_2)

@@ -1,5 +1,4 @@
 # Create archive reader/writer and storage reader/writer
-
 <!--begintoc-->
 * [Overview](#a2_1)
   * [Concept disambiguition](#a3_1)

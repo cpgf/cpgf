@@ -1,5 +1,4 @@
 # cpgf tween library
-
 <!--begintoc-->
 * [Main features](#a2_1)
 * [Time unit in cpgf tween library](#a2_2)

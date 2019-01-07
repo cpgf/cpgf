@@ -1,5 +1,4 @@
 # Useful technologies, tips, tricks and caveats for cpgf script binding
-
 <!--begintoc-->
 * [Overview](#a2_1)
 * [Use non-const reference as function in/out parameter](#a2_2)

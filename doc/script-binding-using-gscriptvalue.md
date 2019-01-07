@@ -1,7 +1,5 @@
 # Using class GScriptValue
 
-<!-- toc -->
-
 ## Overview
 
 GScriptValue is the core type used to exchange data with script binding engine. A GScriptValue can represent a meta class, an object, a string, a fundamental value, and so on. GScriptValue is copyable and is safe to pass around.

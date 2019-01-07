@@ -1,5 +1,4 @@
 # Inside cpgf serialization -- core concepts and data types
-
 <!--begintoc-->
 * [Simple data types and compound data types](#a2_1)
 * [Archive identifier](#a2_2)

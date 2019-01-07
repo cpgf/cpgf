@@ -1,5 +1,4 @@
 # cpgf library -- general frequently asked questions
-
 <!--begintoc-->
 * [General](#a2_1)
   * [What's the exception safety in cpgf library?](#a3_1)

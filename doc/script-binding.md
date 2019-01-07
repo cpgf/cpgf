@@ -1,5 +1,4 @@
 # Binding Lua, Google V8 Javascript, Python and Mozilla SpiderMonkey engine to C++
-
 <!--begintoc-->
 * [Overview](#a2_1)
 * [Get start](#a2_2)

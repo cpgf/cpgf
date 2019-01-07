@@ -1,5 +1,4 @@
 # Script language specific features in cpgf script binding
-
 <!--begintoc-->
 * [Overview](#a2_1)
 * [Lua - Use dot (.) to access member functions and fields](#a2_2)
