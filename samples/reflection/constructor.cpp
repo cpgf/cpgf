@@ -99,11 +99,11 @@ void doTestLib()
 	const GMetaConstructor * constructor;
 
 	metaClass = findMetaClass("constructor::TestObject");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << "Lib: " << metaClass->getName() << std::endl;
 
 	{
-		constructor = metaClass->getConstructorAt(0); testCheckAssert(constructor != NULL);
+		constructor = metaClass->getConstructorAt(0); testCheckAssert(constructor != nullptr);
 		void * obj = constructor->invoke();
 		TestObject back;
 		testCheckEqual(back, *(TestObject *)obj);
@@ -111,7 +111,7 @@ void doTestLib()
 	}
 
 	{
-		constructor = metaClass->getConstructorAt(1); testCheckAssert(constructor != NULL);
+		constructor = metaClass->getConstructorAt(1); testCheckAssert(constructor != nullptr);
 		void * obj = constructor->invoke(5);
 		TestObject back(5);
 		testCheckEqual(back, *(TestObject *)obj);
@@ -119,7 +119,7 @@ void doTestLib()
 	}
 
 	{
-		constructor = metaClass->getConstructorAt(2); testCheckAssert(constructor != NULL);
+		constructor = metaClass->getConstructorAt(2); testCheckAssert(constructor != nullptr);
 		void * obj = constructor->invoke(18, "new name");
 		TestObject back(18, "new name");
 		testCheckEqual(back, *(TestObject *)obj);
@@ -127,7 +127,7 @@ void doTestLib()
 	}
 
 	{
-		constructor = metaClass->getConstructorAt(3); testCheckAssert(constructor != NULL);
+		constructor = metaClass->getConstructorAt(3); testCheckAssert(constructor != nullptr);
 		void * obj = constructor->invoke(9, "another name", TestData(199, "another tag"));
 		TestObject back(9, "another name", TestData(199, "another tag"));
 		testCheckEqual(back, *(TestObject *)obj);
@@ -135,7 +135,7 @@ void doTestLib()
 	}
 
 	{
-		constructor = metaClass->getConstructorAt(4); testCheckAssert(constructor != NULL);
+		constructor = metaClass->getConstructorAt(4); testCheckAssert(constructor != nullptr);
 		void * obj = constructor->invoke(1, 3, 5, 7, 9);
 		int n = ((TestObject *)obj)->width;
 		testCheckEqual(n, 1 + 3 + 5 + 7 + 9);

@@ -104,7 +104,7 @@ inline void checkEnum(const cpgf::GMetaEnum * metaEnum, const char * prefix)
 {
 	using namespace cpgf;
 
-	testCheckAssert(metaEnum != NULL);
+	testCheckAssert(metaEnum != nullptr);
 
 	size_t valueCount = metaEnum->getCount();
 

@@ -1167,7 +1167,7 @@ GScriptValue doScriptToValue(const GContextPointer & context, int index, GGlueDa
 		return luaUserDataToScriptValue(context, index, outputGlueData);
 
 	case LUA_TFUNCTION: {
-		const bool ok = (lua_getupvalue(L, index, 1) != NULL);
+		const bool ok = (lua_getupvalue(L, index, 1) != nullptr);
 		if(ok && ! lua_isnil(L, -1)) {
 			void * rawUserData = lua_touserdata(L, -1);
 			GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(rawUserData);

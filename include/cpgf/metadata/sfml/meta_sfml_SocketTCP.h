@@ -40,7 +40,7 @@ void buildMetaClass_SocketTCP(const cpgf::GMetaDataConfigFlags & config, D _d)
     ;
     _d.CPGF_MD_TEMPLATE _method("Listen", &D::ClassType::Listen);
     _d.CPGF_MD_TEMPLATE _method("Accept", &D::ClassType::Accept)
-        ._default(copyVariantFromCopyable((IPAddress *)NULL))
+        ._default(copyVariantFromCopyable((IPAddress *)nullptr))
     ;
     _d.CPGF_MD_TEMPLATE _method("Send", (Socket::Status (D::ClassType::*) (const char *, std::size_t))&D::ClassType::Send);
     _d.CPGF_MD_TEMPLATE _method("Receive", (Socket::Status (D::ClassType::*) (char *, std::size_t, std::size_t &))&D::ClassType::Receive);

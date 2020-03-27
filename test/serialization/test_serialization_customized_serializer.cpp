@@ -41,9 +41,9 @@ public:
 	R() {}
 };
 
-A * pa = NULL;
-B * pb = NULL;
-C * pc = NULL;
+A * pa = nullptr;
+B * pb = nullptr;
+C * pc = nullptr;
 
 class MetaSerializerA : public IMetaSerializer
 {

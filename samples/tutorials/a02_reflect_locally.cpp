@@ -78,7 +78,7 @@ void run_a02()
 	const GMetaClass * nsMetaClass = defineForNamespace.getMetaClass();
 
 	const GMetaMethod * greetingMethod = nsMetaClass->getMethod("greeting");
-	greetingMethod->invoke(NULL, "yes, exactly");
+	greetingMethod->invoke(nullptr, "yes, exactly");
 
 	const GMetaClass * singleMetaClass = nsMetaClass->getClass("Single");
 	const GMetaField * field;

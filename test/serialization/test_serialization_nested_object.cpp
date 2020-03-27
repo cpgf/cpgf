@@ -22,7 +22,7 @@ public:
 class B
 {
 public:
-	B() : pa(NULL), nb(0) {}
+	B() : pa(nullptr), nb(0) {}
 	~B() { delete pa; }
 
 	A * pa;
@@ -33,7 +33,7 @@ public:
 class C
 {
 public:
-	C() : pb(NULL), nc(0) {}
+	C() : pb(nullptr), nc(0) {}
 	~C() { delete pb; }
 
 	void init() {

@@ -129,7 +129,7 @@ GTEST(Lib_GetKey)
 	GEQUAL(en->getKey(1), string("ws2"));
 	GEQUAL(en->getKey(2), string("ws3"));
 	GEQUAL(en->getKey(3), string("ws4"));
-	GEQUAL(en->getKey(5), NULL);
+	GEQUAL(en->getKey(5), nullptr);
 
 	ENUM(EnumSecond);
 	GEQUAL(en->getKey(0), string("bs1"));
@@ -137,7 +137,7 @@ GTEST(Lib_GetKey)
 	GEQUAL(en->getKey(2), string("bs3"));
 	GEQUAL(en->getKey(3), string("bs4"));
 	GEQUAL(en->getKey(4), string("bs5"));
-	GEQUAL(en->getKey(5), NULL);
+	GEQUAL(en->getKey(5), nullptr);
 }
 
 
@@ -156,7 +156,7 @@ GTEST(API_GetKey)
 	GEQUAL(en->getKey(1), string("ws2"));
 	GEQUAL(en->getKey(2), string("ws3"));
 	GEQUAL(en->getKey(3), string("ws4"));
-	GEQUAL(en->getKey(5), NULL);
+	GEQUAL(en->getKey(5), nullptr);
 
 	ENUM(EnumSecond);
 	GEQUAL(en->getKey(0), string("bs1"));
@@ -164,7 +164,7 @@ GTEST(API_GetKey)
 	GEQUAL(en->getKey(2), string("bs3"));
 	GEQUAL(en->getKey(3), string("bs4"));
 	GEQUAL(en->getKey(4), string("bs5"));
-	GEQUAL(en->getKey(5), NULL);
+	GEQUAL(en->getKey(5), nullptr);
 }
 
 

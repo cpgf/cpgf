@@ -102,11 +102,11 @@ void doTestLib()
 	const GMetaMethod * method;
 
 	metaClass = findMetaClass("method::TestObject");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << "Lib: " << metaClass->getName() << std::endl;
 
 	{
-		method = metaClass->getMethod("getWidth"); testCheckAssert(method != NULL);
+		method = metaClass->getMethod("getWidth"); testCheckAssert(method != nullptr);
 		testCheckAssert(method->getItemType().isConstFunction());
 
 		void * obj = metaClass->createInstance();
@@ -117,7 +117,7 @@ void doTestLib()
 	}
 
 	{
-		method = metaClass->getMethod("incWidth"); testCheckAssert(method != NULL);
+		method = metaClass->getMethod("incWidth"); testCheckAssert(method != nullptr);
 		testCheckAssert(! method->getItemType().isConstFunction());
 
 		void * obj = metaClass->createInstance();
@@ -134,7 +134,7 @@ void doTestLib()
 	}
 
 	{
-		method = metaClass->getMethod("calcData"); testCheckAssert(method != NULL);
+		method = metaClass->getMethod("calcData"); testCheckAssert(method != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		pobj->data = TestData(168, "Test stdcall");
@@ -146,7 +146,7 @@ void doTestLib()
 	}
 
 	{
-		method = metaClass->getMethod("refName"); testCheckAssert(method != NULL);
+		method = metaClass->getMethod("refName"); testCheckAssert(method != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		pobj->name = "";
@@ -159,7 +159,7 @@ void doTestLib()
 	}
 
 	{
-		method = metaClass->getMethod("calcObj"); testCheckAssert(method != NULL);
+		method = metaClass->getMethod("calcObj"); testCheckAssert(method != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject nc;
 		nc.width = 5;
@@ -171,7 +171,7 @@ void doTestLib()
 	}
 
 	{
-		method = metaClass->getMethod("sum"); testCheckAssert(method != NULL);
+		method = metaClass->getMethod("sum"); testCheckAssert(method != nullptr);
 		testCheckAssert(method->getItemType().isConstFunction());
 
 		void * obj = metaClass->createInstance();

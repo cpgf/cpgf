@@ -241,11 +241,11 @@ int main(int argc, char * argv[])
 
 	GScopedInterface<IMetaClass> metaClass(scriptHelper.borrowService()->findClassByName("box2d"));
 	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
-	scriptHelper.borrowScriptObject()->bindCoreService("cpgf", NULL);
+	scriptHelper.borrowScriptObject()->bindCoreService("cpgf", nullptr);
 	scriptSetValue(scriptHelper.borrowScriptObject(), "gl", GScriptValue::fromClass(glMetaClass.get()));
 	scriptSetValue(scriptHelper.borrowScriptObject(), "box2d", GScriptValue::fromClass(metaClass.get()));
 	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));
-	scriptSetValue(scriptHelper.borrowScriptObject(), "exitDemo", GScriptValue::fromMethod(NULL, method.get()));
+	scriptSetValue(scriptHelper.borrowScriptObject(), "exitDemo", GScriptValue::fromMethod(nullptr, method.get()));
 	
 	if(scriptHelper.execute()) {
 		invokeScriptFunction(scriptHelper.borrowScriptObject(), "setupBox2d");

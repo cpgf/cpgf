@@ -248,7 +248,7 @@ GTEST(Lib_GetAddress)
 	const GMetaField * field;
 	
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	FIELD(fieldInt);
 	GEQUAL(field->getAddress(pobj), &fieldInt);
@@ -281,7 +281,7 @@ GTEST(API_GetAddress)
 	GScopedInterface<IMetaField> field;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	FIELD(fieldInt);
 	GEQUAL(field->getAddress(pobj), &fieldInt);
@@ -311,7 +311,7 @@ GTEST(Lib_GetSize)
 	const GMetaField * field;
 	
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	(void)pobj;
 	
 	FIELD(fieldInt);
@@ -345,7 +345,7 @@ GTEST(API_GetSize)
 	GScopedInterface<IMetaField> field;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	(void)pobj;
 	
 	FIELD(fieldInt);
@@ -376,7 +376,7 @@ GTEST(Lib_Set)
 	const GMetaField * field;
 	
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	
 	fieldInt = 0;
 	fieldString = "";
@@ -434,7 +434,7 @@ GTEST(API_Set)
 	GScopedInterface<IMetaField> field;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	fieldInt = 0;
 	fieldString = "";
@@ -489,7 +489,7 @@ GTEST(Lib_Get)
 	const GMetaField * field;
 	
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	
 	const int valueInt = 5;
 	const string valueString = "A string";
@@ -536,7 +536,7 @@ GTEST(API_Get)
 	GScopedInterface<IMetaField> field;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	const int valueInt = 5;
 	const string valueString = "A string";

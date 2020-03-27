@@ -57,7 +57,7 @@ void bindMethod(T * script, cpgf::IMetaService * service, const char * metaName,
 	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
 	GScopedInterface<IMetaMethod> method(metaClass->getMethod(metaName));
 	
-	scriptSetValue(script, bindName, GScriptValue::fromMethod(NULL, method.get()));
+	scriptSetValue(script, bindName, GScriptValue::fromMethod(nullptr, method.get()));
 }
 
 
@@ -130,16 +130,16 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	method.reset(metaClass->getMethod("add"));
 	metaList->add(method.get(), &testObject);
 	method.reset(global->getMethod("testAdd2"));
-	metaList->add(method.get(), NULL);
+	metaList->add(method.get(), nullptr);
 	method.reset(global->getMethod("testAddN"));
-	metaList->add(method.get(), NULL);
+	metaList->add(method.get(), nullptr);
 	scriptSetValue(script, "testAdd", GScriptValue::fromOverloadedMethods(metaList.get()));
 
 	GScopedInterface<IMetaList> metaList2(createMetaList());
 	method.reset(global->getMethod("testAddCallback2"));
-	metaList2->add(method.get(), NULL);
+	metaList2->add(method.get(), nullptr);
 	method.reset(global->getMethod("testAddCallback"));
-	metaList2->add(method.get(), NULL);
+	metaList2->add(method.get(), nullptr);
 	scriptSetValue(script, "testAddCallback", GScriptValue::fromOverloadedMethods(metaList2.get()));
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
@@ -153,7 +153,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
-	bindProperty(script, service, NULL, "testScriptFunction", "testScriptFunction");
+	bindProperty(script, service, nullptr, "testScriptFunction", "testScriptFunction");
 }
 
 

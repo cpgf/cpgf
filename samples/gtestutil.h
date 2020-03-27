@@ -71,13 +71,13 @@ private:
 public:
 	GTestRegister(
 		TestCaseFunc p0,
-		TestCaseFunc p1 = NULL, TestCaseFunc p2 = NULL, TestCaseFunc p3 = NULL,
-		TestCaseFunc p4 = NULL, TestCaseFunc p5 = NULL, TestCaseFunc p6 = NULL,
-		TestCaseFunc p7 = NULL, TestCaseFunc p8 = NULL, TestCaseFunc p9 = NULL,
-		TestCaseFunc p10 = NULL,
-		TestCaseFunc p11 = NULL, TestCaseFunc p12 = NULL, TestCaseFunc p13 = NULL,
-		TestCaseFunc p14 = NULL, TestCaseFunc p15 = NULL, TestCaseFunc p16 = NULL,
-		TestCaseFunc p17 = NULL, TestCaseFunc p18 = NULL, TestCaseFunc p19 = NULL
+		TestCaseFunc p1 = nullptr, TestCaseFunc p2 = nullptr, TestCaseFunc p3 = nullptr,
+		TestCaseFunc p4 = nullptr, TestCaseFunc p5 = nullptr, TestCaseFunc p6 = nullptr,
+		TestCaseFunc p7 = nullptr, TestCaseFunc p8 = nullptr, TestCaseFunc p9 = nullptr,
+		TestCaseFunc p10 = nullptr,
+		TestCaseFunc p11 = nullptr, TestCaseFunc p12 = nullptr, TestCaseFunc p13 = nullptr,
+		TestCaseFunc p14 = nullptr, TestCaseFunc p15 = nullptr, TestCaseFunc p16 = nullptr,
+		TestCaseFunc p17 = nullptr, TestCaseFunc p18 = nullptr, TestCaseFunc p19 = nullptr
 	) {
 #define REG(N) if(p ## N) registerTest(p ## N)
 		REG(0);
@@ -92,7 +92,7 @@ public:
 	}
 
 	static void registerTest(TestCaseFunc func) {
-		if(func == NULL) {
+		if(func == nullptr) {
 			return;
 		}
 
@@ -131,7 +131,7 @@ inline int testRand(int minValue, int maxValue)
 	static bool initialized = false;
 
 	if(!initialized) {
-		srand(static_cast<unsigned int>(time(NULL)));
+		srand(static_cast<unsigned int>(time(nullptr)));
 
 		initialized = true;
 	}

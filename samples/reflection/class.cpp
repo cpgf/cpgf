@@ -96,7 +96,7 @@ void doTestLib()
 	char buffer[4096];
 
 	metaClass = findMetaClass("class::TestAbstract");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	testCheckAssert(metaClass->isAbstract());
 	testCheckAssert(! metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());
@@ -108,7 +108,7 @@ void doTestLib()
 	testEndException(GException);
 
 	metaClass = findMetaClass("class::TestNoDefaultConstructor");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	testCheckAssert(! metaClass->isAbstract());
 	testCheckAssert(! metaClass->canCreateInstance());
 	testCheckAssert(metaClass->canCopyInstance());
@@ -120,27 +120,27 @@ void doTestLib()
 	testEndException(GException);
 
 	metaClass = findMetaClass("class::TestNoCopyConstructor");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	testCheckAssert(! metaClass->isAbstract());
 	testCheckAssert(metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
-		metaClass->cloneInstance(NULL);
+		metaClass->cloneInstance(nullptr);
 	testEndException(GException);
 	testBeginException;
-		metaClass->cloneInplace(NULL, buffer);
+		metaClass->cloneInplace(nullptr, buffer);
 	testEndException(GException);
 
 	metaClass = findMetaClass("class::TestNoDefaultAndCopyConstructor");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	testCheckAssert(! metaClass->isAbstract());
 	testCheckAssert(! metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
-		metaClass->cloneInstance(NULL);
+		metaClass->cloneInstance(nullptr);
 	testEndException(GException);
 	testBeginException;
-		metaClass->cloneInplace(NULL, buffer);
+		metaClass->cloneInplace(nullptr, buffer);
 	testEndException(GException);
 
 }
@@ -192,11 +192,11 @@ void doTestAPI()
 	testCheckAssert(!! metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
-		metaClass->cloneInstance(NULL);
+		metaClass->cloneInstance(nullptr);
 		metaCheckError(metaClass.get());
 	testEndException(GException);
 	testBeginException;
-		metaClass->cloneInplace(NULL, buffer);
+		metaClass->cloneInplace(nullptr, buffer);
 		metaCheckError(metaClass.get());
 	testEndException(GException);
 
@@ -206,11 +206,11 @@ void doTestAPI()
 	testCheckAssert(! metaClass->canCreateInstance());
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
-		metaClass->cloneInstance(NULL);
+		metaClass->cloneInstance(nullptr);
 		metaCheckError(metaClass.get());
 	testEndException(GException);
 	testBeginException;
-		metaClass->cloneInplace(NULL, buffer);
+		metaClass->cloneInplace(nullptr, buffer);
 		metaCheckError(metaClass.get());
 	testEndException(GException);
 

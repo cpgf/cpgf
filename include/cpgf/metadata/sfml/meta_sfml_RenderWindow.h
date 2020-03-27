@@ -34,7 +34,7 @@ void buildMetaClass_RenderWindow(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("GetHeight", &D::ClassType::GetHeight);
     _d.CPGF_MD_TEMPLATE _method("Capture", &D::ClassType::Capture);
     _d.CPGF_MD_TEMPLATE _method("ConvertCoords", &D::ClassType::ConvertCoords)
-        ._default(copyVariantFromCopyable((const View *)NULL))
+        ._default(copyVariantFromCopyable((const View *)nullptr))
     ;
 }
 

@@ -39,7 +39,7 @@ ScriptLanguage getScriptLanguageFromFileName(const char * fileName, bool useV8)
 {
 	const char * ext = strrchr(fileName, '.');
 
-	if(ext != NULL) {
+	if(ext != nullptr) {
 		if(strcmp(ext, ".lua") == 0) {
 			return slLua;
 		}
@@ -79,7 +79,7 @@ GScriptRunner * createScriptRunnerFromScriptLanguage(ScriptLanguage lang, IMetaS
 			break;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const char * getLanguageText(ScriptLanguage lang)
@@ -170,14 +170,14 @@ private:
 
 void die(const char * message)
 {
-	if(message != NULL)  {
+	if(message != nullptr)  {
 		cerr << message << endl;
 	}
 	exit(1);
 }
 
 ScriptHelperImplement::ScriptHelperImplement(int argc, char * argv[])
-	: fileName(NULL), scriptLanguage(slSpiderMonkeyJavaScript)
+	: fileName(nullptr), scriptLanguage(slSpiderMonkeyJavaScript)
 {
 	this->parseCommandLine(argc, argv);
 
@@ -197,7 +197,7 @@ ScriptHelperImplement::ScriptHelperImplement(int argc, char * argv[])
 	
 	this->scriptObject.reset(this->runner->getScripeObject());
 
-	this->scriptObject->bindCoreService("cpgf", NULL);
+	this->scriptObject->bindCoreService("cpgf", nullptr);
 }
 
 ScriptHelperImplement::~ScriptHelperImplement()
@@ -217,7 +217,7 @@ bool ScriptHelperImplement::execute()
 void ScriptHelperImplement::parseCommandLine(int argc, char * argv[])
 {
 	bool useV8 = false;
-	this->fileName = NULL;
+	this->fileName = nullptr;
 	
 	for(int i = 1; i < argc; ++i) {
 		const char * arg = argv[i];
@@ -227,20 +227,20 @@ void ScriptHelperImplement::parseCommandLine(int argc, char * argv[])
 			}
 		}
 		else {
-			if(this->fileName != NULL) {
+			if(this->fileName != nullptr) {
 				die("Only one file can be specified.");
 			}
 			this->fileName = arg;
 		}
 	}
-	if(this->fileName == NULL) {
+	if(this->fileName == nullptr) {
 		die("Please specify a file name in the command line.");
 	}
 	
 	FILE * file = fopen(this->fileName, "rb");
-	if(file == NULL) {
+	if(file == nullptr) {
 		cerr << "File doesn't exist " << this->fileName << endl;
-		die(NULL);
+		die(nullptr);
 	}
 	fclose(file);
 	

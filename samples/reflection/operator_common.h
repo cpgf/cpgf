@@ -40,7 +40,7 @@ inline const cpgf::GMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf:
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GScopedInterface<cpgf::IMetaClass> & metaClass, int index = 0)
@@ -57,7 +57,7 @@ inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GScop
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

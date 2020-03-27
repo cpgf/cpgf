@@ -51,17 +51,17 @@ ToolPanelRes::ToolPanelRes( wxWindow* parent, wxWindowID id, const wxPoint& pos,
 	this->Layout();
 	
 	// Connect Events
-	choiceTestType->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( ToolPanelRes::onTestTypeSelected ), NULL, this );
-	buttonAboutTestCase->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonAboutThisTestCaseClicked ), NULL, this );
-	buttonBenchmark->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonBenchmarkClicked ), NULL, this );
+	choiceTestType->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( ToolPanelRes::onTestTypeSelected ), nullptr, this );
+	buttonAboutTestCase->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonAboutThisTestCaseClicked ), nullptr, this );
+	buttonBenchmark->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonBenchmarkClicked ), nullptr, this );
 }
 
 ToolPanelRes::~ToolPanelRes()
 {
 	// Disconnect Events
-	choiceTestType->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( ToolPanelRes::onTestTypeSelected ), NULL, this );
-	buttonAboutTestCase->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonAboutThisTestCaseClicked ), NULL, this );
-	buttonBenchmark->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonBenchmarkClicked ), NULL, this );
+	choiceTestType->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( ToolPanelRes::onTestTypeSelected ), nullptr, this );
+	buttonAboutTestCase->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonAboutThisTestCaseClicked ), nullptr, this );
+	buttonBenchmark->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonBenchmarkClicked ), nullptr, this );
 	
 }
 
@@ -211,78 +211,78 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 	this->Layout();
 	
 	// Connect Events
-	buttonPlay->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPlayClicked ), NULL, this );
-	buttonPause->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPauseClicked ), NULL, this );
-	buttonResume->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResumeClicked ), NULL, this );
-	buttonReset->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResetClicked ), NULL, this );
-	checkBoxUseFrames->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxUseFramesClicked ), NULL, this );
-	checkBoxBackward->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxBackwardClicked ), NULL, this );
-	choiceDuration->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDurationSelected ), NULL, this );
-	choiceDelay->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDelaySelected ), NULL, this );
-	choiceTimeScale->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceTimeScaleSelected ), NULL, this );
-	choiceRepeatCount->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatSelected ), NULL, this );
-	checkBoxYoyo->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxYoyoClicked ), NULL, this );
-	choiceRepeatDelay->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatDelaySelected ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbRelease ), NULL, this );
-	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbTrack ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbRelease ), NULL, this );
-	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbTrack ), NULL, this );
+	buttonPlay->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPlayClicked ), nullptr, this );
+	buttonPause->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPauseClicked ), nullptr, this );
+	buttonResume->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResumeClicked ), nullptr, this );
+	buttonReset->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResetClicked ), nullptr, this );
+	checkBoxUseFrames->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxUseFramesClicked ), nullptr, this );
+	checkBoxBackward->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxBackwardClicked ), nullptr, this );
+	choiceDuration->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDurationSelected ), nullptr, this );
+	choiceDelay->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDelaySelected ), nullptr, this );
+	choiceTimeScale->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceTimeScaleSelected ), nullptr, this );
+	choiceRepeatCount->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatSelected ), nullptr, this );
+	checkBoxYoyo->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxYoyoClicked ), nullptr, this );
+	choiceRepeatDelay->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatDelaySelected ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbRelease ), nullptr, this );
+	currentProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbTrack ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbRelease ), nullptr, this );
+	totalProgressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbTrack ), nullptr, this );
 }
 
 CommandPanelRes::~CommandPanelRes()
 {
 	// Disconnect Events
-	buttonPlay->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPlayClicked ), NULL, this );
-	buttonPause->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPauseClicked ), NULL, this );
-	buttonResume->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResumeClicked ), NULL, this );
-	buttonReset->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResetClicked ), NULL, this );
-	checkBoxUseFrames->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxUseFramesClicked ), NULL, this );
-	checkBoxBackward->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxBackwardClicked ), NULL, this );
-	choiceDuration->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDurationSelected ), NULL, this );
-	choiceDelay->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDelaySelected ), NULL, this );
-	choiceTimeScale->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceTimeScaleSelected ), NULL, this );
-	choiceRepeatCount->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatSelected ), NULL, this );
-	checkBoxYoyo->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxYoyoClicked ), NULL, this );
-	choiceRepeatDelay->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatDelaySelected ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbRelease ), NULL, this );
-	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbTrack ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbRelease ), NULL, this );
-	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbTrack ), NULL, this );
+	buttonPlay->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPlayClicked ), nullptr, this );
+	buttonPause->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonPauseClicked ), nullptr, this );
+	buttonResume->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResumeClicked ), nullptr, this );
+	buttonReset->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CommandPanelRes::onButtonResetClicked ), nullptr, this );
+	checkBoxUseFrames->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxUseFramesClicked ), nullptr, this );
+	checkBoxBackward->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxBackwardClicked ), nullptr, this );
+	choiceDuration->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDurationSelected ), nullptr, this );
+	choiceDelay->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceDelaySelected ), nullptr, this );
+	choiceTimeScale->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceTimeScaleSelected ), nullptr, this );
+	choiceRepeatCount->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatSelected ), nullptr, this );
+	checkBoxYoyo->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxYoyoClicked ), nullptr, this );
+	choiceRepeatDelay->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatDelaySelected ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderScroll ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbRelease ), nullptr, this );
+	currentProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onCurrentProgressSliderThumbTrack ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderScroll ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbRelease ), nullptr, this );
+	totalProgressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onTotalProgressSliderThumbTrack ), nullptr, this );
 	
 }

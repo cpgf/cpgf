@@ -308,7 +308,7 @@ GTEST(Lib_GetSize)
 	const GMetaProperty * prop;
 	
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	(void)pobj;
 	
 	PROP(propInt);
@@ -345,7 +345,7 @@ GTEST(API_GetSize)
 	GScopedInterface<IMetaProperty> prop;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	(void)pobj;
 	
 	PROP(propInt);
@@ -379,7 +379,7 @@ GTEST(Lib_Set)
 	const GMetaProperty * prop;
 	
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	
 	propInt = 0;
 	propString = "";
@@ -444,7 +444,7 @@ GTEST(API_Set)
 	GScopedInterface<IMetaProperty> prop;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	propInt = 0;
 	propString = "";
@@ -506,7 +506,7 @@ GTEST(Lib_Get)
 	const GMetaProperty * prop;
 	
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	
 	const int valueInt = 5;
 	const string valueString = "A string";
@@ -558,7 +558,7 @@ GTEST(API_Get)
 	GScopedInterface<IMetaProperty> prop;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	const int valueInt = 5;
 	const string valueString = "A string";

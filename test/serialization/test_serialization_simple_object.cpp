@@ -41,7 +41,7 @@ void doTestSimpleObject(IMetaStorageWriter * writer, IMetaStorageReader * reader
 	
 	GCHECK(instance != readInstance);
 
-	readInstance.pself = NULL;
+	readInstance.pself = nullptr;
 	readInstance.pnull = (string *)0xbeef;
 	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance, metaClass.get());
 

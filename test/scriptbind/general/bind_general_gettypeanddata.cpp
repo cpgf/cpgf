@@ -98,10 +98,10 @@ void doTestGetType(T * binding, TestScriptContext * context)
 
 void testGetType(TestScriptContext * context)
 {
-	if(context->getBindingLib() != NULL) {
+	if(context->getBindingLib() != nullptr) {
 		doTestGetType(context->getBindingLib(), context);
 	}
-	if(context->getBindingApi() != NULL) {
+	if(context->getBindingApi() != nullptr) {
 		doTestGetType(context->getBindingApi(), context);
 	}
 }
@@ -117,18 +117,18 @@ void doTestGetMethod(T * binding, TestScriptContext * context)
 
 	GScopedInterface<IMetaMethod> method;
 
-	GCHECK(scriptGetValue(binding, "notExist").toMethod(NULL) == NULL);
+	GCHECK(scriptGetValue(binding, "notExist").toMethod(nullptr) == nullptr);
 	
-	method.reset(scriptGetValue(binding, "scriptAssert").toMethod(NULL));
+	method.reset(scriptGetValue(binding, "scriptAssert").toMethod(nullptr));
 	GCHECK(method);
 }
 
 void testGetMethod(TestScriptContext * context)
 {
-	if(context->getBindingLib() != NULL) {
+	if(context->getBindingLib() != nullptr) {
 		doTestGetMethod(context->getBindingLib(), context);
 	}
-	if(context->getBindingApi() != NULL) {
+	if(context->getBindingApi() != nullptr) {
 		doTestGetMethod(context->getBindingApi(), context);
 	}
 }
@@ -144,7 +144,7 @@ void doTestGetMethodList(T * binding, TestScriptContext * context)
 
 	GScopedInterface<IMetaList> methodList;
 
-	GCHECK(scriptGetValue(binding, "notExist").toOverloadedMethods() == NULL);
+	GCHECK(scriptGetValue(binding, "notExist").toOverloadedMethods() == nullptr);
 	
 	methodList.reset(scriptGetValue(binding, "testAdd").toOverloadedMethods());
 	GCHECK(methodList);
@@ -153,10 +153,10 @@ void doTestGetMethodList(T * binding, TestScriptContext * context)
 
 void testGetMethodList(TestScriptContext * context)
 {
-	if(context->getBindingLib() != NULL) {
+	if(context->getBindingLib() != nullptr) {
 		doTestGetMethodList(context->getBindingLib(), context);
 	}
-	if(context->getBindingApi() != NULL) {
+	if(context->getBindingApi() != nullptr) {
 		doTestGetMethodList(context->getBindingApi(), context);
 	}
 }
@@ -175,15 +175,15 @@ void doTestGetClass(T * binding, TestScriptContext * context)
 	metaClass.reset(scriptGetValue(binding, "TestObject").toClass());
 	GCHECK(string(metaClass->getName()) == REG_NAME_TestObject);
 
-	GCHECK(scriptGetValue(binding, "notExistClass").toClass() == NULL);
+	GCHECK(scriptGetValue(binding, "notExistClass").toClass() == nullptr);
 }
 
 void testGetClass(TestScriptContext * context)
 {
-	if(context->getBindingLib() != NULL) {
+	if(context->getBindingLib() != nullptr) {
 		doTestGetClass(context->getBindingLib(), context);
 	}
-	if(context->getBindingApi() != NULL) {
+	if(context->getBindingApi() != nullptr) {
 		doTestGetClass(context->getBindingApi(), context);
 	}
 }
@@ -202,15 +202,15 @@ void doTestGetEnum(T * binding, TestScriptContext * context)
 	metaEnum.reset(scriptGetValue(binding, "TestEnum").toEnum());
 	GCHECK(string(metaEnum->getName()) == REG_NAME_TestEnum);
 
-	GCHECK(scriptGetValue(binding, "notExistEnum").toEnum() == NULL);
+	GCHECK(scriptGetValue(binding, "notExistEnum").toEnum() == nullptr);
 }
 
 void testGetEnum(TestScriptContext * context)
 {
-	if(context->getBindingLib() != NULL) {
+	if(context->getBindingLib() != nullptr) {
 		doTestGetEnum(context->getBindingLib(), context);
 	}
-	if(context->getBindingApi() != NULL) {
+	if(context->getBindingApi() != nullptr) {
 		doTestGetEnum(context->getBindingApi(), context);
 	}
 }
@@ -225,22 +225,22 @@ void doTestGetObject(T * binding, TestScriptContext * context)
 	QVARNEWOBJ(obj, TestObject(99))
 	QVAR(f = "abc")
 	
-	void * instance = NULL;
+	void * instance = nullptr;
 
 	instance = scriptGetValue(binding, "f").toObjectAddress(nullptr, nullptr, nullptr);
-	GCHECK(instance == NULL);
+	GCHECK(instance == nullptr);
 		
 	instance = scriptGetValue(binding, "obj").toObjectAddress(nullptr, nullptr, nullptr);
-	GCHECK(instance != NULL);
+	GCHECK(instance != nullptr);
 	GCHECK(static_cast<TestObject *>(instance)->value == 99);
 }
 
 void testGetObject(TestScriptContext * context)
 {
-	if(context->getBindingLib() != NULL) {
+	if(context->getBindingLib() != nullptr) {
 		doTestGetObject(context->getBindingLib(), context);
 	}
-	if(context->getBindingApi() != NULL) {
+	if(context->getBindingApi() != nullptr) {
 		doTestGetObject(context->getBindingApi(), context);
 	}
 }

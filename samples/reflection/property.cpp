@@ -76,11 +76,11 @@ void doTest()
 	const GMetaProperty * prop;
 
 	metaClass = findMetaClass("property::TestObject");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << metaClass->getName() << std::endl;
 
 	{
-		prop = metaClass->getProperty("width"); testCheckAssert(prop != NULL);
+		prop = metaClass->getProperty("width"); testCheckAssert(prop != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		prop->set(obj, 123);
@@ -90,7 +90,7 @@ void doTest()
 	}
 
 	{
-		prop = metaClass->getProperty("name"); testCheckAssert(prop != NULL);
+		prop = metaClass->getProperty("name"); testCheckAssert(prop != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 //		prop->set(obj, "new name");
@@ -101,7 +101,7 @@ void doTest()
 	}
 
 	{
-		prop = metaClass->getProperty("data"); testCheckAssert(prop != NULL);
+		prop = metaClass->getProperty("data"); testCheckAssert(prop != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		TestData data(3, "Fake dummy data");

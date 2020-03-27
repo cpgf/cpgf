@@ -44,12 +44,12 @@ GTEST(TestVariant_Cast)
 	CAN_FROM(CLASS, string(""));
 	NOT_FROM(CLASS, "");
 
-	CAN_FROM_CAST(void *, int *, NULL);
-	CAN_FROM_CAST(void *, int **, NULL);
-	CAN_FROM_CAST(void *, CLASS *, NULL);
-	CAN_FROM_CAST(int *, void *, NULL);
-	CAN_FROM_CAST(int **, void *, NULL);
-	CAN_FROM_CAST(CLASS *, void *, NULL);
+	CAN_FROM_CAST(void *, int *, nullptr);
+	CAN_FROM_CAST(void *, int **, nullptr);
+	CAN_FROM_CAST(void *, CLASS *, nullptr);
+	CAN_FROM_CAST(int *, void *, nullptr);
+	CAN_FROM_CAST(int **, void *, nullptr);
+	CAN_FROM_CAST(CLASS *, void *, nullptr);
 
 	GVariant v;
 
@@ -68,13 +68,13 @@ GTEST(TestVariant_Cast)
 	CAN_FROM_CAST(CLASS &, CLASS &, obj);
 	NOT_FROM_CAST(int &, int &, n);
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	CLASS * & rpobj = pobj;
 	CAN_FROM_CAST(CLASS *, CLASS * &, rpobj);
-	CAN_FROM_CAST(CLASS * &, CLASS *, NULL);
+	CAN_FROM_CAST(CLASS * &, CLASS *, nullptr);
 	
-	CAN_FROM_CAST(CLASS &, CLASS *, NULL);
-	CAN_FROM_CAST(int &, void *, NULL);
+	CAN_FROM_CAST(CLASS &, CLASS *, nullptr);
+	CAN_FROM_CAST(int &, void *, nullptr);
 
 	GVarTypeData typeData = GVarTypeData();
 	deduceVariantType<CLASS * & >(typeData, true);

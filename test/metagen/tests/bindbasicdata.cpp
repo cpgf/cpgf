@@ -32,7 +32,7 @@ void bindMethod(T * script, cpgf::IMetaService * service, const char * metaName,
 	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
 	GScopedInterface<IMetaMethod> method(metaClass->getMethod(metaName));
 	
-	scriptSetValue(script, bindName, GScriptValue::fromMethod(NULL, method.get()));
+	scriptSetValue(script, bindName, GScriptValue::fromMethod(nullptr, method.get()));
 }
 
 

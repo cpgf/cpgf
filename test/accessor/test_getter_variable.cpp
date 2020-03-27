@@ -15,18 +15,18 @@ const TestAccessorObject globalConstObject;
 GTEST(InstanceGetter_Global_Variable_int)
 {
 	GInstanceGetter<int *> getter = createInstanceGetter(&globalA);
-	GEQUAL(&globalA, getter.getAddress(NULL));
+	GEQUAL(&globalA, getter.getAddress(nullptr));
 
 	globalA = 1;
-	GEQUAL(1, getter.get(NULL));
+	GEQUAL(1, getter.get(nullptr));
 
 	globalA = 38;
-	GEQUAL(38, getter.get(NULL));
+	GEQUAL(38, getter.get(nullptr));
 }
 
 GTEST(Getter_Global_Variable_int)
 {
-	GGetter<int *> getter = createGetter(NULL, &globalA);
+	GGetter<int *> getter = createGetter(nullptr, &globalA);
 	GEQUAL(&globalA, getter.getAddress());
 
 	globalA = 1;
@@ -44,18 +44,18 @@ GTEST(Getter_Global_Variable_int)
 GTEST(InstanceGetter_Global_Variable_object)
 {
 	GInstanceGetter<TestAccessorObject *> getter = createInstanceGetter(&globalObject);
-	GEQUAL(&globalObject, getter.getAddress(NULL));
+	GEQUAL(&globalObject, getter.getAddress(nullptr));
 
 	globalObject.n = 1;
-	GEQUAL(1, getter.get(NULL).n);
+	GEQUAL(1, getter.get(nullptr).n);
 
 	globalObject.n = 38;
-	GEQUAL(38, getter.get(NULL).n);
+	GEQUAL(38, getter.get(nullptr).n);
 }
 
 GTEST(Getter_Global_Variable_object)
 {
-	GGetter<TestAccessorObject *> getter = createGetter(NULL, &globalObject);
+	GGetter<TestAccessorObject *> getter = createGetter(nullptr, &globalObject);
 	GEQUAL(&globalObject, getter.getAddress());
 
 	globalObject.n = 1;
@@ -71,18 +71,18 @@ GTEST(Getter_Global_Variable_object)
 GTEST(InstanceGetter_Global_Variable_const_object)
 {
 	GInstanceGetter<const TestAccessorObject *> getter = createInstanceGetter(&globalConstObject);
-	GEQUAL(&globalConstObject, getter.getAddress(NULL));
+	GEQUAL(&globalConstObject, getter.getAddress(nullptr));
 
 	const_cast<TestAccessorObject *>(&globalConstObject)->n = 1;
-	GEQUAL(1, getter.get(NULL).n);
+	GEQUAL(1, getter.get(nullptr).n);
 
 	const_cast<TestAccessorObject *>(&globalConstObject)->n = 38;
-	GEQUAL(38, getter.get(NULL).n);
+	GEQUAL(38, getter.get(nullptr).n);
 }
 
 GTEST(Getter_Global_Variable_const_object)
 {
-	GGetter<const TestAccessorObject *> getter = createGetter(NULL, &globalConstObject);
+	GGetter<const TestAccessorObject *> getter = createGetter(nullptr, &globalConstObject);
 	GEQUAL(&globalConstObject, getter.getAddress());
 
 	const_cast<TestAccessorObject *>(&globalConstObject)->n = 1;

@@ -123,7 +123,7 @@ void testItem(const cpgf::GMetaItem * item)
 		const GMetaAnnotation * anno = item->getAnnotationAt(i);
 
 		GEQUAL(anno->getMetaItem(), item);
-		GEQUAL(anno->getValue("doesntExist"), NULL);
+		GEQUAL(anno->getValue("doesntExist"), nullptr);
 		GEQUAL(anno->getCount(), 4);
 
 		if(string(anno->getName()) == "attribute") {
@@ -131,25 +131,25 @@ void testItem(const cpgf::GMetaItem * item)
 
 			const GAnnotationValue * value;
 
-			value = anno->getValue("name"); GCHECK(value != NULL);
+			value = anno->getValue("name"); GCHECK(value != nullptr);
 			GEQUAL(std::string(anno->getNameAt(0)), "name");
 			GEQUAL(anno->getValueAt(0), value);
 			GCHECK(value->canToWideString());
 			GEQUAL(value->toWideString(), stringToWideString(item->getName()));
 
-			value = anno->getValue("cat"); GCHECK(value != NULL);
+			value = anno->getValue("cat"); GCHECK(value != nullptr);
 			GEQUAL(std::string(anno->getNameAt(1)), "cat");
 			GEQUAL(anno->getValueAt(1), value);
 			GCHECK(value->canToInt());
 			GEQUAL(value->toInt(), item->getCategory());
 
-			value = anno->getValue("dog"); GCHECK(value != NULL);
+			value = anno->getValue("dog"); GCHECK(value != nullptr);
 			GEQUAL(std::string(anno->getNameAt(2)), "dog");
 			GEQUAL(anno->getValueAt(2), value);
 			TestData data = value->toObject<TestData>();
 			GEQUAL(data, TestData(item->getCategory(), item->getName()));
 
-			value = anno->getValue("desc"); GCHECK(value != NULL);
+			value = anno->getValue("desc"); GCHECK(value != nullptr);
 			GEQUAL(std::string(anno->getNameAt(3)), "desc");
 			GEQUAL(anno->getValueAt(3), value);
 			GCHECK(value->canToString());
@@ -173,7 +173,7 @@ void testItem(cpgf::IMetaItem * item)
 	for(unsigned int i = 0; i < item->getAnnotationCount(); ++i) {
 		GScopedInterface<IMetaAnnotation> anno(item->getAnnotationAt(i));
 		
-		GEQUAL(anno->getValue("doesntExist"), NULL);
+		GEQUAL(anno->getValue("doesntExist"), nullptr);
 
 		GScopedInterface<IMetaItem> tempItem(anno->getMetaItem());
 
@@ -204,7 +204,7 @@ GTEST(Lib_Annotation)
 	const GMetaClass * metaClass;
 
 	metaClass = findMetaClass(NAME_CLASS);
-	GCHECK(metaClass != NULL);
+	GCHECK(metaClass != nullptr);
 
 	metaClass->getMetaCount(); // ensure registered
 

@@ -155,7 +155,7 @@ void doTestSimpleArray(IMetaStorageWriter * writer, IMetaStorageReader * reader,
 	INIT(ro, R)
 #undef INIT
 
-#define INIT(v, l) LOOP(l) v[z] = NULL;
+#define INIT(v, l) LOOP(l) v[z] = nullptr;
 	INIT(rps, Q)
 	INIT(rpo, R)
 	INIT(rnpo, S)

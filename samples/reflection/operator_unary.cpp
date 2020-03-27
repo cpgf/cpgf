@@ -86,11 +86,11 @@ void doTestLib()
 	const GMetaOperator * metaOperator;
 
 	metaClass = findMetaClass("operator_unary::TestObject");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << "Lib: " << metaClass->getName() << std::endl;
 
 	{
-		metaOperator = getOperator(+ mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(+ mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		((TestObject *)obj)->value = -((TestObject *)obj)->value;
 		TestObject back(*(TestObject *)obj);
@@ -100,7 +100,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(- mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(- mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		((TestObject *)obj)->value = -((TestObject *)obj)->value;
 		TestObject back(*(TestObject *)obj);
@@ -110,7 +110,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(++ mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(++ mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		TestObject res = fromVariant<TestObject>(metaOperator->invokeUnary(obj));
@@ -119,7 +119,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(mopHolder ++, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(mopHolder ++, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		TestObject res = fromVariant<TestObject>(metaOperator->invokeUnary(obj));
@@ -128,7 +128,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(-- mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(-- mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		TestObject res = fromVariant<TestObject>(metaOperator->invokeUnary(obj));
@@ -137,7 +137,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(mopHolder --, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(mopHolder --, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		TestObject res = fromVariant<TestObject>(metaOperator->invokeUnary(obj));
@@ -146,7 +146,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(! mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(! mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		TestObject res = fromVariant<TestObject>(metaOperator->invokeUnary(obj));
@@ -155,7 +155,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(~ mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(~ mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		TestObject res = fromVariant<TestObject>(metaOperator->invokeUnary(obj));
@@ -164,7 +164,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(& mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(& mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		int * pn = fromVariant<int *>(metaOperator->invokeUnary(obj));
@@ -173,7 +173,7 @@ void doTestLib()
 	}
 
 	{
-		metaOperator = getOperator(* mopHolder, metaClass, 0); testCheckAssert(metaOperator != NULL);
+		metaOperator = getOperator(* mopHolder, metaClass, 0); testCheckAssert(metaOperator != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
 		int n = fromVariant<int>(metaOperator->invokeUnary(obj));

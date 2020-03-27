@@ -86,7 +86,7 @@ void run_a03()
 	GScopedInterface<IMetaModule> globalModule(service->getModuleAt(0));
 	GScopedInterface<IMetaClass> globalMetaClass(globalModule->getGlobalMetaClass());
 	method.reset(globalMetaClass->getMethod("greeting"));
-	metaInvokeMethod(method.get(), NULL, "world");
+	metaInvokeMethod(method.get(), nullptr, "world");
 
 	GScopedInterface<IMetaClass> pointMetaClass(service->findClassByName("Point"));
 

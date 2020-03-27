@@ -80,10 +80,10 @@ void doTest()
 	const GMetaEnum * metaEnum;
 
 	metaClass = findMetaClass("FirstReflection");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 
 	metaEnum = metaClass->getEnum("HelloStyle");
-	testCheckAssert(metaEnum != NULL);
+	testCheckAssert(metaEnum != nullptr);
 
 	cout << "There are " << static_cast<unsigned int>(metaEnum->getCount()) << " kind of styles to say hello." << endl;
 	for(uint32_t i = 0; i < metaEnum->getCount(); ++i) {
@@ -91,13 +91,13 @@ void doTest()
 	}
 
 	const GMetaMethod * methodGetSentence = metaClass->getMethod("getSentence");
-	testCheckAssert(methodGetSentence != NULL);
+	testCheckAssert(methodGetSentence != nullptr);
 
 	const GMetaMethod * methodGreet = metaClass->getMethod("greet");
-	testCheckAssert(methodGreet != NULL);
+	testCheckAssert(methodGreet != nullptr);
 
 	const GMetaField * fieldHeadCount = metaClass->getField("headCount");
-	testCheckAssert(fieldHeadCount != NULL);
+	testCheckAssert(fieldHeadCount != nullptr);
 
 	cout << "Now let's say hello one by one." << endl;
 	void * instance = metaClass->createInstance();

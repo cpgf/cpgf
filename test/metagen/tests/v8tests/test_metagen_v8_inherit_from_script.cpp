@@ -65,13 +65,13 @@ void testInheritFromScript_SimpleOverridableIncrementer(TestScriptContext * cont
 	QNEWOBJ(a, DerivedClass());
 	QDO(a.init_data = {counter:0};);
 
-	SimpleOverridableIncrementer * obj = NULL;
+	SimpleOverridableIncrementer * obj = nullptr;
 	IScriptObject * bindingApi = context->getBindingApi();
 	if (bindingApi) {
-		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingApi, "a").toObjectAddress(NULL, NULL));
+		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingApi, "a").toObjectAddress(nullptr, nullptr));
 	} else {
 		GScriptObject * bindingLib = context->getBindingLib();
-		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingLib, "a").toObjectAddress(NULL, NULL));
+		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingLib, "a").toObjectAddress(nullptr, nullptr));
 	}
 	GEQUAL(1, obj->increment());
 	GEQUAL(2, obj->increment());

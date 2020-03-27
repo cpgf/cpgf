@@ -115,7 +115,7 @@ int getSimpleObjectN(const SimpleObject & object)
 	return object.data.n;
 }
 
-SimpleObject* storedCopy = NULL;
+SimpleObject* storedCopy = nullptr;
 
 void setViaConstRefPtrApi(SimpleObject * const &input)
 {

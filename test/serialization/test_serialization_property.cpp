@@ -37,7 +37,7 @@ public:
 class TestPropertyClass
 {
 public:
-	TestPropertyClass() : dataByValue(), dataByConstRef(), dataByPointer(NULL), value(0), str() {
+	TestPropertyClass() : dataByValue(), dataByConstRef(), dataByPointer(nullptr), value(0), str() {
 	}
 
 	~TestPropertyClass() {
@@ -48,7 +48,7 @@ public:
 		return this->value == other.value && this->str == other.str
 			&& this->dataByValue == other.dataByValue
 			&& this->dataByConstRef == other.dataByConstRef
-			&& (this->dataByPointer == other.dataByPointer || (this->dataByPointer != NULL && other.dataByPointer != NULL && *(this->dataByPointer) == *(other.dataByPointer)))
+			&& (this->dataByPointer == other.dataByPointer || (this->dataByPointer != nullptr && other.dataByPointer != nullptr && *(this->dataByPointer) == *(other.dataByPointer)))
 		;
 	}
 
@@ -61,7 +61,7 @@ public:
 		this->str = "I'm another property";
 		this->dataByValue.init(38);
 		this->dataByConstRef.init(1999);
-		if(this->dataByPointer == NULL) {
+		if(this->dataByPointer == nullptr) {
 			this->dataByPointer = new TestPropertyData;
 		}
 		this->dataByPointer->init(2013);
@@ -89,7 +89,7 @@ public:
 	}
 
 	void setDataByPointer(TestPropertyData * v) {
-		if(this->dataByPointer != NULL) {
+		if(this->dataByPointer != nullptr) {
 			delete this->dataByPointer;
 		}
 		this->dataByPointer = v;

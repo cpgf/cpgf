@@ -38,45 +38,45 @@ void doTestLib()
 	const GMetaMethod * method;
 
 	metaClass = getGlobalMetaClass();
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << "Lib: " << metaClass->getName() << std::endl;
 
 	{
 		width = 0;
-		field = metaClass->getField("width"); testCheckAssert(field != NULL);
-		field->set(NULL, 123);
+		field = metaClass->getField("width"); testCheckAssert(field != nullptr);
+		field->set(nullptr, 123);
 		testCheckEqual(width, 123);
-		testCheckEqual(width, fromVariant<int>(field->get(NULL)));
+		testCheckEqual(width, fromVariant<int>(field->get(nullptr)));
 	}
 
 	{
 		name = "";
-		field = metaClass->getField("name"); testCheckAssert(field != NULL);
-		field->set(NULL, "new name");
+		field = metaClass->getField("name"); testCheckAssert(field != nullptr);
+		field->set(nullptr, "new name");
 		testCheckStringEqual(name, "new name");
-		std::string s = fromVariant<std::string>(field->get(NULL));
+		std::string s = fromVariant<std::string>(field->get(nullptr));
 		testCheckStringEqual(name, s);
 	}
 
 	{
-		field = metaClass->getField("data"); testCheckAssert(field != NULL);
+		field = metaClass->getField("data"); testCheckAssert(field != nullptr);
 		TestData localdata(3, "Fake dummy data");
-		field->set(NULL, localdata);
+		field->set(nullptr, localdata);
 		testCheckEqual(data, localdata);
-		testCheckEqual(data, fromVariant<TestData>(field->get(NULL)));
+		testCheckEqual(data, fromVariant<TestData>(field->get(nullptr)));
 	}
 
 	{
 		stats = 0;
-		field = metaClass->getField("stats"); testCheckAssert(field != NULL);
-		field->set(NULL, 567);
+		field = metaClass->getField("stats"); testCheckAssert(field != nullptr);
+		field->set(nullptr, 567);
 		testCheckEqual(stats, 567);
-		testCheckEqual(stats, fromVariant<int>(field->get(NULL)));
+		testCheckEqual(stats, fromVariant<int>(field->get(nullptr)));
 	}
 
 	{
-		method = metaClass->getMethod("addNumber"); testCheckAssert(method != NULL);
-		int n = fromVariant<int>(method->invoke(NULL, 38888, 16888));
+		method = metaClass->getMethod("addNumber"); testCheckAssert(method != nullptr);
+		int n = fromVariant<int>(method->invoke(nullptr, 38888, 16888));
 		testCheckEqual(n, addNumber(38888, 16888));
 	}
 
@@ -100,39 +100,39 @@ void doTestAPI()
 	{
 		width = 0;
 		field.reset(metaClass->getField("width")); testCheckAssert((bool)field);
-		metaSetValue(field.get(), NULL, 123);
+		metaSetValue(field.get(), nullptr, 123);
 		testCheckEqual(width, 123);
-		testCheckEqual(width, fromVariant<int>(metaGetValue(field.get(), NULL)));
+		testCheckEqual(width, fromVariant<int>(metaGetValue(field.get(), nullptr)));
 	}
 
 	{
 		name = "";
 		field.reset(metaClass->getField("name")); testCheckAssert((bool)field);
-		metaSetValue(field.get(), NULL, "new name");
+		metaSetValue(field.get(), nullptr, "new name");
 		testCheckStringEqual(name, "new name");
-		std::string s = fromVariant<std::string>(metaGetValue(field.get(), NULL));
+		std::string s = fromVariant<std::string>(metaGetValue(field.get(), nullptr));
 		testCheckStringEqual(name, s);
 	}
 
 	{
 		field.reset(metaClass->getField("data")); testCheckAssert((bool)field);
 		TestData localdata(3, "Fake dummy data");
-		metaSetValue(field.get(), NULL, localdata);
+		metaSetValue(field.get(), nullptr, localdata);
 		testCheckEqual(data, localdata);
-		testCheckEqual(data, fromVariant<TestData>(metaGetValue(field.get(), NULL)));
+		testCheckEqual(data, fromVariant<TestData>(metaGetValue(field.get(), nullptr)));
 	}
 
 	{
 		stats = 0;
 		field.reset(metaClass->getField("stats")); testCheckAssert((bool)field);
-		metaSetValue(field.get(), NULL, 567);
+		metaSetValue(field.get(), nullptr, 567);
 		testCheckEqual(stats, 567);
-		testCheckEqual(stats, fromVariant<int>(metaGetValue(field.get(), NULL)));
+		testCheckEqual(stats, fromVariant<int>(metaGetValue(field.get(), nullptr)));
 	}
 
 	{
 		method.reset(metaClass->getMethod("addNumber")); testCheckAssert((bool)method);
-		int n = fromVariant<int>(metaInvokeMethod(method.get(), NULL, 38888, 16888));
+		int n = fromVariant<int>(metaInvokeMethod(method.get(), nullptr, 38888, 16888));
 		testCheckEqual(n, addNumber(38888, 16888));
 	}
 

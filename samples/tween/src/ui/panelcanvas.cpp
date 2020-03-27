@@ -8,7 +8,7 @@
 
 
 PanelCanvas::PanelCanvas(wxWindow * parent)
-	: super(parent, wxID_ANY, NULL, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, wxGLCanvasName, wxNullPalette)
+	: super(parent, wxID_ANY, nullptr, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, wxGLCanvasName, wxNullPalette)
 {
 //	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 

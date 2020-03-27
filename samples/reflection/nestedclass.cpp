@@ -76,11 +76,11 @@ void doTest()
 	const GMetaClass * innerClass;
 
 	metaClass = findMetaClass("nestedclass::TestOutterClass");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << metaClass->getName() << std::endl;
 
 	{
-		field = metaClass->getField("width"); testCheckAssert(field != NULL);
+		field = metaClass->getField("width"); testCheckAssert(field != nullptr);
 		void * obj = metaClass->createInstance();
 		TestOutterClass * pobj = (TestOutterClass *)obj;
 		field->set(obj, 123);
@@ -91,9 +91,9 @@ void doTest()
 
 	{
 		innerClass = metaClass->getClass("nestedclass::TestOutterClass::Inner");
-		testCheckAssert(innerClass != NULL);
+		testCheckAssert(innerClass != nullptr);
 
-		field = innerClass->getField("x"); testCheckAssert(field != NULL);
+		field = innerClass->getField("x"); testCheckAssert(field != nullptr);
 		void * obj = innerClass->createInstance();
 		TestOutterClass::Inner * pobj = (TestOutterClass::Inner *)obj;
 		field->set(obj, 567);
@@ -104,9 +104,9 @@ void doTest()
 
 	{
 		innerClass = metaClass->getClass("nestedclass::TestOutterClass::AnotherInner");
-		testCheckAssert(innerClass != NULL);
+		testCheckAssert(innerClass != nullptr);
 
-		field = innerClass->getField("y"); testCheckAssert(field != NULL);
+		field = innerClass->getField("y"); testCheckAssert(field != nullptr);
 		void * obj = innerClass->createInstance();
 		TestOutterClass::AnotherInner * pobj = (TestOutterClass::AnotherInner *)obj;
 		field->set(obj, 567);

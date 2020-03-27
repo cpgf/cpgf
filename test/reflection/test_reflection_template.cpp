@@ -61,12 +61,12 @@ GTEST(ReflectTemplate)
 	const GMetaMethod * method;
 
 	metaClass = findMetaClass(NAME_CLASS);
-	GCHECK(metaClass != NULL);
+	GCHECK(metaClass != nullptr);
 
 	{
 		void * obj = metaClass->createInstance();
 		method = metaClass->getMethodInHierarchy("getSize", &obj);
-		GCHECK(method != NULL);
+		GCHECK(method != nullptr);
 		GEQUAL(fromVariant<unsigned int>(method->invoke(obj)), sizeof(char));
 		metaClass->destroyInstance(obj);
 	}
@@ -74,7 +74,7 @@ GTEST(ReflectTemplate)
 	{
 		void * obj = metaClass->createInstance();
 		method = metaClass->getMethodInHierarchy("getDouble", &obj);
-		GCHECK(method != NULL);
+		GCHECK(method != nullptr);
 		GEQUAL(fromVariant<unsigned int>(method->invoke(obj)), 2 * sizeof(char));
 		metaClass->destroyInstance(obj);
 	}

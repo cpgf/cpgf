@@ -29,7 +29,7 @@ if(! context->isSpiderMonkey()) {
 
 	metaClass.reset(context->getService()->findClassByName(REG_NAME_BasicA));
 	
-	injectObjectToScript(binding, metaClass.get(), NULL);
+	injectObjectToScript(binding, metaClass.get(), nullptr);
 	
 	QASSERT(BasicEnum.a == 1);
 	QASSERT(BasicEnum.b == 2);

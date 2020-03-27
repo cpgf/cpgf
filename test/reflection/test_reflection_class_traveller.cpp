@@ -84,7 +84,7 @@ GTEST(API_TestTraveller)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(MM(XE)));
 	GCHECK(metaClass);
 
-	GMetaClassTraveller traveller(metaClass.get(), NULL);
+	GMetaClassTraveller traveller(metaClass.get(), nullptr);
 	void * nextInstance;
 	IMetaClass * nextClass;
 	
@@ -107,7 +107,7 @@ GTEST(API_TestTraveller)
 	GCHECK(itemEuqal(nextClass, service->findClassByName(MM(XA))));
 
 	nextClass = traveller.next(&nextInstance);
-	GCHECK(nextClass == NULL);
+	GCHECK(nextClass == nullptr);
 }
 
 

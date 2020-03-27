@@ -56,19 +56,19 @@ void doTest()
 	const GMetaMethod * method;
 
 	metaClass = findMetaClass("template::TestObject_char_int");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << metaClass->getName() << std::endl;
 
 	{
 		void * obj = metaClass->createInstance();
-		method = metaClass->getMethodInHierarchy("getSize", &obj); testCheckAssert(method != NULL);
+		method = metaClass->getMethodInHierarchy("getSize", &obj); testCheckAssert(method != nullptr);
 		testCheckEqual(fromVariant<unsigned int>(method->invoke(obj)), sizeof(char));
 		metaClass->destroyInstance(obj);
 	}
 
 	{
 		void * obj = metaClass->createInstance();
-		method = metaClass->getMethodInHierarchy("getDouble", &obj); testCheckAssert(method != NULL);
+		method = metaClass->getMethodInHierarchy("getDouble", &obj); testCheckAssert(method != nullptr);
 		testCheckEqual(fromVariant<unsigned int>(method->invoke(obj)), 2 * sizeof(char));
 		metaClass->destroyInstance(obj);
 	}

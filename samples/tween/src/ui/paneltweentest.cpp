@@ -23,7 +23,7 @@
 using namespace cpgf;
 
 PanelTweenTest::PanelTweenTest(wxWindow * parent)
-	: super(parent), timer(NULL)
+	: super(parent), timer(nullptr)
 {
 	wxBoxSizer * mainSizer;
 	mainSizer = new wxBoxSizer( wxVERTICAL );
@@ -84,7 +84,7 @@ void PanelTweenTest::start()
 void PanelTweenTest::end()
 {
 	delete this->timer;
-	this->timer = NULL;
+	this->timer = nullptr;
 }
 
 void PanelTweenTest::setTestCase(const TestCasePtr & testCase)

@@ -8,7 +8,7 @@
 #endif
 
 TestSerializeClass::TestSerializeClass()
-	: pstr(NULL)
+	: pstr(nullptr)
 {
 	this->reset();
 }
@@ -37,9 +37,9 @@ bool TestSerializeClass::operator == (const TestSerializeClass & other) const
 		&& FEQUAL(this->df, other.df)
 		&& FEQUAL(this->ldf, other.ldf)
 		&& this->str == other.str
-		&& (this->pstr == other.pstr || (this->pstr != NULL && other.pstr != NULL && *(this->pstr) == *(other.pstr)))
+		&& (this->pstr == other.pstr || (this->pstr != nullptr && other.pstr != nullptr && *(this->pstr) == *(other.pstr)))
 		&& (this->pself == &this->str && other.pself == &other.str)
-		&& (this->pnull == NULL && other.pnull == NULL)
+		&& (this->pnull == nullptr && other.pnull == nullptr)
 	;
 }
 
@@ -63,9 +63,9 @@ bool TestSerializeClass::operator != (const TestSerializeClass & other) const
 		&& !FEQUAL(this->df, other.df)
 		&& !FEQUAL(this->ldf, other.ldf)
 		&& this->str != other.str
-		&& !(this->pstr == other.pstr || (this->pstr != NULL && other.pstr != NULL && *(this->pstr) == *(other.pstr)))
+		&& !(this->pstr == other.pstr || (this->pstr != nullptr && other.pstr != nullptr && *(this->pstr) == *(other.pstr)))
 		&& (this->pself == &this->str && other.pself == &other.str)
-		&& (this->pnull == NULL && other.pnull == NULL)
+		&& (this->pnull == nullptr && other.pnull == nullptr)
 	;
 }
 
@@ -88,12 +88,12 @@ void TestSerializeClass::reset()
 	this->df = 0;
 	this->ldf = 0;
 	this->str = "";
-	if(this->pstr != NULL) {
+	if(this->pstr != nullptr) {
 		delete this->pstr;
 	}
-	this->pstr = NULL;
+	this->pstr = nullptr;
 	this->pself = &this->str;
-	this->pnull = NULL;
+	this->pnull = nullptr;
 }
 
 void TestSerializeClass::set(long long seed)
@@ -125,7 +125,7 @@ void TestSerializeClass::set(long long seed)
 
 void TestSerializeClass::setPstr(const std::string & s)
 {
-	if(this->pstr == NULL) {
+	if(this->pstr == nullptr) {
 		this->pstr = new std::string;
 	}
 	*(this->pstr) = s;
@@ -142,7 +142,7 @@ void initTestValue(TestSerializeClass & value, long long seed)
 
 TestSerializeArray::TestSerializeArray()
 {
-	LOOP3(B1, B2, B3) npo[z1][z2][z3] = NULL;
+	LOOP3(B1, B2, B3) npo[z1][z2][z3] = nullptr;
 
 	this->reset();
 }
@@ -170,10 +170,10 @@ bool TestSerializeArray::operator == (const TestSerializeArray & other) const
 	LOOP3(B1, B2, B3) if(z1 && z2 && z3 && po[z1][z2][z3] != &o[z1][z2][z3]) return false;
 	LOOP3(B1, B2, B3) if(z1 && z2 && z3 && other.po[z1][z2][z3] != &other.o[z1][z2][z3]) return false;
 	
-	if(ps[0][0][0] != NULL) return false;
-	if(other.ps[0][0][0] != NULL) return false;
-	if(po[0][0][0] != NULL) return false;
-	if(other.po[0][0][0] != NULL) return false;
+	if(ps[0][0][0] != nullptr) return false;
+	if(other.ps[0][0][0] != nullptr) return false;
+	if(po[0][0][0] != nullptr) return false;
+	if(other.po[0][0][0] != nullptr) return false;
 	
 	LOOP3(B1, B2, B3) if(*npo[z1][z2][z3] != *other.npo[z1][z2][z3]) return false;
 
@@ -192,12 +192,12 @@ void TestSerializeArray::reset()
 #undef INIT2
 #undef INIT3
 
-	LOOP3(B1, B2, B3) ps[z1][z2][z3] = NULL;
-	LOOP3(B1, B2, B3) po[z1][z2][z3] = NULL;
+	LOOP3(B1, B2, B3) ps[z1][z2][z3] = nullptr;
+	LOOP3(B1, B2, B3) po[z1][z2][z3] = nullptr;
 	
 	LOOP3(B1, B2, B3) {
 		delete npo[z1][z2][z3];
-		npo[z1][z2][z3] = NULL;
+		npo[z1][z2][z3] = nullptr;
 	}
 }
 
@@ -216,8 +216,8 @@ void TestSerializeArray::init()
 	LOOP3(B1, B2, B3) ps[z1][z2][z3] = &s[z1][z2][z3];
 	LOOP3(B1, B2, B3) po[z1][z2][z3] = &o[z1][z2][z3];
 
-	ps[0][0][0] = NULL;
-	po[0][0][0] = NULL;
+	ps[0][0][0] = nullptr;
+	po[0][0][0] = nullptr;
 
 	LOOP3(B1, B2, B3) {
 		npo[z1][z2][z3] = new TestSerializeClass();

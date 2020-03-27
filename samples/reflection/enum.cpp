@@ -51,16 +51,16 @@ void doTestLib()
 	const GMetaEnum * metaEnum;
 
 	metaClass = findMetaClass("enum::TestObject");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << "Lib: " << metaClass->getName() << std::endl;
 
 	{
-		metaEnum = metaClass->getEnum("WindowStyle"); testCheckAssert(metaEnum != NULL);
+		metaEnum = metaClass->getEnum("WindowStyle"); testCheckAssert(metaEnum != nullptr);
 		checkEnum(metaEnum, "ws");
 	}
 
 	{
-		metaEnum = metaClass->getEnum("BorderStyle"); testCheckAssert(metaEnum != NULL);
+		metaEnum = metaClass->getEnum("BorderStyle"); testCheckAssert(metaEnum != nullptr);
 		checkEnum(metaEnum, "bs");
 	}
 

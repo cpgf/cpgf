@@ -78,7 +78,7 @@ public:
 
 struct MultipleInheritanceCastFieldData
 {
-	MultipleInheritanceCastFieldData() : rawD(NULL), rawR(NULL) {}
+	MultipleInheritanceCastFieldData() : rawD(nullptr), rawR(nullptr) {}
 
 	bool checkD() const {
 		return this->rawD->isD() && typeid(*(this->rawD)) == typeid(MultipleInheritanceCastD);

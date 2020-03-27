@@ -25,7 +25,7 @@ Pointer createTween()
 	Pointer tween(new GTween);
 	
 	x = 1;
-	tween->target(createAccessor(NULL, &x, &x), 5)
+	tween->target(createAccessor(nullptr, &x, &x), 5)
 		.ease(LinearEase::ease())
 		.duration(4)
 		.useFrames(true)
@@ -39,7 +39,7 @@ Pointer createRelativeTween()
 	Pointer tween(new GTween);
 	
 	x = 1;
-	tween->relative(createAccessor(NULL, &x, &x), 4)
+	tween->relative(createAccessor(nullptr, &x, &x), 4)
 		.ease(LinearEase::ease())
 		.duration(4)
 		.useFrames(true)

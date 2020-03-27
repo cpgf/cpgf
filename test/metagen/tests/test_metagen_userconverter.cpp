@@ -23,7 +23,7 @@ uint32_t G_API_CC MyScriptUserConverter::canConvert(const cpgf::GScriptUserConve
 	GVariantType vt = value.getType();
 	if((vtIsInteger(vt) || vtIsReal(vt)) && paramData->callable->getParamCount() == 1) {
 		GMetaType paramType(metaGetParamType(paramData->callable, 0));
-		if(! paramType.isPointer() && paramType.getBaseName() != NULL) {
+		if(! paramType.isPointer() && paramType.getBaseName() != nullptr) {
 			if(checkParamName == paramType.getBaseName()) {
 				return 1;
 			}

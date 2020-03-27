@@ -60,7 +60,7 @@ public:
 class R
 {
 public:
-	R() : r(0), pa(NULL) {}
+	R() : r(0), pa(nullptr) {}
 	~R() { delete pa; }
 
 	int r;
@@ -155,22 +155,22 @@ void doTestPolymorphic(IMetaStorageWriter * writer, IMetaStorageReader * reader,
 
 	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance1, metaClass.get());
 
-	GCHECK(readInstance1.pa != NULL);
+	GCHECK(readInstance1.pa != nullptr);
 	GEQUAL(CB, readInstance1.pa->get());
 	GEQUAL(58, readInstance1.r);
 	GEQUAL(15, readInstance1.pa->a);
-	GDIFF(NULL, dynamic_cast<B *>(readInstance1.pa));
+	GDIFF(nullptr, dynamic_cast<B *>(readInstance1.pa));
 	GEQUAL(16, dynamic_cast<B *>(readInstance1.pa)->b);
 
 	R readInstance2;
 
 	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance2, metaClass.get());
 
-	GCHECK(readInstance2.pa != NULL);
+	GCHECK(readInstance2.pa != nullptr);
 	GEQUAL(CD, readInstance2.pa->get());
 	GEQUAL(68, readInstance2.r);
 	GEQUAL(25, readInstance2.pa->a);
-	GDIFF(NULL, dynamic_cast<D *>(readInstance2.pa));
+	GDIFF(nullptr, dynamic_cast<D *>(readInstance2.pa));
 	GEQUAL(26, dynamic_cast<D *>(readInstance2.pa)->d);
 }
 

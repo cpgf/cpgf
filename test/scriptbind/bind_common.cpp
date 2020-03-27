@@ -67,14 +67,14 @@ void TestScriptContext::setBinding(cpgf::GScriptObject * binding)
 {
 	this->bindingLib.reset(binding);
 
-	binding->bindCoreService("cpgf", NULL);
+	binding->bindCoreService("cpgf", nullptr);
 }
 
 void TestScriptContext::setBinding(cpgf::IScriptObject * binding)
 {
 	this->bindingApi.reset(binding);
 
-	binding->bindCoreService("cpgf", NULL);
+	binding->bindCoreService("cpgf", nullptr);
 }
 
 bool TestScriptContext::doString(const std::string & code) const
@@ -130,7 +130,7 @@ private:
 
 public:
 	TestScriptContextLua(TestScriptApi api)
-		: super(new TestScriptCoderLua), luaStateLib(NULL), luaStateApi(NULL)
+		: super(new TestScriptCoderLua), luaStateLib(nullptr), luaStateApi(nullptr)
 	{
 		if(api == tsaLib) {
 			this->luaStateLib = luaL_newstate();
@@ -150,11 +150,11 @@ public:
 	~TestScriptContextLua() {
 		this->finalize();
 
-		if(this->luaStateLib != NULL) {
+		if(this->luaStateLib != nullptr) {
 			lua_close(this->luaStateLib);
 		}
 
-		if(this->luaStateApi != NULL) {
+		if(this->luaStateApi != nullptr) {
 			lua_close(this->luaStateApi);
 		}
 	}
@@ -311,7 +311,7 @@ private:
 
 public:
 	TestScriptContextPython(TestScriptApi api)
-		: super(new TestScriptCoderPython), moduleMain(NULL), mainDict(NULL)
+		: super(new TestScriptCoderPython), moduleMain(nullptr), mainDict(nullptr)
 	{
 		Py_InitializeEx(0);
 
@@ -588,7 +588,7 @@ TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi a
 #endif
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

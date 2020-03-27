@@ -373,14 +373,14 @@ public:
 //		CallbackObject * tempObject = new CallbackObject;
 //		connection = cbList->add(makeCallback1(tempObject, &CallbackObject::callback2));
 //		cbList->track(&tempObject->trackable, connection);
-//		GCHECK(cbList->find(makeCallback1(tempObject, &CallbackObject::callback2)) != NULL);
+//		GCHECK(cbList->find(makeCallback1(tempObject, &CallbackObject::callback2)) != nullptr);
 //		delete tempObject;
 
 //		cbList->add(cbObject, &CallbackObject::callback1);
-//		GCHECK(cbList->find(cbObject, &CallbackObject::callback1) != NULL);
+//		GCHECK(cbList->find(cbObject, &CallbackObject::callback1) != nullptr);
 
 //		cbList->add(&CallbackObject::callbackStatic);
-//		GCHECK(cbList->find(&CallbackObject::callbackStatic) != NULL);
+//		GCHECK(cbList->find(&CallbackObject::callbackStatic) != nullptr);
 
 //		connection = cbList->add(CallbackObject());
 //		connection->autoRemoveAfterFirstCall();
@@ -753,7 +753,7 @@ public:
 
 		CallbackTestRecursive::RecursiveCallbackType cb(&obj, &CallbackTestRecursive::recursive1);
 
-		GEQUAL((obj.recursive1(iterateCount, NULL)), (cb(iterateCount, &cb)));
+		GEQUAL((obj.recursive1(iterateCount, nullptr)), (cb(iterateCount, &cb)));
 	}
 
 

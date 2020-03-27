@@ -43,7 +43,7 @@ void benchmarkTweens()
 		tween->repeat(2);
 		tween->useFrames(true);
 		for(int k = 0; k < 3; ++k) {
-			tween->target(createAccessor(NULL, &x, &x), (float)target);
+			tween->target(createAccessor(nullptr, &x, &x), (float)target);
 		}
 	}
 

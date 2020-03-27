@@ -36,7 +36,7 @@ public:
 		return *this;
 	}
 };
-ClassB * ClassB::lastB = NULL;
+ClassB * ClassB::lastB = nullptr;
 
 GTEST(TestVariant_ConstReference)
 {

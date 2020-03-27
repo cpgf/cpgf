@@ -117,21 +117,21 @@ void doTest()
 	const GMetaClass * animalClass;
 	const GMetaMethod * method;
 
-	catClass = findMetaClass("inheritance_single::TestCat"); testCheckAssert(catClass != NULL);
+	catClass = findMetaClass("inheritance_single::TestCat"); testCheckAssert(catClass != nullptr);
 	testCheckEqual(catClass, findMetaClass(catClass->getItemType()));
-	animalClass = findMetaClass("inheritance_single::TestAnimal"); testCheckAssert(animalClass != NULL);
+	animalClass = findMetaClass("inheritance_single::TestAnimal"); testCheckAssert(animalClass != nullptr);
 
-	testCheckAssert(catClass->getBaseClass(0) != NULL);
-	testCheckAssert(animalClass->getBaseClass(0) != NULL);
+	testCheckAssert(catClass->getBaseClass(0) != nullptr);
+	testCheckAssert(animalClass->getBaseClass(0) != nullptr);
 
 	{
 		void * cat = catClass->createInstance();
-		method = catClass->getMethodInHierarchy("getName", &cat); testCheckAssert(method != NULL);
+		method = catClass->getMethodInHierarchy("getName", &cat); testCheckAssert(method != nullptr);
 		testCheckStringEqual(fromVariant<std::string>(method->invoke(cat)), TestCat::Name);
 
 		// for single inheritance, animal == cat
 		void * animal = catClass->castToBase(cat, 0);
-		method = animalClass->getMethodInHierarchy("getName", &animal); testCheckAssert(method != NULL);
+		method = animalClass->getMethodInHierarchy("getName", &animal); testCheckAssert(method != nullptr);
 		// it's still cat's name, because animal is still an instance of Cat
 		testCheckStringEqual(fromVariant<std::string>(method->invoke(animal)), TestCat::Name);
 
@@ -139,12 +139,12 @@ void doTest()
 	}
 
 	{
-		method = catClass->getMethod("getID"); testCheckAssert(method != NULL);
+		method = catClass->getMethod("getID"); testCheckAssert(method != nullptr);
 		void * cat = catClass->createInstance();
 		testCheckEqual(fromVariant<int>(method->invoke(cat)), TestCat::ID);
 
 		void * animal = catClass->castToBase(cat, 0);
-		method = animalClass->getMethodInHierarchy("getID", &animal); testCheckAssert(method != NULL);
+		method = animalClass->getMethodInHierarchy("getID", &animal); testCheckAssert(method != nullptr);
 		// getID is not virtual, so no polymorphism happens
 		testCheckEqual(fromVariant<int>(method->invoke(animal)), TestAnimal::ID);
 

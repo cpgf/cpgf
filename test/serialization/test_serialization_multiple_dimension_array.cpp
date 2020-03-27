@@ -89,9 +89,9 @@ void doTestMultipleDimensionArray(IMetaStorageWriter * writer, IMetaStorageReade
 	INIT3(rs, B1, B2, B3)
 	INIT3(ro, B1, B2, B3)
 #undef INIT3
-	LOOP3(B1, B2, B3) rps[z1][z2][z3] = NULL;
-	LOOP3(B1, B2, B3) rpo[z1][z2][z3] = NULL;
-	LOOP3(B1, B2, B3) rnpo[z1][z2][z3] = NULL;
+	LOOP3(B1, B2, B3) rps[z1][z2][z3] = nullptr;
+	LOOP3(B1, B2, B3) rpo[z1][z2][z3] = nullptr;
+	LOOP3(B1, B2, B3) rnpo[z1][z2][z3] = nullptr;
 
 	serializeReadData(archiveReader.get(), "i", ri);
 	serializeReadData(archiveReader.get(), "l", rl);

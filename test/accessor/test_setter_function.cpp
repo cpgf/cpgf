@@ -45,13 +45,13 @@ GTEST(Setter_Global_Function_setA)
 	valueA = 0;
 
 	GInstanceSetter<void (*)(int)> ptr = createInstanceSetter(&setA);
-	GEQUAL(NULL, ptr.getAddress(NULL));
-	ptr.set(NULL, 1999);
+	GEQUAL(nullptr, ptr.getAddress(nullptr));
+	ptr.set(nullptr, 1999);
 	GEQUAL(1999, valueA);
 
 	GInstanceSetter<void (int)> func = createInstanceSetter(setA);
-	GEQUAL(NULL, func.getAddress(NULL));
-	func.set(NULL, 38);
+	GEQUAL(nullptr, func.getAddress(nullptr));
+	func.set(nullptr, 38);
 	GEQUAL(38, valueA);
 }
 
@@ -59,8 +59,8 @@ GTEST(InstanceSetter_Global_Function_setA)
 {
 	valueA = 0;
 
-	GSetter<void (*)(int)> ptr = createSetter(NULL, &setA);
-	GEQUAL(NULL, ptr.getAddress());
+	GSetter<void (*)(int)> ptr = createSetter(nullptr, &setA);
+	GEQUAL(nullptr, ptr.getAddress());
 	ptr.set(1999);
 	GEQUAL(1999, valueA);
 	ptr(1998);
@@ -68,8 +68,8 @@ GTEST(InstanceSetter_Global_Function_setA)
 	ptr = 1997;
 	GEQUAL(1997, valueA);
 
-	GSetter<void (int)> func = createSetter(NULL, setA);
-	GEQUAL(NULL, func.getAddress());
+	GSetter<void (int)> func = createSetter(nullptr, setA);
+	GEQUAL(nullptr, func.getAddress());
 	func.set(1);
 	GEQUAL(1, valueA);
 	func(2);
@@ -84,8 +84,8 @@ GTEST(Setter_Global_Function_setObject)
 	object.n = 0;
 
 	GInstanceSetter<void (const TestAccessorObject &)> setter = createInstanceSetter(setObject);
-	GEQUAL(NULL, setter.getAddress(NULL));
-	setter.set(NULL, TestAccessorObject(38));
+	GEQUAL(nullptr, setter.getAddress(nullptr));
+	setter.set(nullptr, TestAccessorObject(38));
 	GEQUAL(38, object.n);
 }
 
@@ -93,8 +93,8 @@ GTEST(InstanceSetter_Global_Function_setObject)
 {
 	object.n = 0;
 
-	GSetter<void (const TestAccessorObject &)> setter = createSetter(NULL, setObject);
-	GEQUAL(NULL, setter.getAddress());
+	GSetter<void (const TestAccessorObject &)> setter = createSetter(nullptr, setObject);
+	GEQUAL(nullptr, setter.getAddress());
 
 	setter.set(TestAccessorObject(38));
 	GEQUAL(38, object.n);
@@ -110,7 +110,7 @@ GTEST(Setter_Global_Function_setByExplicitThis)
 	TestAccessorObject a;
 	a.n = 0;
 	GInstanceSetter<void (TestAccessorObject *, int), GMetaPolicyExplicitThis> setter = createInstanceSetter(setByExplicitThis, GMetaPolicyExplicitThis());
-	GEQUAL(NULL, setter.getAddress(&a));
+	GEQUAL(nullptr, setter.getAddress(&a));
 
 	setter.set(&a, 38);
 	GEQUAL(38, a.n);
@@ -124,7 +124,7 @@ GTEST(InstanceSetter_Global_Function_setByExplicitThis)
 	TestAccessorObject a;
 	a.n = 0;
 	GSetter<void (TestAccessorObject *, int), GMetaPolicyExplicitThis> setter = createSetter(&a, setByExplicitThis, GMetaPolicyExplicitThis());
-	GEQUAL(NULL, setter.getAddress());
+	GEQUAL(nullptr, setter.getAddress());
 
 	setter.set(1);
 	GEQUAL(1, a.n);
@@ -140,7 +140,7 @@ GTEST(Setter_Member_Function_setN)
 	SetterData a;
 	a.n = 0;
 	GInstanceSetter<void (SetterData::*)(int)> setter = createInstanceSetter(&SetterData::setN);
-	GEQUAL(NULL, setter.getAddress(&a));
+	GEQUAL(nullptr, setter.getAddress(&a));
 
 	setter.set(&a, 1);
 	GEQUAL(1, a.n);
@@ -154,7 +154,7 @@ GTEST(InstanceSetter_Member_Function_setN)
 	SetterData a;
 	a.n = 0;
 	GSetter<void (SetterData::*)(int)> setter = createSetter(&a, &SetterData::setN);
-	GEQUAL(NULL, setter.getAddress());
+	GEQUAL(nullptr, setter.getAddress());
 
 	setter.set(1);
 	GEQUAL(1, a.n);

@@ -15,7 +15,7 @@ namespace {
 template <typename AR>
 void doTestSimpleValue(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(NULL, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(nullptr, writer));
 
 	bool b = true;
 	char c = 5;
@@ -57,7 +57,7 @@ void doTestSimpleValue(IMetaStorageWriter * writer, IMetaStorageReader * reader,
 
 	TestArchiveTraits<AR>::rewind(ar);
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(NULL, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(nullptr, reader));
 	
 	bool rb = false;
 	char rc = 0;
@@ -76,7 +76,7 @@ void doTestSimpleValue(IMetaStorageWriter * writer, IMetaStorageReader * reader,
 	double rdf = 0;
 	long double rldf = 0;
 	string rs = "";
-	string * rps = NULL;
+	string * rps = nullptr;
 
 	serializeReadData(archiveReader.get(), "b", rb);
 	serializeReadData(archiveReader.get(), "c", rc);

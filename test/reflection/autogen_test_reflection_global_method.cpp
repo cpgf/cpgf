@@ -490,7 +490,7 @@ GTEST(Lib_Invoke)
 	const GMetaMethod * method;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	fieldMethodInt = 910;
 	METHOD(methodGetInt);
@@ -552,11 +552,11 @@ GTEST(Lib_Invoke)
 
 	METHOD(methodGetNCData);
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->invoke(NULL, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->invoke(nullptr, 1));
 		GEQUAL(nc.i, 1);
 	}
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->invoke(NULL, 5));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->invoke(nullptr, 5));
 		GEQUAL(nc.i, 5);
 	}
 	
@@ -595,7 +595,7 @@ GTEST(API_Invoke)
 	GScopedInterface<IMetaMethod> method;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	fieldMethodInt = 910;
 	METHOD(methodGetInt);
@@ -657,11 +657,11 @@ GTEST(API_Invoke)
 
 	METHOD(methodGetNCData);
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method.get(), NULL, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method.get(), nullptr, 1));
 		GEQUAL(nc.i, 1);
 	}
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method.get(), NULL, 5));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method.get(), nullptr, 5));
 		GEQUAL(nc.i, 5);
 	}
 	
@@ -697,7 +697,7 @@ GTEST(Lib_Execute)
 	const GMetaMethod * method;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 
 	GVariant params[20];
 
@@ -759,12 +759,12 @@ GTEST(Lib_Execute)
 	METHOD(methodGetNCData);
 	{
 		params[0] = 1;
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->execute(NULL, params, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->execute(nullptr, params, 1));
 		GEQUAL(nc.i, 1);
 	}
 	{
 		params[0] = 5;
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->execute(NULL, params, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->execute(nullptr, params, 1));
 		GEQUAL(nc.i, 5);
 	}
 	
@@ -796,7 +796,7 @@ GTEST(Lib_PassParamByValueAndRef)
 	const GMetaMethod * method;
 
 
-	CLASS * pobj = NULL;
+	CLASS * pobj = nullptr;
 	
 	CLASS_DATA data("abc", 5);
 	CLASS_DATA newData;

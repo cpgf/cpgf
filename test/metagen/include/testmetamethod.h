@@ -26,7 +26,7 @@ public:
 	TestMethodMethodClass() : refString("referenceToString") {}
 	
 	bool func_null_38_abc(void * a, int b, const char * c) {
-		return a == NULL && b == 38 && strcmp(c, "abc") == 0;
+		return a == nullptr && b == 38 && strcmp(c, "abc") == 0;
 	}
 
 	static bool G_API_CC sfunc_dEf_neg99(const std::string & a, int b) {

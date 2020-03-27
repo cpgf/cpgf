@@ -16,7 +16,7 @@ class C;
 class A
 {
 public:
-	A() : a(0), pc(NULL) {}
+	A() : a(0), pc(nullptr) {}
 	~A();
 	
 	void init();
@@ -30,7 +30,7 @@ public:
 class B
 {
 public:
-	B() : b(0), pa(NULL) {}
+	B() : b(0), pa(nullptr) {}
 
 	int b;
 	B * pself;
@@ -40,7 +40,7 @@ public:
 class C
 {
 public:
-	C() : c(0), pb(NULL) {}
+	C() : c(0), pb(nullptr) {}
 
 	int c;
 	C * pself;
@@ -49,7 +49,7 @@ public:
 
 A::~A()
 {
-	if(this->pc != NULL) {
+	if(this->pc != nullptr) {
 		delete this->pc->pb;
 		delete this->pc;
 	}
@@ -71,8 +71,8 @@ void A::init()
 bool A::verify() const
 {
 	return
-		this->pc != NULL
-		&& this->pc->pb != NULL
+		this->pc != nullptr
+		&& this->pc->pb != nullptr
 		&& this->pc->pb->pa == this
 		&& this->a == 1
 		&& this->pc->c == 3

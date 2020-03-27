@@ -16,13 +16,13 @@
 using namespace cpgf;
 
 TestCase::TestCase()
-	: tweenable(NULL), ease(LinearEase::ease())
+	: tweenable(nullptr), ease(LinearEase::ease())
 {
 }
 
 TestCase::~TestCase()
 {
-	this->setTweenable(NULL);
+	this->setTweenable(nullptr);
 }
 
 bool TestCase::shouldShowCommandButtons()
@@ -42,7 +42,7 @@ bool TestCase::shouldShowPauseResumeButtons()
 
 void TestCase::resetEase()
 {
-	if(this->tweenable != NULL) {
+	if(this->tweenable != nullptr) {
 		if(dynamic_cast<GTween *>(this->tweenable)) {
 			dynamic_cast<GTween *>(this->tweenable)->ease(this->ease);
 		}
@@ -63,7 +63,7 @@ void TestCase::setTweenParam(const TweenParam & tweenParam)
 
 void TestCase::resetTweenParam()
 {
-	if(this->tweenable != NULL) {
+	if(this->tweenable != nullptr) {
 		bool shouldRestart = (this->tweenParam.useFrames != this->tweenable->isUseFrames());
 
 		this->tweenable->useFrames(this->tweenParam.useFrames);
@@ -92,7 +92,7 @@ void TestCase::reset()
 {
 	GTweenList::getInstance()->clear();
 	
-	this->tweenable = NULL;
+	this->tweenable = nullptr;
 
 	this->doReset();
 
@@ -107,7 +107,7 @@ void TestCase::play()
 {
 	this->reset();
 
-	if(this->tweenable != NULL) {
+	if(this->tweenable != nullptr) {
 		this->tweenable->restartWithDelay();
 		this->tweenable->resume();
 	}
@@ -115,14 +115,14 @@ void TestCase::play()
 
 void TestCase::pause()
 {
-	if(this->tweenable != NULL) {
+	if(this->tweenable != nullptr) {
 		this->tweenable->pause();
 	}
 }
 
 void TestCase::resume()
 {
-	if(this->tweenable != NULL) {
+	if(this->tweenable != nullptr) {
 		this->tweenable->resume();
 	}
 }
@@ -140,7 +140,7 @@ void TestCase::setTweenable(GTweenable * tweenable)
 	this->detachCurrentTweenable();
 	this->tweenable = tweenable;
 
-	if(this->tweenable != NULL) {
+	if(this->tweenable != nullptr) {
 		if(dynamic_cast<GTween *>(this->tweenable)) {
 			dynamic_cast<GTween *>(this->tweenable)->onComplete(OnComplete())
 				.onDestroy(makeCallback(this, &TestCase::onTweenableDestroy))
@@ -160,12 +160,12 @@ void TestCase::setTweenable(GTweenable * tweenable)
 
 void TestCase::onTweenableDestroy()
 {
-	this->tweenable = NULL;
+	this->tweenable = nullptr;
 }
 
 void TestCase::detachCurrentTweenable()
 {
-	if(this->tweenable != NULL) {
+	if(this->tweenable != nullptr) {
 		if(dynamic_cast<GTween *>(this->tweenable)) {
 			dynamic_cast<GTween *>(this->tweenable)->onDestroy(GTweenCallback());
 		}

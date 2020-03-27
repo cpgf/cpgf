@@ -246,7 +246,7 @@ void doTest()
 	method.reset(globalClass->getMethod("addNumber"));
 	testCheckAssert((bool)method);
 
-	scriptSetValue(scope.get(), "addNumber", GScriptValue::fromMethod(NULL, method.get()));
+	scriptSetValue(scope.get(), "addNumber", GScriptValue::fromMethod(nullptr, method.get()));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
 	testCheckAssert((bool)metaClass);
@@ -301,9 +301,9 @@ void doTest()
 	cout << "Result: " << fromVariant<int>(result) << endl;
 	cout << fromVariant<std::string>(scriptGetValue(binding.get(), "lss").toPrimary()) << endl;
 	{
-		cout << static_cast<TestObject *>(scriptGetValue(binding.get(), "newObj").toObjectAddress(NULL, NULL, NULL))->width << endl;
-	IMetaClass * item = NULL;
-	scriptGetValue(binding.get(), "newObj").toObject(&item, NULL, NULL);
+		cout << static_cast<TestObject *>(scriptGetValue(binding.get(), "newObj").toObjectAddress(nullptr, nullptr, nullptr))->width << endl;
+	IMetaClass * item = nullptr;
+	scriptGetValue(binding.get(), "newObj").toObject(&item, nullptr, nullptr);
 	GScopedInterface<IMetaClass> type(item);
 	cout << type->getName() << endl;
 	}

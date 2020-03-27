@@ -53,7 +53,7 @@ class MyObject
 {
 public:
 	MyObject()
-		: n(0), s(""), pdata(new MyData), notSerializedN(0), pn(NULL), pp(NULL)
+		: n(0), s(""), pdata(new MyData), notSerializedN(0), pn(nullptr), pp(nullptr)
 	{
 		arr[0] = 0;
 		arr[1] = 0;

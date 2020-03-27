@@ -33,7 +33,7 @@ void buildMetaClass_Rect(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("Offset", &D::ClassType::Offset);
     _d.CPGF_MD_TEMPLATE _method("Contains", &D::ClassType::Contains);
     _d.CPGF_MD_TEMPLATE _method("Intersects", &D::ClassType::Intersects)
-        ._default(copyVariantFromCopyable((Rect< T > *)NULL))
+        ._default(copyVariantFromCopyable((Rect< T > *)nullptr))
     ;
 }
 

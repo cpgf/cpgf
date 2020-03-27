@@ -128,8 +128,8 @@ void run_a01()
 	const GMetaMethod * greetingMethod = globalMetaClass->getMethod("greeting");
 	// Invoke the global function.
 	// Most meta functions need an object instance to work with.
-	// For global functions and fields, just pass the instance as NULL.
-	greetingMethod->invoke(NULL, "world");
+	// For global functions and fields, just pass the instance as nullptr.
+	greetingMethod->invoke(nullptr, "world");
 
 	// Now let's use the class Point via reflection system.
 	const GMetaClass * pointMetaClass = globalMetaClass->getClass("Point");

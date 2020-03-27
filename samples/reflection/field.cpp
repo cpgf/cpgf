@@ -77,11 +77,11 @@ void doTestLib()
 	const GMetaField * field;
 
 	metaClass = findMetaClass("field::TestObject");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << "Lib: " << metaClass->getName() << std::endl;
 
 	{
-		field = metaClass->getField("width"); testCheckAssert(field != NULL);
+		field = metaClass->getField("width"); testCheckAssert(field != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		field->set(obj, 123);
@@ -91,7 +91,7 @@ void doTestLib()
 	}
 
 	{
-		field = metaClass->getField("name"); testCheckAssert(field != NULL);
+		field = metaClass->getField("name"); testCheckAssert(field != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		field->set(obj, "new name");
@@ -102,7 +102,7 @@ void doTestLib()
 	}
 
 	{
-		field = metaClass->getField("data"); testCheckAssert(field != NULL);
+		field = metaClass->getField("data"); testCheckAssert(field != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		TestData data(3, "Fake dummy data");
@@ -113,7 +113,7 @@ void doTestLib()
 	}
 
 	{
-		field = metaClass->getField("nocopy"); testCheckAssert(field != NULL);
+		field = metaClass->getField("nocopy"); testCheckAssert(field != nullptr);
 		void * obj = metaClass->createInstance();
 		
 		testBeginException;
@@ -131,14 +131,14 @@ void doTestLib()
 	}
 
 	{
-		field = metaClass->getField("stats"); testCheckAssert(field != NULL);
-		field->set(NULL, 567);
+		field = metaClass->getField("stats"); testCheckAssert(field != nullptr);
+		field->set(nullptr, 567);
 		testCheckEqual(TestObject::stats, 567);
-		testCheckEqual(TestObject::stats, fromVariant<int>(field->get(NULL)));
+		testCheckEqual(TestObject::stats, fromVariant<int>(field->get(nullptr)));
 	}
 
 	{
-		field = metaClass->getField("callback"); testCheckAssert(field != NULL);
+		field = metaClass->getField("callback"); testCheckAssert(field != nullptr);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 
@@ -228,9 +228,9 @@ void doTestAPI()
 
 	{
 		field.reset(metaClass->getField("stats")); testCheckAssert((bool)field);
-		metaSetValue(field.get(), NULL, 567);
+		metaSetValue(field.get(), nullptr, 567);
 		testCheckEqual(TestObject::stats, 567);
-		testCheckEqual(TestObject::stats, fromVariant<int>(metaGetValue(field.get(), NULL)));
+		testCheckEqual(TestObject::stats, fromVariant<int>(metaGetValue(field.get(), nullptr)));
 	}
 
 	{

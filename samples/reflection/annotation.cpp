@@ -85,15 +85,15 @@ void testItem(const cpgf::GMetaItem * item)
 
 			const GAnnotationValue * value;
 
-			value = anno->getValue("name"); testCheckAssert(value != NULL);
+			value = anno->getValue("name"); testCheckAssert(value != nullptr);
 			testCheckAssert(value->canToWideString());
 			testCheckEqual(value->toWideString(), stringToWString(item->getName()));
 
-			value = anno->getValue("cat"); testCheckAssert(value != NULL);
+			value = anno->getValue("cat"); testCheckAssert(value != nullptr);
 			testCheckAssert(value->canToInt());
 			testCheckEqual(value->toInt(), item->getCategory());
 
-			value = anno->getValue("dog"); testCheckAssert(value != NULL);
+			value = anno->getValue("dog"); testCheckAssert(value != nullptr);
 			TestData data = value->toObject<TestData>();
 			testCheckEqual(data, TestData(item->getCategory(), item->getName()));
 		}
@@ -148,7 +148,7 @@ void doTestLib()
 	const GMetaClass * metaClass;
 
 	metaClass = findMetaClass("annotation::TestObject");
-	testCheckAssert(metaClass != NULL);
+	testCheckAssert(metaClass != nullptr);
 	std::cout << "Lib: " << metaClass->getName() << std::endl;
 
 	metaClass->getMetaCount(); // ensure registered

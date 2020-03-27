@@ -57,7 +57,7 @@ GTEST(Lib_BasicInfo)
 	GCHECK(metaClass->equals(findMetaClass(NAME(ClassBase))));
 	GCHECK(! metaClass->getBaseClass(0));
 	GEQUAL(metaClass->getBaseCount(), 0);
-	GCHECK(! metaClass->isInheritedFrom(NULL));
+	GCHECK(! metaClass->isInheritedFrom(nullptr));
 	GCHECK(! metaClass->isInheritedFrom(findMetaClass(NAME(ClassAbstract))));
 
 	metaClass = findMetaClass(NAME(ClassAbstract));
@@ -69,7 +69,7 @@ GTEST(Lib_BasicInfo)
 	GCHECK(metaClass->equals(findMetaClass(NAME(ClassAbstract))));
 	GCHECK(! metaClass->getBaseClass(0));
 	GEQUAL(metaClass->getBaseCount(), 0);
-	GCHECK(! metaClass->isInheritedFrom(NULL));
+	GCHECK(! metaClass->isInheritedFrom(nullptr));
 	GCHECK(! metaClass->isInheritedFrom(findMetaClass(NAME(ClassBase))));
 
 }
@@ -93,7 +93,7 @@ GTEST(API_BasicInfo)
 	GCHECK(metaClass->equals(metaClass2.get()));
 	GCHECK(! metaClass->getBaseClass(0));
 	GEQUAL(metaClass->getBaseCount(), 0);
-	GCHECK(! metaClass->isInheritedFrom(NULL));
+	GCHECK(! metaClass->isInheritedFrom(nullptr));
 	metaClass2.reset((service->findClassByName(NAME(ClassAbstract))));
 	GCHECK(! metaClass->isInheritedFrom(metaClass2.get()));
 
@@ -288,7 +288,7 @@ GTEST(Lib_GetConstructor)
 	GEQUAL_NOTNULL(metaClass->getConstructorByParamCount(1), metaClass->getConstructorAt(1));
 	GEQUAL_NOTNULL(metaClass->getConstructorByParamCount(2), metaClass->getConstructorAt(3));
 	GEQUAL_NOTNULL(metaClass->getConstructorByParamCount(3), metaClass->getConstructorAt(4));
-	GEQUAL(metaClass->getConstructorByParamCount(50), NULL);
+	GEQUAL(metaClass->getConstructorByParamCount(50), nullptr);
 }
 
 GTEST(API_GetConstructor)
@@ -305,7 +305,7 @@ GTEST(API_GetConstructor)
 	GCHECK(itemEuqal(metaClass->getConstructorByParamCount(1), metaClass->getConstructorAt(1)));
 	GCHECK(itemEuqal(metaClass->getConstructorByParamCount(2), metaClass->getConstructorAt(3)));
 	GCHECK(itemEuqal(metaClass->getConstructorByParamCount(3), metaClass->getConstructorAt(4)));
-	GEQUAL(metaClass->getConstructorByParamCount(50), NULL);
+	GEQUAL(metaClass->getConstructorByParamCount(50), nullptr);
 }
 #undef CLASS
 
@@ -347,7 +347,7 @@ GTEST(Lib_GetField)
 	GEQUAL_NOTNULL(metaClass->getField("f0"), metaClass->getFieldAt(0));
 	GEQUAL_NOTNULL(metaClass->getField("f1"), metaClass->getFieldAt(1));
 	GEQUAL_NOTNULL(metaClass->getField("f2"), metaClass->getFieldAt(2));
-	GEQUAL(metaClass->getField("none"), NULL);
+	GEQUAL(metaClass->getField("none"), nullptr);
 }
 
 GTEST(API_GetField)
@@ -363,7 +363,7 @@ GTEST(API_GetField)
 	GCHECK(itemEuqal(metaClass->getField("f0"), metaClass->getFieldAt(0)));
 	GCHECK(itemEuqal(metaClass->getField("f1"), metaClass->getFieldAt(1)));
 	GCHECK(itemEuqal(metaClass->getField("f2"), metaClass->getFieldAt(2)));
-	GEQUAL(metaClass->getField("none"), NULL);
+	GEQUAL(metaClass->getField("none"), nullptr);
 }
 #undef CLASS
 
@@ -409,7 +409,7 @@ GTEST(Lib_GetProperty)
 	GEQUAL_NOTNULL(metaClass->getProperty("p1"), metaClass->getPropertyAt(1));
 	GEQUAL_NOTNULL(metaClass->getProperty("p2"), metaClass->getPropertyAt(2));
 	GEQUAL_NOTNULL(metaClass->getProperty("p3"), metaClass->getPropertyAt(3));
-	GEQUAL(metaClass->getProperty("none"), NULL);
+	GEQUAL(metaClass->getProperty("none"), nullptr);
 }
 
 GTEST(API_GetProperty)
@@ -426,7 +426,7 @@ GTEST(API_GetProperty)
 	GCHECK(itemEuqal(metaClass->getProperty("p1"), metaClass->getPropertyAt(1)));
 	GCHECK(itemEuqal(metaClass->getProperty("p2"), metaClass->getPropertyAt(2)));
 	GCHECK(itemEuqal(metaClass->getProperty("p3"), metaClass->getPropertyAt(3)));
-	GEQUAL(metaClass->getProperty("none"), NULL);
+	GEQUAL(metaClass->getProperty("none"), nullptr);
 }
 #undef CLASS
 
@@ -469,7 +469,7 @@ GTEST(Lib_GetMethod)
 	GEQUAL_NOTNULL(metaClass->getMethod("m0"), metaClass->getMethodAt(0));
 	GEQUAL_NOTNULL(metaClass->getMethod("m1"), metaClass->getMethodAt(1));
 	GEQUAL_NOTNULL(metaClass->getMethod("m2"), metaClass->getMethodAt(2));
-	GEQUAL(metaClass->getMethod("none"), NULL);
+	GEQUAL(metaClass->getMethod("none"), nullptr);
 }
 
 GTEST(API_GetMethod)
@@ -485,7 +485,7 @@ GTEST(API_GetMethod)
 	GCHECK(itemEuqal(metaClass->getMethod("m0"), metaClass->getMethodAt(0)));
 	GCHECK(itemEuqal(metaClass->getMethod("m1"), metaClass->getMethodAt(1)));
 	GCHECK(itemEuqal(metaClass->getMethod("m2"), metaClass->getMethodAt(2)));
-	GEQUAL(metaClass->getMethod("none"), NULL);
+	GEQUAL(metaClass->getMethod("none"), nullptr);
 }
 #undef CLASS
 
@@ -528,7 +528,7 @@ GTEST(Lib_GetOperator)
 	GEQUAL_NOTNULL(metaClass->getOperator(mopHolder + mopHolder), metaClass->getOperatorAt(0));
 	GEQUAL_NOTNULL(metaClass->getOperator(mopHolder - mopHolder), metaClass->getOperatorAt(1));
 	GEQUAL_NOTNULL(metaClass->getOperator(mopHolder * mopHolder), metaClass->getOperatorAt(2));
-	GEQUAL(metaClass->getOperator(static_cast<GMetaOpType>(1000)), NULL);
+	GEQUAL(metaClass->getOperator(static_cast<GMetaOpType>(1000)), nullptr);
 }
 
 GTEST(API_GetOperator)
@@ -544,7 +544,7 @@ GTEST(API_GetOperator)
 	GCHECK(itemEuqal(metaClass->getOperator(mopHolder + mopHolder), metaClass->getOperatorAt(0)));
 	GCHECK(itemEuqal(metaClass->getOperator(mopHolder - mopHolder), metaClass->getOperatorAt(1)));
 	GCHECK(itemEuqal(metaClass->getOperator(mopHolder * mopHolder), metaClass->getOperatorAt(2)));
-	GEQUAL(metaClass->getOperator(static_cast<GMetaOpType>(1000)), NULL);
+	GEQUAL(metaClass->getOperator(static_cast<GMetaOpType>(1000)), nullptr);
 }
 #undef CLASS
 
@@ -587,7 +587,7 @@ GTEST(Lib_GetEnum)
 	GEQUAL_NOTNULL(metaClass->getEnum("E0"), metaClass->getEnumAt(0));
 	GEQUAL_NOTNULL(metaClass->getEnum("E1"), metaClass->getEnumAt(1));
 	GEQUAL_NOTNULL(metaClass->getEnum("E2"), metaClass->getEnumAt(2));
-	GEQUAL(metaClass->getEnum("none"), NULL);
+	GEQUAL(metaClass->getEnum("none"), nullptr);
 }
 
 GTEST(API_GetEnum)
@@ -603,7 +603,7 @@ GTEST(API_GetEnum)
 	GCHECK(itemEuqal(metaClass->getEnum("E0"), metaClass->getEnumAt(0)));
 	GCHECK(itemEuqal(metaClass->getEnum("E1"), metaClass->getEnumAt(1)));
 	GCHECK(itemEuqal(metaClass->getEnum("E2"), metaClass->getEnumAt(2)));
-	GEQUAL(metaClass->getEnum("none"), NULL);
+	GEQUAL(metaClass->getEnum("none"), nullptr);
 }
 #undef CLASS
 
@@ -657,7 +657,7 @@ GTEST(Lib_GetClass)
 	GEQUAL_NOTNULL(metaClass->getClass(NAME(CLASS::C0)), metaClass->getClassAt(0));
 	GEQUAL_NOTNULL(metaClass->getClass(NAME(CLASS::C1)), metaClass->getClassAt(1));
 	GEQUAL_NOTNULL(metaClass->getClass(NAME(CLASS::C2)), metaClass->getClassAt(2));
-	GEQUAL(metaClass->getClass("none"), NULL);
+	GEQUAL(metaClass->getClass("none"), nullptr);
 }
 
 GTEST(API_GetClass)
@@ -673,7 +673,7 @@ GTEST(API_GetClass)
 	GCHECK(itemEuqal(metaClass->getClass(NAME(CLASS::C0)), metaClass->getClassAt(0)));
 	GCHECK(itemEuqal(metaClass->getClass(NAME(CLASS::C1)), metaClass->getClassAt(1)));
 	GCHECK(itemEuqal(metaClass->getClass(NAME(CLASS::C2)), metaClass->getClassAt(2)));
-	GEQUAL(metaClass->getClass("none"), NULL);
+	GEQUAL(metaClass->getClass("none"), nullptr);
 }
 #undef CLASS
 

@@ -162,11 +162,11 @@ void doTest()
 	const GMetaMethod * method;
 	const GMetaField * field;
 
-	mainWindow = findMetaClass("inheritance_multiple::MainWindow"); testCheckAssert(mainWindow != NULL);
+	mainWindow = findMetaClass("inheritance_multiple::MainWindow"); testCheckAssert(mainWindow != nullptr);
 
 	{
 		void * window = mainWindow->createInstance();
-		method = mainWindow->getMethodInHierarchy("getName", &window); testCheckAssert(method != NULL);
+		method = mainWindow->getMethodInHierarchy("getName", &window); testCheckAssert(method != nullptr);
 		testCheckStringEqual(fromVariant<std::string>(method->invoke(window)), MainWindow::Name);
 
 		mainWindow->destroyInstance(window);
@@ -174,7 +174,7 @@ void doTest()
 
 	{
 		void * window = mainWindow->createInstance();
-		field = mainWindow->getFieldInHierarchy("borderWidth", &window); testCheckAssert(field != NULL);
+		field = mainWindow->getFieldInHierarchy("borderWidth", &window); testCheckAssert(field != nullptr);
 		field->set(window, 3);
 		testCheckEqual(((MainWindow *)window)->borderWidth, 3);
 

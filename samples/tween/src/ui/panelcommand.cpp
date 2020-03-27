@@ -84,7 +84,7 @@ void PanelCommand::tick()
 {
 	if(this->enableUpdateCurrentProgressSlider && this->enableUpdateTotalProgressSlider) {
 		cpgf::GTweenable * tweenable = this->testCase->getTweenable();
-		if(tweenable != NULL) {
+		if(tweenable != nullptr) {
 			float progress;
 
 			progress = tweenable->getCurrentProgress();
@@ -171,7 +171,7 @@ void PanelCommand::onChoiceRepeatDelaySelected( wxCommandEvent& event )
 void PanelCommand::onCurrentProgressSliderScroll( wxScrollEvent& event )
 {
 	cpgf::GTweenable * tweenable = this->testCase->getTweenable();
-	if(tweenable != NULL) {
+	if(tweenable != nullptr) {
 		float progress = (float)(this->currentProgressSlider->GetValue());
 		progress /= (float)(this->totalProgressSlider->GetMax());
 		if(tweenable->isCompleted()) {
@@ -185,7 +185,7 @@ void PanelCommand::onCurrentProgressSliderScroll( wxScrollEvent& event )
 void PanelCommand::onTotalProgressSliderScroll( wxScrollEvent& event )
 {
 	cpgf::GTweenable * tweenable = this->testCase->getTweenable();
-	if(tweenable != NULL) {
+	if(tweenable != nullptr) {
 		float progress = (float)(this->totalProgressSlider->GetValue());
 		progress /= (float)(this->totalProgressSlider->GetMax());
 		if(! tweenable->isRunning() || tweenable->isCompleted()) {

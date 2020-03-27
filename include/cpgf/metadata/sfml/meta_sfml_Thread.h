@@ -23,7 +23,7 @@ void buildMetaClass_Thread(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (Thread::FuncType, void *)>()
-        ._default(copyVariantFromCopyable((void *)NULL))
+        ._default(copyVariantFromCopyable((void *)nullptr))
     ;
     _d.CPGF_MD_TEMPLATE _method("Launch", &D::ClassType::Launch);
     _d.CPGF_MD_TEMPLATE _method("Wait", &D::ClassType::Wait);
