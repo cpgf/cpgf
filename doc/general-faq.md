@@ -130,7 +130,7 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 First, the V8 version used in cpgf is not very old. It should be already stable version.  
 Second, the reason cpgf doesn't use an up to date V8 version is that, V8 is always using some exotic building system, from Scons to gyp, rather than makefile or CMake, which is widely accepted by C++ world.
 
-It's very hard to get those weird building system working correctly under MS VC and MinGW, both of which are used to develop cpgf. You may check the user comments on V8 web page [here](*code.google.com/p/v8/wiki/BuildingOnWindows) and [here](*code.google.com/p/v8/wiki/BuildingWithGYP) to see how other V8 users said.
+It's very hard to get those weird building system working correctly under MS VC and MinGW, both of which are used to develop cpgf. You may check the user comments on V8 web page [here](http://code.google.com/p/v8/wiki/BuildingOnWindows) and [here](http://code.google.com/p/v8/wiki/BuildingWithGYP) to see how other V8 users said.
 
 The total time I wasted on building V8 is much longer than total time I spent on building wxWidgets and Qt. I would like to invest my time on more valuable works, rather than building a third party library.
 

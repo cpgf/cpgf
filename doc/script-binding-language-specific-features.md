@@ -20,7 +20,7 @@ This document describes the script language specified features. Please note thes
 <a id="a2_2"></a>
 ## Lua - Use dot (.) to access member functions and fields
 
-In current cpgf implementation of Lua script binding, it requires using dot (.) rather than colon (:) to access member functions and fields ([Read hear to learn the difference between dot and colon in Lua](//coronalabs.com/blog/2015/12/01/tutorial-understanding-the-colon-vs-dot-operator/)).  
+In current cpgf implementation of Lua script binding, it requires using dot (.) rather than colon (:) to access member functions and fields ([Read hear to learn the difference between dot and colon in Lua](https://coronalabs.com/blog/2015/12/01/tutorial-understanding-the-colon-vs-dot-operator/)).  
 
 The advantages are:
   - Better performance. The C++ code doesn't need to track the "self" each time on function calling because the object instance is already stored in the method itself.

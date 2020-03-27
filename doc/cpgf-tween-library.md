@@ -204,23 +204,27 @@ If the tweenable is repeating infinitely, setting the total time is undefined be
 ```c++
 GTweenNumber getCurrentProgress() const;
 ```
-Get current elapsed progress, not including delay time or any repeat. This is same as  *return getCurrentTime() / getDuration();*  
+Get current elapsed progress, not including delay time or any repeat. This is same as  
+*return getCurrentTime() / getDuration();*  
 The return value is always between [0, 1].
 ```c++
 void setCurrentProgress(GTweenNumber value);
 ```
-Set current elapsed progress, not including delay time or any repeat. This is same as  *setCurrentTime(value * getDuration());*  
+Set current elapsed progress, not including delay time or any repeat. This is same as  
+*setCurrentTime(value * getDuration());*  
 The value should be always between [0, 1]. If the value is smaller than 0, 0 will be used. If the value is larger than 1, 1 will be used.
 ```c++
 GTweenNumber getTotalProgress() const;
 ```
-Get overall elapsed progress, not including delay time, but include repeat and repeat delay time. This is same as  *return getTotalTime() / getTotalDuration();*  
+Get overall elapsed progress, not including delay time, but include repeat and repeat delay time. This is same as  
+*return getTotalTime() / getTotalDuration();*  
 The return value is always between [0, 1].  
 If the tweenable is repeating infinitely, the return value is meaningless.
 ```c++
 void setTotalProgress(GTweenNumber value);
 ```
-Set overall elapsed progress, not including delay time, but include repeat and repeat delay time. This is same as  *setTotalTime()(value * getTotalDuration());//  
+Set overall elapsed progress, not including delay time, but include repeat and repeat delay time. This is same as  
+*setTotalTime()(value * getTotalDuration());*  
 The value should be always between [0, 1]. If the value is smaller than 0, 0 will be used. If the value is larger than 1, 1 will be used.  
 If the tweenable is repeating infinitely, setting the total progress is undefined behavor.
 ```c++
