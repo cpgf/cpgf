@@ -130,7 +130,7 @@ private:
 
 	static constexpr bool ExplicitThis = (
 		PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
-		|| PolicyHasRule<Policy, GMetaRuleGetterExplicitThis>::Result
+		|| PolicyHasRule<Policy, GMetaRuleSetterExplicitThis>::Result
 	);
 
 public:
