@@ -4,11 +4,47 @@ cpgf library is a cross platform C++ library for callback, reflection, serializa
 
 It's written in standard C++ and doesn't require any preprocessor or tools.
 
+## This project is NOT continued, it will be replaced by substitute projects
+
+There will be substitute projects under development.  
+If you are looking for C++ reflection library, please [check metapp](https://github.com/wqking/metapp), that's from the same developer of cpgf.  
+If you are looking for the callback list feature in cpgf, please [check eventpp](https://github.com/wqking/eventpp), it's from the same develop of cpgf too.  
+A metapp based Lua binding project is under development as well.  
+
+### The problems in cpgf that it can't be continued
+
+**1, The project is too ambitious and is too large.**  
+
+Indeed cpgf is not a single library, it contains many libraries, such as,  
+
+- Callback and callback list
+- Variant
+- Reflection
+- Serialization
+- Lua script binding
+- Python script binding
+- V8 script binding
+- SpiderMonkey script binding
+- Meta data for various libraries
+- Meta data generating tool
+- Tweening library.
+
+Each component is already a very large library by itself. Putting them to a giant cpgf is not manageable even for big software companies.
+
+**2, I was too conservative on new technology.**  
+
+At the time I started the cpgf project, the latest C++ standard was C++03. And C++11 was already drafted, and was partially usable in the compilers. Especially, TR1 was there already.  
+I chose to stick to C++03, because I wanted my libraries be able to be used in as many as compilers.  
+That's another big mistake. The different between C++11 and pre-C++11 is nothing like C++03 and pre-03, or between C++14 and C++11. C++11 is a new era of C++.  
+
+### What will be in the substitute projects
+
+1. Each project will be small and only focus on one feature. For example, [metapp](https://github.com/wqking/metapp) will only focus on reflection feature, there will be no serialization, no script binding, under metapp.  
+2. All projects will be using at least C++11. Though C++11 is already old, I feel it's enough for most projects.  
+
+
 ## Documentations  
 [Documentations](doc/index.md)
-
-## Official website
-[http://www.cpgf.org/](http://www.cpgf.org/)
 
 ## Version
 1.6.1
